@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String   @id @default(uuid()) @db.Uuid
+  email                String   @unique @db.VarChar(255)
+  passwordHash         String?  @map("password_hash") @db.VarChar(255)
+  username             String   @unique @db.VarChar(50)
+  displayName          String?  @map("display_name") @db.VarChar(100)
+  bio                  String?
+  avatarUrl            String?  @map("avatar_url") @db.VarChar(500)
+  githubId             String?  @map("github_id") @db.VarChar(100)
+  githubUsername       String?  @map("github_username") @db.VarChar(100)
+  githubAccessToken    String?  @map("github_access_token") @db.VarChar(500)
+  websiteUrl           String?  @map("website_url") @db.VarChar(500)
+  twitterHandle        String?  @map("twitter_handle") @db.VarChar(100)
+  linkedinUrl          String?  @map("linkedin_url") @db.VarChar(500)
+  role                 String   @default("user") @db.VarChar(20)
+  plan                 String   @default("free") @db.VarChar(20)
+  stripeCustomerId     String?  @map("stripe_customer_id") @db.VarChar(100)
+  stripeSubscriptionId String?  @map("stripe_subscription_id") @db.VarChar(100)
+  onboardingCompleted  Boolean  @default(false) @map("onboarding_completed")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  graphs Graph[]
+
+  @@index([username])
+  @@map("users")
+}
+
+model Graph {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  title        String   @db.VarChar(200)
+  slug         String   @db.VarChar(200)
+  description  String?
+  isPublic     Boolean  @default(true) @map("is_public")
+  isPrimary    Boolean  @default(false) @map("is_primary")
+  theme        String   @default("cyberpunk") @db.VarChar(50)
+  customStyles Json     @default("{}") @map("custom_styles")
+  viewport     Json     @default("{}") @map("viewport")
+  viewCount    Int      @default(0) @map("view_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories   Category[]
+  nodes        Node[]
+  edges        Edge[]
+  profileViews ProfileView[]
+
+  @@unique([userId, slug])
+  @@index([userId])
+  @@map("graphs")
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  graphId   String   @map("graph_id") @db.Uuid
+  name      String   @db.VarChar(100)
+  color     String?  @db.VarChar(7)
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  graph Graph  @relation(fields: [graphId], references: [id], onDelete: Cascade)
+  nodes Node[]
+
+  @@map("categories")
+}
+
+model Node {
+  id         String   @id @default(uuid()) @db.Uuid
+  graphId    String   @map("graph_id") @db.Uuid
+  categoryId String?  @map("category_id") @db.Uuid
+  name       String   @db.VarChar(150)
+  description String?
+  level      String   @default("beginner") @db.VarChar(20)
+  nodeType   String   @default("skill") @map("node_type") @db.VarChar(30)
+  icon       String?  @db.VarChar(100)
+  positionX  Float    @default(0) @map("position_x")
+  positionY  Float    @default(0) @map("position_y")
+  customData Json     @default("{}") @map("custom_data")
+  isUnlocked Boolean  @default(true) @map("is_unlocked")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  graph       Graph     @relation(fields: [graphId], references: [id], onDelete: Cascade)
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  sourceEdges Edge[]    @relation("SourceNode")
+  targetEdges Edge[]    @relation("TargetNode")
+
+  @@index([graphId])
+  @@map("nodes")
+}
+
+model Edge {
+  id           String   @id @default(uuid()) @db.Uuid
+  graphId      String   @map("graph_id") @db.Uuid
+  sourceNodeId String   @map("source_node_id") @db.Uuid
+  targetNodeId String   @map("target_node_id") @db.Uuid
+  label        String?  @db.VarChar(100)
+  edgeType     String   @default("default") @map("edge_type") @db.VarChar(30)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  graph      Graph @relation(fields: [graphId], references: [id], onDelete: Cascade)
+  sourceNode Node  @relation("SourceNode", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode Node  @relation("TargetNode", fields: [targetNodeId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceNodeId, targetNodeId])
+  @@index([graphId])
+  @@map("edges")
+}
+
+model Template {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(200)
+  description String?
+  field       String?  @db.VarChar(100)
+  graphData   Json     @map("graph_data")
+  usageCount  Int      @default(0) @map("usage_count")
+  isFeatured  Boolean  @default(false) @map("is_featured")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("templates")
+}
+
+model ProfileView {
+  id           String   @id @default(uuid()) @db.Uuid
+  graphId      String   @map("graph_id") @db.Uuid
+  viewerIpHash String?  @map("viewer_ip_hash") @db.VarChar(64)
+  referrer     String?  @db.VarChar(500)
+  country      String?  @db.VarChar(5)
+  viewedAt     DateTime @default(now()) @map("viewed_at")
+
+  graph Graph @relation(fields: [graphId], references: [id], onDelete: Cascade)
+
+  @@index([graphId])
+  @@index([viewedAt])
+  @@map("profile_views")
+}

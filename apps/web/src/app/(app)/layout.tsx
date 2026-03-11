@@ -1,0 +1,290 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import {
+  LayoutDashboard,
+  Compass,
+  BookTemplate,
+  Settings,
+  LogOut,
+  PanelLeftClose,
+  PanelLeft,
+  Search,
+  Shield,
+  X,
+} from 'lucide-react';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useUIStore } from '@/stores/useUIStore';
+import { Avatar } from '@/components/ui/Avatar';
+import { Spinner } from '@/components/ui/Spinner';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { OnboardingProvider } from '@/components/onboarding';
+
+const navItems = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/explore', label: 'Explore', icon: Compass },
+  { href: '/templates', label: 'Templates', icon: BookTemplate },
+  { href: '/settings', label: 'Settings', icon: Settings },
+];
+
+const adminNavItem = { href: '/admin', label: 'Admin', icon: Shield };
+
+// Bottom nav items for mobile (subset)
+const bottomNavItems = [
+  { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
+  { href: '/explore', label: 'Explore', icon: Compass },
+  { href: '/templates', label: 'Templates', icon: BookTemplate },
+  { href: '/settings', label: 'Settings', icon: Settings },
+];
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { loading, user } = useAuthGuard();
+  const logout = useAuthStore((s) => s.logout);
+  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Hide bottom nav on editor pages (full-screen experience)
+  const isEditorPage = pathname.startsWith('/editor');
+
+  // Redirect to onboarding if user hasn't completed it
+  useEffect(() => {
+    if (!loading && user && !user.onboardingCompleted) {
+      router.replace('/onboarding');
+    }
+  }, [loading, user, router]);
+
+  // Close mobile menu on navigation
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Spinner size="lg" className="text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen bg-background flex overflow-hidden">
+      {/* Mobile overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        data-onboarding="sidebar"
+        className={`${
+          sidebarOpen ? 'w-64' : 'w-16'
+        } border-r border-border flex flex-col transition-all duration-200 shrink-0 
+        fixed md:relative z-50 h-full bg-surface
+        ${mobileMenuOpen ? 'translate-x-0 w-72 slide-in-left' : '-translate-x-full md:translate-x-0'}`}
+      >
+        <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+          {(sidebarOpen || mobileMenuOpen) && (
+            <Link href="/dashboard" className="text-lg font-bold text-gradient">
+              Skillgraph
+            </Link>
+          )}
+          {/* Close button for mobile */}
+          <button
+            onClick={() => {
+              if (mobileMenuOpen) {
+                setMobileMenuOpen(false);
+              } else {
+                toggleSidebar();
+              }
+            }}
+            className="p-2.5 rounded-lg hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label={
+              mobileMenuOpen ? 'Close menu' : sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'
+            }
+          >
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : sidebarOpen ? (
+              <PanelLeftClose className="w-5 h-5" />
+            ) : (
+              <PanelLeft className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+
+        <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
+          {navItems.map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                title={!sidebarOpen && !mobileMenuOpen ? item.label : undefined}
+                aria-label={!sidebarOpen && !mobileMenuOpen ? item.label : undefined}
+                data-onboarding={
+                  item.href === '/explore'
+                    ? 'explore'
+                    : item.href === '/templates'
+                      ? 'templates'
+                      : undefined
+                }
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
+                  isActive
+                    ? 'bg-primary/10 text-primary-400'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-surface-light active:bg-surface-light'
+                }`}
+              >
+                <item.icon className="w-5 h-5 shrink-0" />
+                {(sidebarOpen || mobileMenuOpen) && item.label}
+              </Link>
+            );
+          })}
+          {user?.role === 'admin' &&
+            (() => {
+              const isActive = pathname.startsWith(adminNavItem.href);
+              return (
+                <Link
+                  href={adminNavItem.href}
+                  title={!sidebarOpen && !mobileMenuOpen ? adminNavItem.label : undefined}
+                  aria-label={!sidebarOpen && !mobileMenuOpen ? adminNavItem.label : undefined}
+                  className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
+                    isActive
+                      ? 'bg-amber-500/10 text-amber-400'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-surface-light active:bg-surface-light'
+                  }`}
+                >
+                  <adminNavItem.icon className="w-5 h-5 shrink-0" />
+                  {(sidebarOpen || mobileMenuOpen) && adminNavItem.label}
+                </Link>
+              );
+            })()}
+        </nav>
+
+        {/* User section */}
+        <div className="p-2 border-t border-border space-y-1">
+          {(sidebarOpen || mobileMenuOpen) && user && (
+            <div className="flex items-center gap-3 px-3 py-2.5">
+              <Avatar fallback={user.displayName || user.username} size="sm" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{user.displayName || user.username}</p>
+                <p className="text-xs text-muted truncate">{user.email}</p>
+              </div>
+            </div>
+          )}
+          <button
+            onClick={logout}
+            title={!sidebarOpen && !mobileMenuOpen ? 'Sign out' : undefined}
+            aria-label={!sidebarOpen && !mobileMenuOpen ? 'Sign out' : undefined}
+            className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-surface-light active:bg-surface-light transition-colors w-full min-h-[44px]"
+          >
+            <LogOut className="w-5 h-5 shrink-0" />
+            {(sidebarOpen || mobileMenuOpen) && 'Sign out'}
+          </button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top bar */}
+        <header className="h-14 border-b border-border flex items-center px-3 sm:px-6 gap-2 shrink-0">
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-2.5 rounded-lg hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Open menu"
+          >
+            <PanelLeft className="w-5 h-5" />
+          </button>
+          <div className="flex-1" />
+          <button
+            data-onboarding="search"
+            onClick={() => {
+              // Trigger CMD+K
+              window.dispatchEvent(
+                new KeyboardEvent('keydown', { key: 'k', metaKey: true, ctrlKey: true }),
+              );
+            }}
+            className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-xs text-muted hover:text-muted-foreground hover:border-border-light transition-colors min-h-[36px]"
+          >
+            <Search className="w-3.5 h-3.5" />
+            Search...
+            <kbd className="ml-2 text-[10px] bg-surface-light px-1.5 py-0.5 rounded border border-border">
+              {typeof navigator !== 'undefined' && /Mac/.test(navigator.userAgent)
+                ? '⌘K'
+                : 'Ctrl+K'}
+            </kbd>
+          </button>
+          {/* Mobile search button */}
+          <button
+            onClick={() => {
+              window.dispatchEvent(
+                new KeyboardEvent('keydown', { key: 'k', metaKey: true, ctrlKey: true }),
+              );
+            }}
+            className="sm:hidden p-2.5 rounded-lg hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Search"
+          >
+            <Search className="w-5 h-5" />
+          </button>
+          <ThemeToggle />
+        </header>
+
+        <main className={`flex-1 overflow-auto ${!isEditorPage ? 'pb-16 md:pb-0' : ''}`}>
+          {children}
+        </main>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      {!isEditorPage && (
+        <nav
+          className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-surface/95 backdrop-blur-lg border-t border-border safe-bottom"
+          aria-label="Mobile navigation"
+        >
+          <div className="flex items-center justify-around h-14">
+            {bottomNavItems.map((item) => {
+              const isActive = pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] transition-colors ${
+                    isActive ? 'text-primary' : 'text-muted-foreground active:text-foreground'
+                  }`}
+                  aria-label={item.label}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <item.icon className={`w-5 h-5 ${isActive ? 'text-primary' : ''}`} />
+                  <span className={`text-[10px] font-medium ${isActive ? 'text-primary' : ''}`}>
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+
+      <OnboardingProvider />
+    </div>
+  );
+}

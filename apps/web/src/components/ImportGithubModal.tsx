@@ -46,11 +46,13 @@ export function ImportGithubModal({ open, onClose, onImport }: ImportGithubModal
       setLoading(true);
       setSelected(new Set());
       setSearch('');
+      let cancelled = false;
       api
         .get<GithubRepo[]>('/github/repos')
-        .then((res) => setRepos(res.data))
-        .catch(() => setRepos([]))
-        .finally(() => setLoading(false));
+        .then((res) => { if (!cancelled) setRepos(res.data); })
+        .catch(() => { if (!cancelled) setRepos([]); })
+        .finally(() => { if (!cancelled) setLoading(false); });
+      return () => { cancelled = true; };
     }
   }, [open, user?.githubUsername]);
 
@@ -137,6 +139,8 @@ export function ImportGithubModal({ open, onClose, onImport }: ImportGithubModal
               <button
                 key={repo.id}
                 onClick={() => toggle(repo.id)}
+                role="checkbox"
+                aria-checked={selected.has(repo.id)}
                 className={`w-full flex items-start gap-3 p-3 rounded-lg text-left transition-colors ${
                   selected.has(repo.id)
                     ? 'bg-primary/10 border border-primary/30'

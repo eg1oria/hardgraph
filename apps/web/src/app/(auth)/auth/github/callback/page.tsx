@@ -14,6 +14,12 @@ function GitHubCallbackContent() {
 
   useEffect(() => {
     const token = searchParams.get('token');
+    const oauthError = searchParams.get('error');
+
+    if (oauthError) {
+      setError(oauthError);
+      return;
+    }
 
     if (!token) {
       setError('Authentication failed — no token received');

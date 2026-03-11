@@ -94,6 +94,7 @@ export function CategoryManager() {
                 key={c}
                 type="button"
                 onClick={() => setNewColor(c)}
+                aria-label={`Select color ${c}`}
                 className={`w-5 h-5 rounded-full border-2 transition-all ${
                   newColor === c
                     ? 'border-foreground scale-110'

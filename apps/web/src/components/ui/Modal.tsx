@@ -108,7 +108,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       <div
         ref={contentRef}
         className={cn(
-          'relative w-full max-w-md mx-4 p-5 sm:p-6 rounded-xl bg-surface border border-border shadow-2xl animate-fade-in max-h-[90vh] overflow-y-auto',
+          'relative w-full max-w-md mx-4 p-5 sm:p-6 rounded-xl bg-surface border border-border shadow-2xl animate-fade-in max-h-[min(90vh,calc(100dvh-2rem))] overflow-y-auto',
           className,
         )}
       >

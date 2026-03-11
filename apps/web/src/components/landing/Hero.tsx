@@ -10,9 +10,9 @@ interface MousePosition {
 
 export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [mouse, setMouse] = useState<MousePosition>({ x: 0, y: 0 });
   const [smoothMouse, setSmoothMouse] = useState<MousePosition>({ x: 0, y: 0 });
   const animationRef = useRef<number>();
+  const mouseRef = useRef<MousePosition>({ x: 0, y: 0 });
 
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
@@ -26,26 +26,25 @@ export function Hero() {
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
 
-      // Normalize to -1 to 1 range, centered
       const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
       const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-      setMouse({ x, y });
+      mouseRef.current = { x, y };
     },
     [isTouchDevice],
   );
 
   const handleMouseLeave = useCallback(() => {
-    setMouse({ x: 0, y: 0 });
+    mouseRef.current = { x: 0, y: 0 };
   }, []);
 
-  // Smooth lerp animation for fluid motion
+  // Single persistent RAF loop — reads mouseRef directly, no re-renders on mouse move
   useEffect(() => {
     const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
 
     const animate = () => {
       setSmoothMouse((prev) => ({
-        x: lerp(prev.x, mouse.x, 0.08),
-        y: lerp(prev.y, mouse.y, 0.08),
+        x: lerp(prev.x, mouseRef.current.x, 0.08),
+        y: lerp(prev.y, mouseRef.current.y, 0.08),
       }));
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -54,7 +53,7 @@ export function Hero() {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [mouse]);
+  }, []);
 
   // Parallax offsets per tier (deeper nodes move more = depth illusion)
   const tier0 = { x: smoothMouse.x * -3, y: smoothMouse.y * -3 };

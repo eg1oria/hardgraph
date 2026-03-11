@@ -31,6 +31,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         'Unhandled exception',
         exception instanceof Error ? exception.stack : exception,
       );
+      // Don't expose internal error details to client
+      message = 'Internal server error';
     }
 
     response.status(status).json({

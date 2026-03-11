@@ -35,13 +35,14 @@ import { AddNodeModal } from '@/components/editor/AddNodeModal';
 import { CategoryManager } from '@/components/editor/CategoryManager';
 import { ImportGithubModal } from '@/components/ImportGithubModal';
 import { NODE_COLORS } from '@/lib/constants';
+import type { SkillLevel } from '@/lib/constants';
 
 export default function EditorPage() {
   const { graphId } = useParams<{ graphId: string }>();
   const router = useRouter();
   const { toast } = useToast();
   const { loading, error, saveGraph } = useGraph(graphId);
-  const { createNode, editNode, deleteNode } = useNodes();
+  const { createNode, editNode, deleteNode, evolveNode } = useNodes();
   const { deleteEdge } = useEdges();
 
   const user = useAuthStore((s) => s.user);
@@ -182,6 +183,13 @@ export default function EditorPage() {
       deleteNode(id);
     },
     [deleteNode],
+  );
+
+  const handleEvolveNode = useCallback(
+    (id: string) => {
+      evolveNode(id);
+    },
+    [evolveNode],
   );
 
   const handleDeleteSelectedEdge = useCallback(() => {
@@ -467,7 +475,7 @@ export default function EditorPage() {
                     Properties
                   </h3>
                 </div>
-                <NodeDetailPanel onUpdate={handleUpdateNode} onDelete={handleDeleteNode} />
+                <NodeDetailPanel onUpdate={handleUpdateNode} onDelete={handleDeleteNode} onEvolve={handleEvolveNode} />
               </div>
               <div className="p-4 border-b border-border">
                 <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
@@ -495,7 +503,7 @@ export default function EditorPage() {
                         <div
                           className="w-2 h-2 rounded-full shrink-0"
                           style={{
-                            backgroundColor: NODE_COLORS[node.level] ?? '#6366F1',
+                            backgroundColor: NODE_COLORS[node.level as SkillLevel] ?? '#6366F1',
                           }}
                         />
                         <span className="truncate">{node.name}</span>
@@ -522,7 +530,7 @@ export default function EditorPage() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <NodeDetailPanel onUpdate={handleUpdateNode} onDelete={handleDeleteNode} />
+              <NodeDetailPanel onUpdate={handleUpdateNode} onDelete={handleDeleteNode} onEvolve={handleEvolveNode} />
             </div>
           )}
 
@@ -574,7 +582,7 @@ export default function EditorPage() {
                           <div
                             className="w-2.5 h-2.5 rounded-full shrink-0"
                             style={{
-                              backgroundColor: NODE_COLORS[node.level] ?? '#6366F1',
+                              backgroundColor: NODE_COLORS[node.level as SkillLevel] ?? '#6366F1',
                             }}
                           />
                           <span className="truncate">{node.name}</span>

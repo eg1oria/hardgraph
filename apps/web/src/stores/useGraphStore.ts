@@ -14,6 +14,7 @@ export interface GraphNode {
   positionX: number;
   positionY: number;
   categoryId?: string;
+  parentIdeaId?: string | null;
   isUnlocked: boolean;
   customData?: Record<string, unknown>;
 }
@@ -83,7 +84,7 @@ export function toRFEdges(edges: GraphEdge[]): Edge[] {
     id: e.id,
     source: e.sourceNodeId,
     target: e.targetNodeId,
-    type: 'skill',
+    type: e.edgeType === 'evolution' ? 'evolution' : 'skill',
     label: e.label,
     data: { edgeType: e.edgeType },
   }));

@@ -1,19 +1,21 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Trash2, X, ExternalLink } from 'lucide-react';
+import { Trash2, X, ExternalLink, GitBranch } from 'lucide-react';
 import { useGraphStore, type GraphNode } from '@/stores/useGraphStore';
 import { SKILL_LEVELS, NODE_COLORS } from '@/lib/constants';
 import { HashtagText } from '@/components/graph/HashtagText';
 import { useHashtagNavigation } from '@/hooks/useHashtagNavigation';
 import { hasHashtags } from '@/lib/hashtag-parser';
+import { EvolutionTimeline } from '@/components/graph/EvolutionTimeline';
 
 interface NodeDetailPanelProps {
   onUpdate: (id: string, data: Partial<GraphNode>) => void;
   onDelete: (id: string) => void;
+  onEvolve?: (id: string) => void;
 }
 
-export function NodeDetailPanel({ onUpdate, onDelete }: NodeDetailPanelProps) {
+export function NodeDetailPanel({ onUpdate, onDelete, onEvolve }: NodeDetailPanelProps) {
   const selectedNodeId = useGraphStore((s) => s.selectedNodeId);
   const nodes = useGraphStore((s) => s.nodes);
   const categories = useGraphStore((s) => s.categories);
@@ -181,6 +183,22 @@ export function NodeDetailPanel({ onUpdate, onDelete }: NodeDetailPanelProps) {
             </div>
           );
         })()}
+
+      {/* Evolve Idea */}
+      {onEvolve && node.nodeType !== 'repository' && (
+        <div>
+          <button
+            onClick={() => onEvolve(node.id)}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium text-purple-400 hover:bg-purple-500/10 border border-purple-500/20 hover:border-purple-500/30 transition-all"
+          >
+            <GitBranch className="w-3.5 h-3.5" />
+            Evolve Idea
+          </button>
+        </div>
+      )}
+
+      {/* Evolution Timeline */}
+      {node && <EvolutionTimeline nodeId={node.id} />}
 
       {/* Delete */}
       <div className="pt-2 border-t border-border">

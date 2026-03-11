@@ -1,11 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import {
-  PanelLeft,
-  Plus,
-  BookTemplate,
-  Search,
-  Compass,
-} from 'lucide-react';
+import { PanelLeft, Plus, BookTemplate, Search, Compass } from 'lucide-react';
 
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
 

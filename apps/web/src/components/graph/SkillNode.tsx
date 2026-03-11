@@ -5,18 +5,28 @@ import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { ChevronsUp } from 'lucide-react';
 import type { SkillNodeData } from '@/stores/useGraphStore';
 import { NODE_COLORS } from '@/lib/constants';
+import type { SkillLevel } from '@/lib/constants';
 import { useGraphStore } from '@/stores/useGraphStore';
 import { HashtagText } from '@/components/graph/HashtagText';
 
 function SkillNodeComponent({ id, data, selected }: NodeProps) {
   const d = data as SkillNodeData;
   const setSelectedNode = useGraphStore((s) => s.setSelectedNode);
-  const borderColor = d.categoryColor ?? NODE_COLORS[d.level] ?? '#6366F1';
+  const borderColor = d.categoryColor ?? NODE_COLORS[d.level as SkillLevel] ?? '#6366F1';
 
   return (
     <div
       onClick={() => setSelectedNode(id)}
-      className={`group relative px-4 py-3 rounded-xl border-2 bg-surface min-w-[120px] max-w-[200px] transition-all cursor-pointer select-none ${
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setSelectedNode(id);
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      aria-label={`Node: ${d.name}`}
+      className={`group relative px-4 py-3 rounded-xl border-2 bg-surface min-w-[120px] max-w-[200px] transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
         selected
           ? 'shadow-lg shadow-primary/20 scale-105'
           : 'hover:shadow-md hover:shadow-primary/10 active:scale-[0.97]'
@@ -44,7 +54,7 @@ function SkillNodeComponent({ id, data, selected }: NodeProps) {
       <div className="flex items-center gap-1.5 mt-2">
         <span
           className="w-1 h-1 rounded-full"
-          style={{ backgroundColor: NODE_COLORS[d.level] ?? '#6366F1' }}
+          style={{ backgroundColor: NODE_COLORS[d.level as SkillLevel] ?? '#6366F1' }}
         />
         <span className="text-[10px] text-muted capitalize">{d.level}</span>
       </div>

@@ -35,6 +35,9 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  if (params.username.includes('.')) {
+    return { title: 'Not Found — Skillgraph' };
+  }
   try {
     const profile = await fetchPublic<PublicProfile>(`/users/${params.username}`);
     const name = profile.displayName || profile.username;
@@ -52,6 +55,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PublicProfilePage({ params }: Props) {
+  // Reject non-username paths (e.g. favicon.ico, robots.txt) that leak into dynamic route
+  if (params.username.includes('.')) {
+    notFound();
+  }
+
   let profile: PublicProfile;
   try {
     profile = await fetchPublic<PublicProfile>(`/users/${params.username}`);

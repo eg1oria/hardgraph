@@ -84,8 +84,7 @@ export class GraphsService {
   }
 
   async update(id: string, userId: string, dto: UpdateGraphDto) {
-    const graph = await this.findById(id);
-    if (graph.userId !== userId) throw new ForbiddenException();
+    await this.verifyOwnership(id, userId);
 
     const data: Record<string, unknown> = { ...dto };
     if (dto.title) {
@@ -100,9 +99,18 @@ export class GraphsService {
   }
 
   async remove(id: string, userId: string) {
-    const graph = await this.findById(id);
-    if (graph.userId !== userId) throw new ForbiddenException();
+    await this.verifyOwnership(id, userId);
     return this.prisma.graph.delete({ where: { id } });
+  }
+
+  /** Lightweight ownership check — does NOT load nodes/edges/categories */
+  private async verifyOwnership(id: string, userId: string) {
+    const graph = await this.prisma.graph.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+    if (!graph) throw new NotFoundException('Graph not found');
+    if (graph.userId !== userId) throw new ForbiddenException();
   }
 
   private async ensureUniqueSlug(
@@ -110,21 +118,22 @@ export class GraphsService {
     baseSlug: string,
     excludeId?: string,
   ): Promise<string> {
-    let slug = baseSlug;
-    let counter = 0;
-    const maxAttempts = 100;
+    // Single query: fetch all slugs matching the base pattern
+    const existing = await this.prisma.graph.findMany({
+      where: {
+        userId,
+        slug: { startsWith: baseSlug },
+        ...(excludeId ? { id: { not: excludeId } } : {}),
+      },
+      select: { slug: true },
+    });
 
-    while (counter <= maxAttempts) {
-      const existing = await this.prisma.graph.findFirst({
-        where: {
-          userId,
-          slug,
-          ...(excludeId ? { id: { not: excludeId } } : {}),
-        },
-      });
-      if (!existing) return slug;
-      counter++;
-      slug = `${baseSlug}-${counter}`;
+    const existingSlugs = new Set(existing.map((g) => g.slug));
+    if (!existingSlugs.has(baseSlug)) return baseSlug;
+
+    for (let i = 1; i <= 100; i++) {
+      const candidate = `${baseSlug}-${i}`;
+      if (!existingSlugs.has(candidate)) return candidate;
     }
 
     // Fallback: append timestamp to guarantee uniqueness

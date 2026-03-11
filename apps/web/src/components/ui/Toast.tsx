@@ -22,6 +22,8 @@ export function useToast() {
   return useContext(ToastContext);
 }
 
+let toastCounter = 0;
+
 const icons: Record<ToastVariant, typeof CheckCircle2> = {
   success: CheckCircle2,
   error: AlertCircle,
@@ -38,7 +40,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const addToast = useCallback((message: string, variant: ToastVariant = 'info') => {
-    const id = crypto.randomUUID();
+    const id = `toast-${++toastCounter}`;
     setToasts((prev) => [...prev, { id, message, variant }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));

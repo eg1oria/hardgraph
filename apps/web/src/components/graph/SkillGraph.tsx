@@ -14,6 +14,7 @@ import { useGraphStore } from '@/stores/useGraphStore';
 import { SkillNode } from './SkillNode';
 import { RepoNode } from './RepoNode';
 import { SkillEdge } from './SkillEdge';
+import { EvolutionEdge } from './EvolutionEdge';
 import { GraphControls } from './GraphControls';
 import { MiniMap } from './MiniMap';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -25,6 +26,7 @@ const nodeTypes: NodeTypes = {
 
 const edgeTypes: EdgeTypes = {
   skill: SkillEdge,
+  evolution: EvolutionEdge,
 };
 
 export function SkillGraph({ readonly }: { readonly?: boolean } = {}) {
@@ -52,6 +54,7 @@ export function SkillGraph({ readonly }: { readonly?: boolean } = {}) {
   );
 
   const defaultEdgeOptions = useMemo(() => ({ type: 'skill', animated: false }), []);
+  const fitViewOpts = useMemo(() => ({ padding: 0.3 }), []);
 
   return (
     <div className="w-full h-full">
@@ -69,7 +72,7 @@ export function SkillGraph({ readonly }: { readonly?: boolean } = {}) {
         nodesConnectable={!readonly}
         elementsSelectable
         fitView
-        fitViewOptions={{ padding: 0.3 }}
+        fitViewOptions={fitViewOpts}
         proOptions={{ hideAttribution: true }}
         className="bg-background"
       >

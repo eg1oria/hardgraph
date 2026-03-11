@@ -51,8 +51,32 @@ async function bootstrap() {
   }
 
   const port = config.get<number>('API_PORT', 4000);
-  await app.listen(port, '0.0.0.0');
-  console.log(`Skillgraph API running on port ${port} [${isProd ? 'production' : 'development'}]`);
+  const host = config.get<string>('API_HOST', 'localhost');
+  await app.listen(port, host);
+  console.log(
+    `Skillgraph API running on ${host}:${port} [${isProd ? 'production' : 'development'}]`,
+  );
+
+  // Validate GitHub OAuth env vars at startup
+  const ghClientId = config.get<string>('GITHUB_CLIENT_ID');
+  const ghClientSecret = config.get<string>('GITHUB_CLIENT_SECRET');
+  const ghCallbackUrl = config.get<string>('GITHUB_CALLBACK_URL');
+  if (!ghClientId || !ghClientSecret) {
+    console.warn(
+      '[OAuth] WARNING: GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET is not set — GitHub login will fail.',
+    );
+  } else {
+    console.log(
+      `[OAuth] GitHub OAuth: clientID=${ghClientId.slice(0, 4)}..., callbackURL=${ghCallbackUrl || '(default)'}`,
+    );
+  }
+
+  const frontendUrl = config.get<string>('NEXT_PUBLIC_APP_URL');
+  if (!frontendUrl) {
+    console.warn(
+      '[OAuth] WARNING: NEXT_PUBLIC_APP_URL is not set — OAuth redirects will use http://localhost:3000',
+    );
+  }
 }
 
 bootstrap();

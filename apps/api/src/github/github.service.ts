@@ -35,7 +35,7 @@ export class GithubService {
     };
 
     const url = `https://api.github.com/user/repos?type=public&sort=updated&per_page=100`;
-    const response = await fetch(url, { headers });
+    const response = await fetch(url, { headers, signal: AbortSignal.timeout(10000) });
 
     if (!response.ok) {
       throw new BadRequestException('Failed to fetch GitHub repositories');
@@ -65,6 +65,7 @@ export class GithubService {
         Accept: 'application/vnd.github.v3+json',
         'User-Agent': 'Skillgraph-App',
       },
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) {

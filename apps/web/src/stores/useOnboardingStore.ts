@@ -50,8 +50,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
 
   start: () => set({ isActive: true, currentStep: 0 }),
 
-  next: () =>
-    set((state) => ({ currentStep: state.currentStep + 1 })),
+  next: () => set((state) => ({ currentStep: state.currentStep + 1 })),
 
   prev: () =>
     set((state) => ({

@@ -17,7 +17,16 @@ function RepoNodeComponent({ id, data, selected }: NodeProps) {
   return (
     <div
       onClick={() => setSelectedNode(id)}
-      className={`group relative px-4 py-3 rounded-xl border-2 bg-surface min-w-[120px] max-w-[220px] transition-all cursor-pointer select-none ${
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setSelectedNode(id);
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      aria-label={`Repository: ${name}`}
+      className={`group relative px-4 py-3 rounded-xl border-2 bg-surface min-w-[120px] max-w-[220px] transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${
         selected
           ? 'border-purple-400 shadow-lg shadow-purple-500/20 scale-105'
           : 'border-purple-500/40 hover:border-purple-400/60 hover:shadow-md hover:shadow-purple-500/10 active:scale-[0.97]'

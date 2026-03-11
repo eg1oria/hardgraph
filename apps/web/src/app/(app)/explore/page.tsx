@@ -28,17 +28,24 @@ export default function ExplorePage() {
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
+  const loadGraphs = () => {
+    setLoading(true);
+    setError(false);
     api
       .get<ExploreGraph[]>('/graphs/explore')
       .then((res) => {
         setGraphs(res.data);
-        setLoading(false);
       })
       .catch(() => {
         setError(true);
+      })
+      .finally(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadGraphs();
   }, []);
 
   const filtered = graphs.filter(
@@ -82,7 +89,7 @@ export default function ExplorePage() {
         <div className="text-center py-20 text-muted-foreground">
           <Compass className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="mb-3">Failed to load skill trees</p>
-          <button onClick={() => window.location.reload()} className="btn-secondary text-sm">
+          <button onClick={loadGraphs} className="btn-secondary text-sm">
             Try again
           </button>
         </div>

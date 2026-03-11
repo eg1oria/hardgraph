@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, LayoutDashboard, Compass, BookTemplate, Settings, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -52,9 +52,13 @@ export function CommandPalette() {
     },
   ];
 
-  const filtered = query
-    ? commands.filter((c) => c.label.toLowerCase().includes(query.toLowerCase()))
-    : commands;
+  const filtered = useMemo(
+    () =>
+      query
+        ? commands.filter((c) => c.label.toLowerCase().includes(query.toLowerCase()))
+        : commands,
+    [query, commands],
+  );
 
   // Reset index when filter changes
   useEffect(() => {
@@ -126,7 +130,7 @@ export function CommandPalette() {
             ESC
           </kbd>
         </div>
-        <div className="max-h-64 overflow-y-auto p-2" role="listbox">
+        <div className="max-h-64 overflow-y-auto p-2" role="listbox" aria-label="Commands">
           {filtered.length === 0 ? (
             <div className="p-4 text-center text-sm text-muted">No commands found</div>
           ) : (

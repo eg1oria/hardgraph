@@ -58,6 +58,7 @@ model Graph {
 
   @@unique([userId, slug])
   @@index([userId])
+  @@index([isPublic, createdAt])
   @@map("graphs")
 }
 
@@ -72,31 +73,37 @@ model Category {
   graph Graph  @relation(fields: [graphId], references: [id], onDelete: Cascade)
   nodes Node[]
 
+  @@index([graphId])
   @@map("categories")
 }
 
 model Node {
-  id         String   @id @default(uuid()) @db.Uuid
-  graphId    String   @map("graph_id") @db.Uuid
-  categoryId String?  @map("category_id") @db.Uuid
-  name       String   @db.VarChar(150)
-  description String?
-  level      String   @default("beginner") @db.VarChar(20)
-  nodeType   String   @default("skill") @map("node_type") @db.VarChar(30)
-  icon       String?  @db.VarChar(100)
-  positionX  Float    @default(0) @map("position_x")
-  positionY  Float    @default(0) @map("position_y")
-  customData Json     @default("{}") @map("custom_data")
-  isUnlocked Boolean  @default(true) @map("is_unlocked")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id            String   @id @default(uuid()) @db.Uuid
+  graphId       String   @map("graph_id") @db.Uuid
+  categoryId    String?  @map("category_id") @db.Uuid
+  parentIdeaId  String?  @map("parent_idea_id") @db.Uuid
+  name          String   @db.VarChar(150)
+  description   String?
+  level         String   @default("beginner") @db.VarChar(20)
+  nodeType      String   @default("skill") @map("node_type") @db.VarChar(30)
+  icon          String?  @db.VarChar(100)
+  positionX     Float    @default(0) @map("position_x")
+  positionY     Float    @default(0) @map("position_y")
+  customData    Json     @default("{}") @map("custom_data")
+  isUnlocked    Boolean  @default(true) @map("is_unlocked")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
-  graph       Graph     @relation(fields: [graphId], references: [id], onDelete: Cascade)
-  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  sourceEdges Edge[]    @relation("SourceNode")
-  targetEdges Edge[]    @relation("TargetNode")
+  graph         Graph     @relation(fields: [graphId], references: [id], onDelete: Cascade)
+  category      Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  parentIdea    Node?     @relation("IdeaEvolution", fields: [parentIdeaId], references: [id], onDelete: SetNull)
+  childIdeas    Node[]    @relation("IdeaEvolution")
+  sourceEdges   Edge[]    @relation("SourceNode")
+  targetEdges   Edge[]    @relation("TargetNode")
 
   @@index([graphId])
+  @@index([categoryId])
+  @@index([parentIdeaId])
   @@map("nodes")
 }
 

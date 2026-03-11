@@ -18,6 +18,7 @@ export interface SkillNode {
   id: string;
   graphId: string;
   categoryId?: string;
+  parentIdeaId?: string | null;
   name: string;
   description?: string;
   level: 'beginner' | 'intermediate' | 'advanced' | 'expert';

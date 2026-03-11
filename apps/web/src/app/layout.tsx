@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
 import './globals.css';
@@ -7,6 +7,17 @@ const inter = Inter({
   subsets: ['latin', 'cyrillic'],
   variable: '--font-inter',
 });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f4f5f7' },
+    { media: '(prefers-color-scheme: dark)', color: '#0A0A0F' },
+  ],
+};
 
 export const metadata: Metadata = {
   title: 'Skillgraph — Visualize Your Skills',
@@ -17,16 +28,6 @@ export const metadata: Metadata = {
     description: 'Create beautiful interactive skill trees.',
     type: 'website',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    viewportFit: 'cover',
-  },
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f4f5f7' },
-    { media: '(prefers-color-scheme: dark)', color: '#0A0A0F' },
-  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

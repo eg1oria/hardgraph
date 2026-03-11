@@ -59,7 +59,7 @@ export function NodeDetailPanel({ onUpdate, onDelete }: NodeDetailPanelProps) {
         <h3 className="text-sm font-semibold">Node Properties</h3>
         <button
           onClick={() => useGraphStore.getState().setSelectedNode(null)}
-          className="p-1.5 rounded-md hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors min-w-[30px] min-h-[30px]"
+          className="p-2 rounded-md hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Close properties"
         >
           <X className="w-3.5 h-3.5" />
@@ -70,7 +70,7 @@ export function NodeDetailPanel({ onUpdate, onDelete }: NodeDetailPanelProps) {
       <div>
         <label className="block text-xs text-muted-foreground mb-1">Name</label>
         <input
-          className="input-field !text-sm"
+          className="input-field"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onBlur={handleBlurSave}
@@ -81,7 +81,7 @@ export function NodeDetailPanel({ onUpdate, onDelete }: NodeDetailPanelProps) {
       <div>
         <label className="block text-xs text-muted-foreground mb-1">Description</label>
         <textarea
-          className="input-field !text-sm resize-none"
+          className="input-field resize-none"
           rows={3}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -128,7 +128,7 @@ export function NodeDetailPanel({ onUpdate, onDelete }: NodeDetailPanelProps) {
         <div>
           <label className="block text-xs text-muted-foreground mb-1">Category</label>
           <select
-            className="input-field !text-sm"
+            className="input-field"
             value={categoryId}
             onChange={(e) => {
               setCategoryId(e.target.value);

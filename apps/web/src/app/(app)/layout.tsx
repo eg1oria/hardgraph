@@ -77,14 +77,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-dvh bg-background flex items-center justify-center">
         <Spinner size="lg" className="text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-background flex overflow-hidden">
+    <div className="h-dvh bg-background flex overflow-hidden">
       {/* Mobile overlay */}
       {mobileMenuOpen && (
         <div
@@ -97,11 +97,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside
         data-onboarding="sidebar"
-        className={`${
-          sidebarOpen ? 'w-64' : 'w-16'
-        } border-r border-border flex flex-col transition-all duration-200 shrink-0 
+        className={`border-r border-border flex flex-col transition-all duration-200 shrink-0 
         fixed md:relative z-50 h-full bg-surface
-        ${mobileMenuOpen ? 'translate-x-0 w-72 slide-in-left' : '-translate-x-full md:translate-x-0'}`}
+        ${mobileMenuOpen ? 'translate-x-0 w-72 slide-in-left' : '-translate-x-full md:translate-x-0'}
+        ${!mobileMenuOpen ? (sidebarOpen ? 'md:w-64' : 'md:w-16') : ''}`}
       >
         <div className="h-16 flex items-center justify-between px-4 border-b border-border">
           {(sidebarOpen || mobileMenuOpen) && (
@@ -249,7 +248,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <ThemeToggle />
         </header>
 
-        <main className={`flex-1 overflow-auto ${!isEditorPage ? 'pb-16 md:pb-0' : ''}`}>
+        <main
+          className={`flex-1 ${isEditorPage ? 'overflow-hidden' : 'overflow-auto pb-16 md:pb-0'}`}
+        >
           {children}
         </main>
       </div>

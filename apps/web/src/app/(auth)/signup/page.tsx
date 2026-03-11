@@ -74,7 +74,7 @@ export default function SignupPage() {
             value={form.displayName}
             onChange={(e) => updateField('displayName', e.target.value)}
             autoComplete="name"
-            className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-foreground transition-colors"
+            className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-base sm:text-sm text-foreground transition-colors"
             placeholder="John Doe"
           />
         </div>
@@ -93,7 +93,7 @@ export default function SignupPage() {
             onChange={(e) => updateField('username', e.target.value)}
             required
             autoComplete="username"
-            className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-foreground transition-colors"
+            className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-base sm:text-sm text-foreground transition-colors"
             placeholder="johndoe"
           />
         </div>
@@ -112,7 +112,7 @@ export default function SignupPage() {
             onChange={(e) => updateField('email', e.target.value)}
             required
             autoComplete="email"
-            className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-foreground transition-colors"
+            className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-base sm:text-sm text-foreground transition-colors"
             placeholder="you@example.com"
           />
         </div>
@@ -132,7 +132,7 @@ export default function SignupPage() {
             required
             minLength={8}
             autoComplete="new-password"
-            className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-foreground transition-colors"
+            className="w-full px-4 py-2.5 rounded-lg bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-base sm:text-sm text-foreground transition-colors"
             placeholder="••••••••"
           />
         </div>

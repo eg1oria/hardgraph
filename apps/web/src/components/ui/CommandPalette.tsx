@@ -120,7 +120,7 @@ export function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Type a command..."
-            className="flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted"
+            className="flex-1 bg-transparent py-3.5 text-base sm:text-sm outline-none placeholder:text-muted"
           />
           <kbd className="text-[10px] text-muted bg-surface-light px-1.5 py-0.5 rounded border border-border">
             ESC

@@ -64,8 +64,7 @@ function getArrowClasses(placement: TooltipPlacement): string {
 }
 
 export function OnboardingOverlay() {
-  const { isActive, currentStep, next, prev, skip, complete } =
-    useOnboardingStore();
+  const { isActive, currentStep, next, prev, skip, complete } = useOnboardingStore();
   const [targetRect, setTargetRect] = useState<Position | null>(null);
   const [tooltipSize, setTooltipSize] = useState({ width: 360, height: 200 });
   const [isAnimating, setIsAnimating] = useState(false);
@@ -243,7 +242,7 @@ export function OnboardingOverlay() {
       <div
         ref={tooltipRef}
         className={cn(
-          'absolute w-[360px] bg-surface border border-border rounded-xl shadow-2xl shadow-black/25',
+          'absolute w-[calc(100vw-24px)] sm:w-[360px] max-w-[360px] bg-surface border border-border rounded-xl shadow-2xl shadow-black/25',
           isAnimating ? 'onboarding-tooltip-enter' : 'onboarding-tooltip-idle',
         )}
         style={{
@@ -267,9 +266,7 @@ export function OnboardingOverlay() {
             <StepIcon className="w-4.5 h-4.5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-foreground leading-tight">
-              {step.title}
-            </h3>
+            <h3 className="text-sm font-semibold text-foreground leading-tight">{step.title}</h3>
             <p className="text-xs text-muted mt-0.5">
               Шаг {currentStep + 1} из {totalSteps}
             </p>
@@ -285,9 +282,7 @@ export function OnboardingOverlay() {
 
         {/* Body */}
         <div className="px-5 pb-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {step.description}
-          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
         </div>
 
         {/* Progress dots */}

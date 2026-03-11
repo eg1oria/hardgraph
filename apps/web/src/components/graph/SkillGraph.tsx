@@ -1,7 +1,13 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { ReactFlow, Background, type NodeTypes, type EdgeTypes, type NodeChange } from '@xyflow/react';
+import {
+  ReactFlow,
+  Background,
+  type NodeTypes,
+  type EdgeTypes,
+  type NodeChange,
+} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useGraphStore } from '@/stores/useGraphStore';
@@ -10,6 +16,7 @@ import { RepoNode } from './RepoNode';
 import { SkillEdge } from './SkillEdge';
 import { GraphControls } from './GraphControls';
 import { MiniMap } from './MiniMap';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const nodeTypes: NodeTypes = {
   skill: SkillNode,
@@ -21,6 +28,7 @@ const edgeTypes: EdgeTypes = {
 };
 
 export function SkillGraph({ readonly }: { readonly?: boolean } = {}) {
+  const isMobile = useIsMobile(1024);
   const rfNodes = useGraphStore((s) => s.rfNodes);
   const rfEdges = useGraphStore((s) => s.rfEdges);
   const onNodesChange = useGraphStore((s) => s.onNodesChange);
@@ -67,7 +75,7 @@ export function SkillGraph({ readonly }: { readonly?: boolean } = {}) {
       >
         <Background gap={24} size={1} color="hsl(var(--border))" />
         <GraphControls />
-        <MiniMap />
+        {!isMobile && <MiniMap />}
       </ReactFlow>
     </div>
   );

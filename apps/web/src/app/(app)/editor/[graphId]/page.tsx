@@ -14,6 +14,8 @@ import {
   Check,
   Loader2,
   Github,
+  MoreHorizontal,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -57,6 +59,8 @@ export default function EditorPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportGithub, setShowImportGithub] = useState(false);
   const [showRightPanel, setShowRightPanel] = useState(true);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showMobileNodeList, setShowMobileNodeList] = useState(false);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -216,7 +220,7 @@ export default function EditorPage() {
 
   if (loading) {
     return (
-      <div className="h-[calc(100vh-3.5rem)] flex items-center justify-center">
+      <div className="h-[calc(100dvh-3.5rem)] flex items-center justify-center">
         <Spinner size="lg" className="text-primary" />
       </div>
     );
@@ -224,61 +228,56 @@ export default function EditorPage() {
 
   return (
     <ReactFlowProvider>
-      <div className="h-[calc(100vh-3.5rem)] flex flex-col">
+      <div className="h-[calc(100dvh-3.5rem)] flex flex-col">
         {/* Editor Toolbar */}
-        <div className="h-12 border-b border-border flex items-center px-2 sm:px-3 gap-1 bg-surface shrink-0 overflow-x-auto scrollbar-none">
-          {/* Left: nav + title */}
+        <div className="h-12 border-b border-border flex items-center px-2 sm:px-3 gap-1 bg-surface shrink-0">
+          {/* Left: back + title */}
           <Link
             href="/dashboard"
             className="p-2 rounded-md hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center"
-            title="Back to dashboard"
             aria-label="Back to dashboard"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
 
-          <div className="mx-1 sm:mx-2 h-5 w-px bg-border shrink-0" />
+          <div className="mx-1 h-5 w-px bg-border shrink-0" />
 
-          <span className="text-sm font-medium truncate max-w-24 sm:max-w-48 shrink-0">
+          <span className="text-sm font-medium truncate max-w-[8rem] sm:max-w-48 shrink-0">
             {title || 'Untitled Graph'}
           </span>
           {isDirty && <span className="text-xs text-amber-400 ml-1 shrink-0">●</span>}
 
-          <div className="mx-1 sm:mx-2 h-5 w-px bg-border shrink-0" />
+          <div className="flex-1 min-w-1" />
 
-          {/* Add node button */}
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-md text-xs font-medium bg-primary/10 text-primary-400 hover:bg-primary/20 active:bg-primary/20 transition-colors shrink-0 min-h-[36px]"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Add Node</span>
-          </button>
+          {/* Desktop-only buttons */}
+          <div className="hidden sm:flex items-center gap-1">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-primary/10 text-primary-400 hover:bg-primary/20 active:bg-primary/20 transition-colors shrink-0 min-h-[36px]"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Node</span>
+            </button>
 
-          <button
-            onClick={() => setShowImportGithub(true)}
-            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 active:bg-purple-500/20 transition-colors shrink-0 min-h-[36px]"
-          >
-            <Github className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Import</span>
-          </button>
+            <button
+              onClick={() => setShowImportGithub(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 active:bg-purple-500/20 transition-colors shrink-0 min-h-[36px]"
+            >
+              <Github className="w-3.5 h-3.5" />
+              <span>Import</span>
+            </button>
 
-          <div className="flex-1 min-w-2" />
-
-          {/* Right: actions */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-            <Badge variant="muted" className="mr-1 hidden lg:inline-flex">
+            <Badge variant="muted" className="mx-1 hidden lg:inline-flex">
               {nodes.length} nodes · {edges.length} edges
             </Badge>
 
-            {/* Publish toggle */}
             <button
               onClick={handleTogglePublic}
               disabled={publishing}
-              className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors shrink-0 min-h-[36px] ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors shrink-0 min-h-[36px] ${
                 isPublic
                   ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                  : 'bg-surface-light text-muted-foreground hover:text-foreground hover:bg-surface-light/80'
+                  : 'bg-surface-light text-muted-foreground hover:text-foreground'
               }`}
               title={isPublic ? 'Make private' : 'Make public'}
             >
@@ -289,45 +288,125 @@ export default function EditorPage() {
               ) : (
                 <Lock className="w-3.5 h-3.5" />
               )}
-              <span className="hidden sm:inline">{isPublic ? 'Public' : 'Private'}</span>
+              <span>{isPublic ? 'Public' : 'Private'}</span>
             </button>
 
-            {/* Copy link (visible when public) */}
             {isPublic && (
               <button
                 onClick={handleCopyLink}
-                className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-md text-xs font-medium bg-primary/10 text-primary-400 hover:bg-primary/20 active:bg-primary/20 transition-colors shrink-0 min-h-[36px]"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-primary/10 text-primary-400 hover:bg-primary/20 active:bg-primary/20 transition-colors shrink-0 min-h-[36px]"
                 title="Copy public link"
               >
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Link2 className="w-3.5 h-3.5" />}
-                <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy link'}</span>
+                <span>{copied ? 'Copied!' : 'Copy link'}</span>
               </button>
             )}
-
-            <div className="mx-0.5 h-5 w-px bg-border hidden sm:block shrink-0" />
-
-            <button
-              onClick={() => setShowRightPanel(!showRightPanel)}
-              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-surface-light transition-colors shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center hidden md:flex"
-              title="Toggle panel"
-              aria-label="Toggle properties panel"
-            >
-              <Layers className="w-3.5 h-3.5" />
-            </button>
 
             <div className="mx-0.5 h-5 w-px bg-border shrink-0" />
 
             <button
-              onClick={handleSave}
-              disabled={saving || !isDirty}
-              className="btn-primary !py-1.5 !px-2 sm:!px-3 !text-xs !min-h-[36px] disabled:opacity-40"
-              title="Save changes (Ctrl+S)"
+              onClick={() => setShowRightPanel(!showRightPanel)}
+              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-surface-light transition-colors shrink-0 min-w-[36px] min-h-[36px] hidden md:flex items-center justify-center"
+              aria-label="Toggle properties panel"
             >
-              <Save className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save'}</span>
+              <Layers className="w-3.5 h-3.5" />
             </button>
           </div>
+
+          {/* Save button (always visible) */}
+          <button
+            onClick={handleSave}
+            disabled={saving || !isDirty}
+            className="btn-primary !py-1.5 !px-2 sm:!px-3 !text-xs !min-h-[36px] disabled:opacity-40"
+            title="Save (Ctrl+S)"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save'}</span>
+          </button>
+
+          {/* Mobile more menu button */}
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="sm:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-surface-light transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
+            aria-label="More actions"
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {showMobileMenu && (
+          <>
+            <div
+              className="fixed inset-0 z-40 sm:hidden"
+              onClick={() => setShowMobileMenu(false)}
+            />
+            <div className="sm:hidden absolute top-12 right-2 z-50 w-56 max-w-[calc(100vw-1rem)] bg-surface border border-border rounded-xl shadow-2xl py-1 animate-in max-h-[calc(100dvh-8rem)] overflow-y-auto">
+              <button
+                onClick={() => {
+                  setShowAddModal(true);
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-light active:bg-surface-light transition-colors"
+              >
+                <Plus className="w-4 h-4 text-primary-400" />
+                Add Node
+              </button>
+              <button
+                onClick={() => {
+                  setShowImportGithub(true);
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-light active:bg-surface-light transition-colors"
+              >
+                <Github className="w-4 h-4 text-purple-400" />
+                Import GitHub
+              </button>
+              <div className="h-px bg-border my-1" />
+              <button
+                onClick={() => {
+                  handleTogglePublic();
+                  setShowMobileMenu(false);
+                }}
+                disabled={publishing}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-light active:bg-surface-light transition-colors"
+              >
+                {isPublic ? (
+                  <Globe className="w-4 h-4 text-emerald-400" />
+                ) : (
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                )}
+                {isPublic ? 'Make Private' : 'Make Public'}
+              </button>
+              {isPublic && (
+                <button
+                  onClick={() => {
+                    handleCopyLink();
+                    setShowMobileMenu(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-light active:bg-surface-light transition-colors"
+                >
+                  <Link2 className="w-4 h-4 text-primary-400" />
+                  Copy Link
+                </button>
+              )}
+              <div className="h-px bg-border my-1" />
+              <button
+                onClick={() => {
+                  setShowMobileNodeList(true);
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-light active:bg-surface-light transition-colors"
+              >
+                <Layers className="w-4 h-4 text-muted-foreground" />
+                Nodes & Categories
+              </button>
+              <div className="px-4 py-2 text-xs text-muted">
+                {nodes.length} nodes · {edges.length} edges
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Editor body */}
         <div className="flex-1 flex overflow-hidden relative">
@@ -361,12 +440,26 @@ export default function EditorPage() {
             ) : (
               <SkillGraph />
             )}
+
+            {/* Mobile FAB — Add Node (visible only when there are existing nodes) */}
+            {nodes.length > 0 && !selectedNodeId && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="md:hidden fixed z-20 w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/30 flex items-center justify-center active:scale-95 transition-transform"
+                style={{
+                  bottom: 'max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1rem))',
+                  right: '1rem',
+                }}
+                aria-label="Add node"
+              >
+                <Plus className="w-6 h-6" />
+              </button>
+            )}
           </div>
 
           {/* Right panel - Desktop */}
           {showRightPanel && (
             <aside className="w-72 border-l border-border bg-surface overflow-y-auto shrink-0 hidden md:block">
-              {/* Properties */}
               <div className="border-b border-border">
                 <div className="p-4 pb-0">
                   <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
@@ -376,8 +469,6 @@ export default function EditorPage() {
                 </div>
                 <NodeDetailPanel onUpdate={handleUpdateNode} onDelete={handleDeleteNode} />
               </div>
-
-              {/* Categories */}
               <div className="p-4 border-b border-border">
                 <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
                   <Layers className="w-4 h-4 text-muted" />
@@ -385,8 +476,6 @@ export default function EditorPage() {
                 </h3>
                 <CategoryManager />
               </div>
-
-              {/* Nodes list */}
               <div className="p-4">
                 <h3 className="text-sm font-semibold mb-3">Nodes ({nodes.length})</h3>
                 {nodes.length === 0 ? (
@@ -418,26 +507,94 @@ export default function EditorPage() {
             </aside>
           )}
 
-          {/* Mobile Bottom Sheet for Node Properties */}
+          {/* Mobile Bottom Sheet — Node Properties */}
           {selectedNodeId && (
-            <div className="md:hidden absolute bottom-0 left-0 right-0 z-20 bg-surface border-t border-border rounded-t-2xl shadow-2xl max-h-[60vh] overflow-y-auto slide-up-sheet safe-bottom">
-              <div className="flex justify-center pt-2 pb-1">
-                <div className="w-10 h-1 rounded-full bg-border" />
+            <div className="md:hidden absolute bottom-0 left-0 right-0 z-20 bg-surface border-t border-border rounded-t-2xl shadow-2xl max-h-[min(50vh,calc(100dvh-6rem))] overflow-y-auto slide-up-sheet safe-bottom">
+              <div className="flex items-center justify-between px-4 pt-3 pb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-1 rounded-full bg-border" />
+                </div>
+                <button
+                  onClick={() => setSelectedNode(null)}
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-surface-light transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
               <NodeDetailPanel onUpdate={handleUpdateNode} onDelete={handleDeleteNode} />
             </div>
           )}
+
+          {/* Mobile Bottom Sheet — Nodes & Categories */}
+          {showMobileNodeList && (
+            <>
+              <div
+                className="md:hidden fixed inset-0 bg-black/40 z-30"
+                onClick={() => setShowMobileNodeList(false)}
+              />
+              <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface border-t border-border rounded-t-2xl shadow-2xl max-h-[min(70vh,calc(100dvh-5rem))] overflow-y-auto slide-up-sheet safe-bottom overscroll-contain">
+                <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-border sticky top-0 bg-surface">
+                  <h3 className="text-sm font-semibold">Nodes & Categories</h3>
+                  <button
+                    onClick={() => setShowMobileNodeList(false)}
+                    className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-surface-light transition-colors"
+                    aria-label="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="p-4 border-b border-border">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Categories
+                  </h4>
+                  <CategoryManager />
+                </div>
+                <div className="p-4">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Nodes ({nodes.length})
+                  </h4>
+                  {nodes.length === 0 ? (
+                    <p className="text-xs text-muted">No nodes yet</p>
+                  ) : (
+                    <div className="space-y-1">
+                      {nodes.map((node) => (
+                        <button
+                          key={node.id}
+                          onClick={() => {
+                            setSelectedNode(node.id);
+                            setShowMobileNodeList(false);
+                          }}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors cursor-pointer text-left min-h-[44px] ${
+                            selectedNodeId === node.id
+                              ? 'bg-primary/10 text-foreground'
+                              : 'hover:bg-surface-light active:bg-surface-light text-muted-foreground'
+                          }`}
+                        >
+                          <div
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{
+                              backgroundColor: NODE_COLORS[node.level] ?? '#6366F1',
+                            }}
+                          />
+                          <span className="truncate">{node.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Add Node Modal */}
       <AddNodeModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
         onAdd={handleAddNode}
       />
 
-      {/* Import GitHub Modal */}
       <ImportGithubModal
         open={showImportGithub}
         onClose={() => setShowImportGithub(false)}

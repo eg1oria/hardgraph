@@ -67,7 +67,7 @@ export function CategoryManager() {
           <span className="flex-1 truncate text-muted-foreground">{cat.name}</span>
           <button
             onClick={() => handleDelete(cat.id)}
-            className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 p-1.5 rounded text-muted hover:text-red-400 active:text-red-400 transition-all min-w-[30px] min-h-[30px] flex items-center justify-center"
+            className="sm:opacity-0 sm:group-hover:opacity-100 group-focus-within:opacity-100 p-2 rounded text-muted hover:text-red-400 active:text-red-400 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={`Delete ${cat.name} category`}
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -78,7 +78,7 @@ export function CategoryManager() {
       {isAdding ? (
         <div className="space-y-2 p-2 rounded-lg bg-surface-light border border-border">
           <input
-            className="input-field !text-xs"
+            className="input-field"
             placeholder="Category name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}

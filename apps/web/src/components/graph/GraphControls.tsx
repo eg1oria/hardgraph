@@ -12,7 +12,7 @@ export function GraphControls() {
   const handleFitView = useCallback(() => fitView({ padding: 0.3, duration: 300 }), [fitView]);
 
   return (
-    <div className="absolute bottom-4 left-4 flex items-center gap-0.5 bg-surface border border-border rounded-xl p-0.5 z-10 shadow-lg">
+    <div className="absolute bottom-4 left-4 flex items-center gap-0.5 bg-surface border border-border rounded-xl p-0.5 z-20 shadow-lg">
       <button
         onClick={handleZoomOut}
         className="p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-light active:bg-surface-light transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"

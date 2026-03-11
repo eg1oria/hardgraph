@@ -197,7 +197,7 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
     : '#6366F1';
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-dvh bg-background">
       {/* Header */}
       <header className="flex items-center justify-between px-3 sm:px-6 py-3 border-b border-border gap-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -377,9 +377,16 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
 
         {/* Node Detail — Mobile Bottom Sheet */}
         {selectedNode && (
-          <div className="md:hidden absolute bottom-0 left-0 right-0 z-20 bg-surface/95 backdrop-blur-lg border-t border-border rounded-t-2xl shadow-2xl max-h-[55vh] overflow-y-auto slide-up-sheet safe-bottom">
-            <div className="flex justify-center pt-2 pb-1">
+          <div className="md:hidden absolute bottom-0 left-0 right-0 z-20 bg-surface/95 backdrop-blur-lg border-t border-border rounded-t-2xl shadow-2xl max-h-[min(55vh,calc(100dvh-5rem))] overflow-y-auto slide-up-sheet safe-bottom overscroll-contain">
+            <div className="flex items-center justify-between px-4 pt-2 pb-1">
               <div className="w-10 h-1 rounded-full bg-border" />
+              <button
+                onClick={() => useGraphStore.getState().setSelectedNode(null)}
+                className="p-2 rounded-lg hover:bg-surface-light text-muted-foreground min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
             <div className="px-4 pb-4">
               <div className="flex items-center justify-between mb-3">

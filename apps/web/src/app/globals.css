@@ -92,6 +92,13 @@
     @apply border-border;
   }
 
+  /* Prevent iOS Safari auto-zoom on input focus (requires font-size >= 16px) */
+  input,
+  textarea,
+  select {
+    @apply text-base sm:text-sm;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings:
@@ -167,7 +174,7 @@
   }
 
   .input-field {
-    @apply w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-muted outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary min-h-[44px];
+    @apply w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-base sm:text-sm text-foreground placeholder:text-muted outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary min-h-[44px];
   }
 
   .card {

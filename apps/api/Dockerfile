@@ -20,7 +20,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN cd apps/api && npx prisma generate && npx nest build
+RUN cd apps/api && npx prisma@5 generate && npx nest build
 
 # --- Production ---
 FROM node:20-alpine AS runner

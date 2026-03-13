@@ -80,7 +80,9 @@ export class AuthController {
 
       const { token } = await this.authService.githubLogin(profile);
       return res.redirect(
-        `${this.frontendUrl}/auth/github/callback?token=${encodeURIComponent(token)}`,
+        // Put token in URL fragment to avoid leaking it via Referer headers and intermediary logs.
+        // (Fragments are not sent to servers in HTTP requests.)
+        `${this.frontendUrl}/auth/github/callback#token=${encodeURIComponent(token)}`,
       );
     } catch (err) {
       this.logger.error(

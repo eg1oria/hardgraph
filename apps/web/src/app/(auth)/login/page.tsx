@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { api } from '@/lib/api';
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -39,7 +39,7 @@ export default function LoginPage() {
         };
         token: string;
       }>('/auth/login', { email, password });
-      setAuth(res.data.user, res.data.token);
+      setAuth(res.user, res.token);
       router.push('/dashboard');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Login failed';
@@ -139,5 +139,15 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  // Next.js requires a Suspense boundary around useSearchParams() usage to avoid
+  // prerender/static export failures.
+  return (
+    <Suspense fallback={<div className="space-y-8" />}>
+      <LoginPageInner />
+    </Suspense>
   );
 }

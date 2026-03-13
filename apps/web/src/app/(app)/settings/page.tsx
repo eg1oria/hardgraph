@@ -41,8 +41,8 @@ export default function SettingsPage() {
         twitterHandle: twitterHandle.trim() || null,
         linkedinUrl: linkedinUrl.trim() || null,
       });
-      if (user) {
-        setUser({ ...user, ...res.data });
+      if (user && res) {
+        setUser({ ...user, ...res });
       }
       toast('Settings saved', 'success');
     } catch {

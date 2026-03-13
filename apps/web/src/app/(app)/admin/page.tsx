@@ -42,8 +42,10 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     api
       .get<Stats>('/admin/stats')
-      .then((res) => setStats(res.data))
-      .catch(() => {})
+      .then((data) => setStats(data))
+      .catch(() => {
+        // Leave stats as null; UI will show placeholders.
+      })
       .finally(() => setLoading(false));
   }, []);
 

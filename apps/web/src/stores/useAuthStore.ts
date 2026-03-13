@@ -43,6 +43,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     removeToken();
     set({ user: null, token: null, isAuthenticated: false });
-    window.location.href = '/login';
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   },
 }));

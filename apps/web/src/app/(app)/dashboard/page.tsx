@@ -53,8 +53,8 @@ export default function DashboardPage() {
   const fetchGraphs = useCallback(() => {
     api
       .get<Graph[]>('/graphs')
-      .then((res) => {
-        setGraphs(res.data);
+      .then((data) => {
+        setGraphs(data);
         setError(false);
       })
       .catch(() => setError(true))
@@ -70,8 +70,10 @@ export default function DashboardPage() {
       setReposLoading(true);
       api
         .get<GithubRepo[]>('/github/repos')
-        .then((res) => setRepos(res.data))
-        .catch(() => {})
+        .then((data) => setRepos(data))
+        .catch(() => {
+          // Keep repos empty; dashboard still functions without GitHub section.
+        })
         .finally(() => setReposLoading(false));
     }
   }, [user?.githubUsername]);
@@ -88,7 +90,7 @@ export default function DashboardPage() {
       setShowCreate(false);
       setCreateForm({ title: '', description: '' });
       toast('Graph created!', 'success');
-      router.push(`/editor/${res.data.id}`);
+      router.push(`/editor/${res.id}`);
     } catch {
       toast('Failed to create graph', 'error');
     } finally {

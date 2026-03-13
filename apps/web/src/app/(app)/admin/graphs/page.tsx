@@ -25,7 +25,7 @@ export default function AdminGraphsPage() {
   useEffect(() => {
     api
       .get<AdminGraph[]>('/admin/graphs')
-      .then((res) => setGraphs(res.data))
+      .then((data) => setGraphs(data))
       .catch(() => toast('Failed to load graphs', 'error'))
       .finally(() => setLoading(false));
   }, [toast]);

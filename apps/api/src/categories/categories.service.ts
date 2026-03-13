@@ -6,7 +6,8 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAllByGraph(graphId: string) {
+  async findAllByGraph(graphId: string, userId: string) {
+    await this.verifyGraphOwnership(graphId, userId);
     return this.prisma.category.findMany({
       where: { graphId },
       orderBy: { sortOrder: 'asc' },

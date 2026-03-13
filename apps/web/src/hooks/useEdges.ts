@@ -27,7 +27,7 @@ export function useEdges() {
           targetNodeId: target,
           edgeType: 'dependency',
         });
-        useGraphStore.getState().addEdge(res.data);
+        useGraphStore.getState().addEdge(res);
       } catch {
         toast('Failed to create edge', 'error');
       } finally {

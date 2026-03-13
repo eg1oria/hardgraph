@@ -27,7 +27,7 @@ export default function AdminUsersPage() {
   useEffect(() => {
     api
       .get<AdminUser[]>('/admin/users')
-      .then((res) => setUsers(res.data))
+      .then((data) => setUsers(data))
       .catch(() => toast('Failed to load users', 'error'))
       .finally(() => setLoading(false));
   }, [toast]);

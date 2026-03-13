@@ -35,8 +35,8 @@ export function useAuthGuard() {
         avatarUrl?: string;
         onboardingCompleted: boolean;
       }>('/users/me')
-      .then((res) => {
-        setAuth(res.data, token);
+      .then((me) => {
+        setAuth(me, token);
       })
       .catch(() => {
         logout();

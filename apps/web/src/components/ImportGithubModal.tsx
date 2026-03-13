@@ -49,10 +49,18 @@ export function ImportGithubModal({ open, onClose, onImport }: ImportGithubModal
       let cancelled = false;
       api
         .get<GithubRepo[]>('/github/repos')
-        .then((res) => { if (!cancelled) setRepos(res.data); })
-        .catch(() => { if (!cancelled) setRepos([]); })
-        .finally(() => { if (!cancelled) setLoading(false); });
-      return () => { cancelled = true; };
+        .then((data) => {
+          if (!cancelled) setRepos(data);
+        })
+        .catch(() => {
+          if (!cancelled) setRepos([]);
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+      return () => {
+        cancelled = true;
+      };
     }
   }, [open, user?.githubUsername]);
 

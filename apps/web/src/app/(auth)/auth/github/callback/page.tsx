@@ -13,7 +13,13 @@ function GitHubCallbackContent() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    // Support both legacy query param token and safer fragment token (not sent as Referer).
+    const tokenFromQuery = searchParams.get('token');
+    const tokenFromHash =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.hash.replace(/^#/, '')).get('token')
+        : null;
+    const token = tokenFromHash || tokenFromQuery;
     const oauthError = searchParams.get('error');
 
     if (oauthError) {
@@ -29,6 +35,15 @@ function GitHubCallbackContent() {
     // Store token first, then fetch user profile
     setToken(token);
 
+    // If token arrived via fragment, clear it from the URL to reduce accidental sharing.
+    try {
+      if (typeof window !== 'undefined' && window.location.hash) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    } catch {
+      // ignore
+    }
+
     api
       .get<{
         id: string;
@@ -39,9 +54,9 @@ function GitHubCallbackContent() {
         githubUsername?: string;
         onboardingCompleted: boolean;
       }>('/users/me')
-      .then((res) => {
-        setAuth(res.data, token);
-        router.replace(res.data.onboardingCompleted ? '/dashboard' : '/onboarding');
+      .then((user) => {
+        setAuth(user, token);
+        router.replace(user.onboardingCompleted ? '/dashboard' : '/onboarding');
       })
       .catch(() => {
         setError('Failed to load user profile');

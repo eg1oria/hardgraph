@@ -46,7 +46,7 @@ export function useHashtagNavigation() {
                   targetNodeId: existing.id,
                   edgeType: 'dependency',
                 });
-                useGraphStore.getState().addEdge(res.data);
+                useGraphStore.getState().addEdge(res);
               } catch {
                 toast('Failed to create edge', 'error');
               }
@@ -80,7 +80,7 @@ export function useHashtagNavigation() {
                 targetNodeId: newNode.id,
                 edgeType: 'dependency',
               });
-              useGraphStore.getState().addEdge(res.data);
+              useGraphStore.getState().addEdge(res);
             } catch {
               toast('Failed to create edge', 'error');
             }

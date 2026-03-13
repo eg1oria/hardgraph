@@ -34,7 +34,7 @@ export default function SignupPage() {
         };
         token: string;
       }>('/auth/register', form);
-      setAuth(res.data.user, res.data.token);
+      setAuth(res.user, res.token);
       router.push('/onboarding');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Registration failed';

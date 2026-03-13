@@ -12,8 +12,8 @@ export class CategoriesController {
 
   @Get('graphs/:graphId/categories')
   @UseGuards(JwtAuthGuard)
-  findAll(@Param('graphId') graphId: string) {
-    return this.categoriesService.findAllByGraph(graphId);
+  findAll(@Param('graphId') graphId: string, @CurrentUser('id') userId: string) {
+    return this.categoriesService.findAllByGraph(graphId, userId);
   }
 
   @Post('graphs/:graphId/categories')

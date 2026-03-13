@@ -10,12 +10,11 @@ class ApiError extends Error {
   }
 }
 
-interface ApiResponse<T> {
-  data: T;
-  timestamp: string;
-}
+type ApiEnvelope<T> =
+  | { data: T; timestamp: string }
+  | T;
 
-async function request<T>(method: string, path: string, body?: unknown): Promise<ApiResponse<T>> {
+async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   const headers: Record<string, string> = {
@@ -33,15 +32,31 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     credentials: 'include',
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: 'Request failed' }));
-    throw new ApiError(
-      res.status,
-      Array.isArray(error.message) ? error.message[0] : error.message || 'Request failed',
-    );
+  let parsed: unknown;
+  try {
+    parsed = await res.json();
+  } catch {
+    parsed = null;
   }
 
-  return res.json();
+  if (!res.ok) {
+    const error = (parsed ?? {}) as { message?: string | string[] } | null;
+    const rawMessage = error?.message;
+    const message: string =
+      Array.isArray(rawMessage) && rawMessage[0]
+        ? rawMessage[0]
+        : typeof rawMessage === 'string'
+          ? rawMessage
+          : 'Request failed';
+    throw new ApiError(res.status, message);
+  }
+
+  const json = parsed as ApiEnvelope<T> | null;
+  if (json && typeof json === 'object' && 'data' in json) {
+    return (json as { data: T }).data;
+  }
+
+  return json as T;
 }
 
 export const api = {

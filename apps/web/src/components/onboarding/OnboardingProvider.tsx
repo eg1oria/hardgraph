@@ -34,6 +34,14 @@ export function OnboardingProvider() {
     return () => clearTimeout(timer);
   }, [user, hasSeenGuide, start]);
 
+  // Defensive: if something advanced beyond known steps, complete the tour.
+  useEffect(() => {
+    if (!isActive) return;
+    if (currentStep >= onboardingSteps.length) {
+      complete();
+    }
+  }, [isActive, currentStep, complete]);
+
   // Auto-skip steps whose target element is not in the DOM
   useEffect(() => {
     if (!isActive) return;

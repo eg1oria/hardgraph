@@ -35,7 +35,7 @@ export function CategoryManager() {
         `/graphs/${graphId}/categories`,
         { name: newName.trim(), color: newColor, sortOrder: categories.length },
       );
-      addCategory(res.data);
+      addCategory(res);
       setNewName('');
       setNewColor(PRESET_COLORS[(categories.length + 1) % PRESET_COLORS.length]);
       setIsAdding(false);

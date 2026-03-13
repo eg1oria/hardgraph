@@ -46,8 +46,8 @@ export function useNodes() {
       if (!graphId) return;
       try {
         const res = await api.post<GraphNode>(`/graphs/${graphId}/nodes`, data);
-        useGraphStore.getState().addNode({ ...res.data, isUnlocked: true });
-        return res.data;
+        useGraphStore.getState().addNode({ ...res, isUnlocked: true });
+        return res;
       } catch {
         toast('Failed to create node', 'error');
       }
@@ -95,12 +95,12 @@ export function useNodes() {
     async (id: string, data?: { name?: string; description?: string }) => {
       try {
         const res = await api.post<EvolveResult>(`/nodes/${id}/evolve`, data ?? {});
-        const { node, edge } = res.data;
+        const { node, edge } = res;
         useGraphStore.getState().addNode({ ...node, isUnlocked: node.isUnlocked ?? true });
         useGraphStore.getState().addEdge(edge);
         useGraphStore.getState().setSelectedNode(node.id);
         toast('Idea evolved!', 'success');
-        return res.data;
+        return res;
       } catch {
         toast('Failed to evolve idea', 'error');
       }
@@ -112,7 +112,7 @@ export function useNodes() {
     async (id: string) => {
       try {
         const res = await api.get<EvolutionChainResult>(`/nodes/${id}/evolution-chain`);
-        return res.data;
+        return res;
       } catch {
         return null;
       }

@@ -33,8 +33,8 @@ export default function ExplorePage() {
     setError(false);
     api
       .get<ExploreGraph[]>('/graphs/explore')
-      .then((res) => {
-        setGraphs(res.data);
+      .then((data) => {
+        setGraphs(data);
       })
       .catch(() => {
         setError(true);

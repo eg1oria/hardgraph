@@ -92,11 +92,40 @@
     @apply border-border;
   }
 
-  /* Prevent iOS Safari auto-zoom on input focus (requires font-size >= 16px) */
+  /* Prevent iOS Safari auto-zoom on input focus (requires font-size >= 16px on mobile) */
   input,
   textarea,
-  select {
+  select,
+  [contenteditable="true"],
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="time"],
+  input[type="week"] {
     @apply text-base sm:text-sm;
+  }
+
+  /* Explicit mobile font-size fallback — belt-and-suspenders for Safari zoom prevention */
+  @media (max-width: 767px) {
+    input,
+    textarea,
+    select,
+    [contenteditable="true"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="month"],
+    input[type="time"],
+    input[type="week"] {
+      font-size: max(16px, 1rem);
+      min-height: 44px;
+    }
+
+    /* Touch-friendly tap targets for all interactive elements on mobile */
+    button,
+    [role="button"],
+    a[role="button"] {
+      min-height: 44px;
+    }
   }
 
   body {

@@ -17,20 +17,30 @@ export function useGraph(graphId: string | null) {
 
     setLoading(true);
     api
-      .get(`/graphs/${graphId}`)
-      .then((res) => {
-        const g = res.data as Record<string, unknown>;
+      .get<{
+        id: string;
+        title: string;
+        slug: string;
+        isPublic: boolean;
+        nodes?: GraphNode[];
+        edges?: GraphEdge[];
+        categories?: Category[];
+      }>(`/graphs/${graphId}`)
+      .then((g) => {
         setGraph({
-          id: g.id as string,
-          title: g.title as string,
-          slug: g.slug as string,
-          isPublic: g.isPublic as boolean,
-          nodes: (g.nodes ?? []) as GraphNode[],
-          edges: (g.edges ?? []) as GraphEdge[],
-          categories: (g.categories ?? []) as Category[],
+          id: g.id,
+          title: g.title,
+          slug: g.slug,
+          isPublic: g.isPublic,
+          nodes: g.nodes ?? [],
+          edges: g.edges ?? [],
+          categories: g.categories ?? [],
         });
       })
-      .catch((err) => setError(err.message))
+      .catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : 'Failed to load graph';
+        setError(message);
+      })
       .finally(() => setLoading(false));
   }, [graphId, setGraph]);
 

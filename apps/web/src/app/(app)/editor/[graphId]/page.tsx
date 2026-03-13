@@ -79,6 +79,7 @@ export default function EditorPage() {
     const handler = (e: BeforeUnloadEvent) => {
       if (useGraphStore.getState().isDirty) {
         e.preventDefault();
+        e.returnValue = '';
       }
     };
     window.addEventListener('beforeunload', handler);

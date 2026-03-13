@@ -33,7 +33,7 @@ export function EvolutionTimeline({ nodeId }: { nodeId: string }) {
     (async () => {
       try {
         const res = await api.get<EvolutionChainResult>(`/nodes/${nodeId}/evolution-chain`);
-        if (!cancelled) setChain(res.data);
+        if (!cancelled) setChain(res);
       } catch {
         if (!cancelled) setChain(null);
       } finally {

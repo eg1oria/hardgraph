@@ -46,7 +46,7 @@ export default function TemplatesPage() {
   useEffect(() => {
     api
       .get<Template[]>('/templates')
-      .then((res) => setTemplates(res.data))
+      .then((data) => setTemplates(data))
       .catch(() => toast('Failed to load templates', 'error'))
       .finally(() => setLoading(false));
   }, [toast]);
@@ -57,7 +57,7 @@ export default function TemplatesPage() {
       try {
         const res = await api.post<{ id: string }>(`/templates/${id}/use`);
         toast('Graph created from template!', 'success');
-        router.push(`/editor/${res.data.id}`);
+        router.push(`/editor/${res.id}`);
       } catch {
         toast('Failed to create graph', 'error');
       } finally {

@@ -113,7 +113,7 @@ export function ImportGithubModal({ open, onClose, onImport }: ImportGithubModal
             Connect your GitHub account to import repositories as nodes.
           </p>
           <a
-            href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/github`}
+            href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/auth/github`}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#24292f] hover:bg-[#32383f] text-white text-sm font-medium transition-colors"
           >
             <Github className="w-4 h-4" />
@@ -196,9 +196,7 @@ export function ImportGithubModal({ open, onClose, onImport }: ImportGithubModal
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-border">
-          <span className="text-xs text-muted-foreground">
-            {selected.size} selected
-          </span>
+          <span className="text-xs text-muted-foreground">{selected.size} selected</span>
           <div className="flex gap-2">
             <button onClick={onClose} className="btn-ghost">
               Cancel

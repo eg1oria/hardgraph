@@ -157,7 +157,7 @@ export default function SignupPage() {
       </div>
 
       <a
-        href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/github`}
+        href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/auth/github`}
         className="flex items-center justify-center gap-2 w-full py-3 rounded-lg bg-[#24292f] hover:bg-[#32383f] text-white font-medium text-sm transition-colors min-h-[48px] active:scale-[0.98]"
       >
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

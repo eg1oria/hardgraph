@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 class ApiError extends Error {
   constructor(
@@ -10,9 +10,7 @@ class ApiError extends Error {
   }
 }
 
-type ApiEnvelope<T> =
-  | { data: T; timestamp: string }
-  | T;
+type ApiEnvelope<T> = { data: T; timestamp: string } | T;
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -25,7 +23,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_URL}/api${path}`, {
+  const res = await fetch(`${API_URL}${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
@@ -69,7 +67,7 @@ export const api = {
 
 /** Server-side fetch — no auth, no credentials, with Next.js revalidation */
 export async function fetchPublic<T>(path: string, revalidate = 60): Promise<T> {
-  const res = await fetch(`${API_URL}/api${path}`, {
+  const res = await fetch(`${API_URL}${path}`, {
     headers: { 'Content-Type': 'application/json' },
     next: { revalidate },
   });

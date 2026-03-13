@@ -15,7 +15,7 @@ interface GithubRepo {
   updated_at: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 export function GitHubReposSection({ username }: { username: string }) {
   const [repos, setRepos] = useState<GithubRepo[]>([]);
@@ -24,17 +24,25 @@ export function GitHubReposSection({ username }: { username: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${API_URL}/api/github/repos/public/${encodeURIComponent(username)}`, {
+    fetch(`${API_URL}/github/repos/public/${encodeURIComponent(username)}`, {
       headers: { 'Content-Type': 'application/json' },
     })
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json();
       })
-      .then((json) => { if (!cancelled) setRepos(json.data ?? json); })
-      .catch(() => { if (!cancelled) setError(true); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .then((json) => {
+        if (!cancelled) setRepos(json.data ?? json);
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [username]);
 
   if (error || (!loading && repos.length === 0)) return null;
@@ -65,7 +73,10 @@ export function GitHubReposSection({ username }: { username: string }) {
                 <h3 className="font-semibold text-sm group-hover:text-purple-400 transition-colors truncate pr-2">
                   {repo.name}
                 </h3>
-                <ExternalLink aria-hidden="true" className="w-3.5 h-3.5 text-muted-foreground shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" />
+                <ExternalLink
+                  aria-hidden="true"
+                  className="w-3.5 h-3.5 text-muted-foreground shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                />
               </div>
               {repo.description && (
                 <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">

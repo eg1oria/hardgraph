@@ -35,6 +35,8 @@ COPY --from=build /app/apps/api/prisma ./prisma
 COPY --from=build /app/apps/api/package.json ./package.json
 COPY --from=build /app/packages /app/packages
 
+RUN chown -R nestjs:nodejs /app/node_modules/.pnpm/@prisma+engines@5.22.0
+
 USER nestjs
 
 EXPOSE 4000

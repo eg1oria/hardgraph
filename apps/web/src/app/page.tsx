@@ -5,6 +5,7 @@ import { CTA } from '@/components/landing/CTA';
 import { Footer } from '@/components/landing/Footer';
 import { Navbar } from '@/components/landing/Navbar';
 import { RedirectIfAuthenticated } from '@/components/landing/RedirectIfAuthenticated';
+import { SeeItYourself } from '@/components/landing/Seeityourself';
 
 export default function HomePage() {
   return (
@@ -22,6 +23,7 @@ export default function HomePage() {
         <Hero />
       </div>
       <HowItWorks />
+      <SeeItYourself />
       <Features />
       <CTA />
       <Footer />

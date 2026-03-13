@@ -49,7 +49,7 @@ function VerifyInner() {
         setState('error');
         setErrorMsg(err instanceof Error ? err.message : 'Verification failed');
       });
-  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [token]); // eslint-disable-line
 
   return (
     <div className="space-y-8">

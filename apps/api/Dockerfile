@@ -17,7 +17,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY . .
-RUN cd apps/api && npx prisma@5 generate && npx nest build
+RUN cd apps/api && npx prisma@5 generate && npx nest build \
+    && node -e "const ts=require('typescript');const src=require('fs').readFileSync('prisma/seed.ts','utf8');const out=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}});require('fs').writeFileSync('dist/seed.js',out.outputText);"
 
 # --- Production ---
 FROM node:20-alpine AS runner
@@ -43,5 +44,5 @@ EXPOSE 4000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=120s --retries=5 \
   CMD wget -q --spider http://localhost:4000/health || exit 1
 
-# Run migrations then start (deploy = safe for production, no interactive prompts)
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+# Run migrations, seed data, then start
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/seed.js && node dist/main.js"]

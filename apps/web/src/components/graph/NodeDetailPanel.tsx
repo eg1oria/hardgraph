@@ -13,9 +13,10 @@ interface NodeDetailPanelProps {
   onUpdate: (id: string, data: Partial<GraphNode>) => void;
   onDelete: (id: string) => void;
   onEvolve?: (id: string) => void;
+  hideClose?: boolean;
 }
 
-export function NodeDetailPanel({ onUpdate, onDelete, onEvolve }: NodeDetailPanelProps) {
+export function NodeDetailPanel({ onUpdate, onDelete, onEvolve, hideClose }: NodeDetailPanelProps) {
   const selectedNodeId = useGraphStore((s) => s.selectedNodeId);
   const nodes = useGraphStore((s) => s.nodes);
   const categories = useGraphStore((s) => s.categories);
@@ -59,13 +60,15 @@ export function NodeDetailPanel({ onUpdate, onDelete, onEvolve }: NodeDetailPane
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">Node Properties</h3>
-        <button
-          onClick={() => useGraphStore.getState().setSelectedNode(null)}
-          className="p-2 rounded-md hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="Close properties"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
+        {!hideClose && (
+          <button
+            onClick={() => useGraphStore.getState().setSelectedNode(null)}
+            className="p-2 rounded-md hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label="Close properties"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
       {/* Name */}

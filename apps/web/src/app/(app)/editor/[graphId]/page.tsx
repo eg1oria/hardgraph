@@ -476,7 +476,11 @@ export default function EditorPage() {
                     Properties
                   </h3>
                 </div>
-                <NodeDetailPanel onUpdate={handleUpdateNode} onDelete={handleDeleteNode} onEvolve={handleEvolveNode} />
+                <NodeDetailPanel
+                  onUpdate={handleUpdateNode}
+                  onDelete={handleDeleteNode}
+                  onEvolve={handleEvolveNode}
+                />
               </div>
               <div className="p-4 border-b border-border">
                 <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
@@ -531,7 +535,12 @@ export default function EditorPage() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <NodeDetailPanel onUpdate={handleUpdateNode} onDelete={handleDeleteNode} onEvolve={handleEvolveNode} />
+              <NodeDetailPanel
+                onUpdate={handleUpdateNode}
+                onDelete={handleDeleteNode}
+                onEvolve={handleEvolveNode}
+                hideClose
+              />
             </div>
           )}
 

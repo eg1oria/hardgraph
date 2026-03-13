@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Github, Star, GitFork, Loader2, ExternalLink } from 'lucide-react';
+import { api } from '@/lib/api';
 
 interface GithubRepo {
   id: number;
@@ -15,8 +16,6 @@ interface GithubRepo {
   updated_at: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
-
 export function GitHubReposSection({ username }: { username: string }) {
   const [repos, setRepos] = useState<GithubRepo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,15 +23,10 @@ export function GitHubReposSection({ username }: { username: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${API_URL}/github/repos/public/${encodeURIComponent(username)}`, {
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then((json) => {
-        if (!cancelled) setRepos(json.data ?? json);
+    api
+      .get<GithubRepo[]>(`/github/repos/public/${encodeURIComponent(username)}`)
+      .then((data) => {
+        if (!cancelled) setRepos(data);
       })
       .catch(() => {
         if (!cancelled) setError(true);

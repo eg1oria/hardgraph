@@ -143,24 +143,17 @@ function FeatureRow({ feature, index }: { feature: (typeof features)[0]; index: 
                 color: `rgba(${feature.accentRgb},0.45)`,
               }}
             >
-              skilltree.app
+              hardgraph.com
             </span>
           </div>
 
           {/* Screenshot */}
-          <div className="relative aspect-[16/10] overflow-hidden">
+          <div className="relative">
             <img
               src={feature.image}
               alt={feature.title}
-              className="w-full h-full object-cover object-top"
+              className="w-full h-auto block"
               loading="lazy"
-            />
-            {/* bottom fade */}
-            <div
-              className="absolute inset-x-0 bottom-0 h-1/3 pointer-events-none"
-              style={{
-                background: `linear-gradient(to top, var(--surface, #111) 0%, transparent 100%)`,
-              }}
             />
           </div>
         </div>

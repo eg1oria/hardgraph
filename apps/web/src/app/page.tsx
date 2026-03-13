@@ -9,7 +9,7 @@ import { SeeItYourself } from '@/components/landing/Seeityourself';
 
 export default function HomePage() {
   return (
-    <main className="min-h-dvh bg-background">
+    <main className="bg-background">
       <RedirectIfAuthenticated />
       <a
         href="#hero"

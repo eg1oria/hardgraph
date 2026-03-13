@@ -143,8 +143,6 @@
     text-size-adjust: 100%;
     /* Smooth touch scrolling on iOS */
     -webkit-overflow-scrolling: touch;
-    /* Prevent pull-to-refresh on mobile */
-    overscroll-behavior-y: contain;
   }
 
   /* Prevent tap highlight on mobile */

@@ -40,7 +40,7 @@ RUN chown -R nestjs:nodejs /app/node_modules/.pnpm/@prisma+engines@5.22.0
 USER nestjs
 
 EXPOSE 4000
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+HEALTHCHECK --interval=15s --timeout=5s --start-period=120s --retries=5 \
   CMD wget -q --spider http://localhost:4000/health || exit 1
 
 # Run migrations then start (deploy = safe for production, no interactive prompts)

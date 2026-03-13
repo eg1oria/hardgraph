@@ -46,7 +46,7 @@ const STEP_META = [
 
 const TOTAL_STEPS = STEP_META.length;
 const SWIPE_THRESHOLD = 50;
-const SESSION_KEY = 'skillgraph_onboarding_step';
+const SESSION_KEY = 'hardgraph_onboarding_step';
 
 /* ─── Animation variants ─── */
 
@@ -299,7 +299,7 @@ export default function OnboardingPage() {
           // ignore
         }
 
-        toast('Welcome to Skillgraph! 🎉', 'success');
+        toast('Welcome to HardGraph! 🎉', 'success');
         router.push(graphId ? `/editor/${graphId}` : '/dashboard');
       } catch {
         setError('Something went wrong. Please try again.');
@@ -394,7 +394,7 @@ export default function OnboardingPage() {
                 {/* Heading */}
                 <div className="text-center mb-5 sm:mb-8">
                   <h1 className="text-3xl sm:text-4xl font-bold mb-3 leading-tight">
-                    Welcome to <span className="text-gradient">Skillgraph</span>
+                    Welcome to <span className="text-gradient">HardGraph</span>
                   </h1>
                   <p className="text-muted-foreground text-base sm:text-lg leading-relaxed max-w-sm mx-auto">
                     Build interactive skill trees that showcase your expertise and inspire others.

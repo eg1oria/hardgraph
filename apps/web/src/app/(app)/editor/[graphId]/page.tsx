@@ -29,7 +29,7 @@ import { api } from '@/lib/api';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
-import { SkillGraph } from '@/components/graph/SkillGraph';
+import { HardGraph } from '@/components/graph/HardGraph';
 import { NodeDetailPanel } from '@/components/graph/NodeDetailPanel';
 import { AddNodeModal } from '@/components/editor/AddNodeModal';
 import { CategoryManager } from '@/components/editor/CategoryManager';
@@ -447,7 +447,7 @@ export default function EditorPage() {
                 </div>
               </div>
             ) : (
-              <SkillGraph />
+              <HardGraph />
             )}
 
             {/* Mobile FAB — Add Node (visible only when there are existing nodes) */}

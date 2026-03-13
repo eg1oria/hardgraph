@@ -15,7 +15,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 
-import { SkillGraph } from '@/components/graph/SkillGraph';
+import { HardGraph } from '@/components/graph/HardGraph';
 import { HashtagText } from '@/components/graph/HashtagText';
 import { useGraphStore } from '@/stores/useGraphStore';
 import { NODE_COLORS, type SkillLevel } from '@/lib/constants';
@@ -158,7 +158,7 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
     };
   }, [selectedNodeId, storeEdges, storeNodes, graph.edges, graph.nodes]);
 
-  // Populate store with graph data for SkillGraph to read
+  // Populate store with graph data for HardGraph to read
   useEffect(() => {
     setGraph({
       id: graph.id,
@@ -242,7 +242,7 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
         {/* Canvas */}
         <div className="flex-1 relative">
           <ReactFlowProvider>
-            <SkillGraph readonly />
+            <HardGraph readonly />
           </ReactFlowProvider>
         </div>
 

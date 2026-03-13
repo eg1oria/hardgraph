@@ -1,4 +1,4 @@
-// Shared types for Skillgraph
+// Shared types for HardGraph
 
 export interface UserProfile {
   id: string;

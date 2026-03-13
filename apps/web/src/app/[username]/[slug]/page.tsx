@@ -53,15 +53,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const graph = await fetchPublic<PublicGraph>(`/public/${params.username}/${params.slug}`, 0);
     const author = graph.user.displayName || graph.user.username;
     return {
-      title: `${graph.title} by ${author} — Skillgraph`,
+      title: `${graph.title} by ${author} — HardGraph`,
       description: graph.description || `${graph.title} — a skill tree by ${author}`,
       openGraph: {
-        title: `${graph.title} — Skillgraph`,
+        title: `${graph.title} — HardGraph`,
         description: graph.description || `Interactive skill tree by ${author}`,
       },
     };
   } catch {
-    return { title: 'Skill Tree — Skillgraph' };
+    return { title: 'Skill Tree — HardGraph' };
   }
 }
 

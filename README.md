@@ -1,4 +1,4 @@
-# Skillgraph
+# HardGraph
 
 Interactive skill tree builder. Create beautiful visual graphs of your skills, publish them, and share with the world.
 
@@ -6,8 +6,8 @@ Interactive skill tree builder. Create beautiful visual graphs of your skills, p
 
 - **Visual Skill Tree Editor** — drag & drop nodes, connect edges, organize by categories
 - **Starter Templates** — Frontend, Backend, DevOps, Data Science templates to kickstart
-- **Public Profiles** — shareable profile page at `skillgraph.io/username`
-- **Public Graphs** — shareable graph page at `skillgraph.io/username/graph-slug`
+- **Public Profiles** — shareable profile page at `hardgraph.io/username`
+- **Public Graphs** — shareable graph page at `hardgraph.io/username/graph-slug`
 - **SSR + OG Tags** — server-rendered public pages with full Open Graph metadata
 - **Analytics** — view tracking on public graphs
 - **Onboarding Flow** — 3-step wizard for new users (profile → template → launch)
@@ -29,7 +29,7 @@ Interactive skill tree builder. Create beautiful visual graphs of your skills, p
 ## Project Structure
 
 ```
-skillgraph/
+hardgraph/
 ├── apps/
 │   ├── web/              # Next.js frontend (port 3000)
 │   │   ├── src/app/      # App Router pages
@@ -62,8 +62,8 @@ skillgraph/
 
 ```bash
 # 1. Clone and install
-git clone <repo-url> skillgraph
-cd skillgraph
+git clone <repo-url> hardgraph
+cd hardgraph
 pnpm install
 
 # 2. Environment
@@ -90,10 +90,10 @@ All variables are defined in `.env.example`. Copy to `.env` and configure:
 
 | Variable               | Required | Default                                                            | Description                           |
 | ---------------------- | -------- | ------------------------------------------------------------------ | ------------------------------------- |
-| `DATABASE_URL`         | ✅       | `postgresql://skillgraph:skillgraph_dev@localhost:5432/skillgraph` | PostgreSQL connection string          |
-| `POSTGRES_USER`        | ✅       | `skillgraph`                                                       | Docker PostgreSQL user                |
-| `POSTGRES_PASSWORD`    | ✅       | `skillgraph_dev`                                                   | Docker PostgreSQL password            |
-| `POSTGRES_DB`          | ✅       | `skillgraph`                                                       | Docker PostgreSQL database name       |
+| `DATABASE_URL`         | ✅       | `postgresql://hardgraph:hardgraph_dev@localhost:5432/hardgraph` | PostgreSQL connection string          |
+| `POSTGRES_USER`        | ✅       | `hardgraph`                                                       | Docker PostgreSQL user                |
+| `POSTGRES_PASSWORD`    | ✅       | `hardgraph_dev`                                                   | Docker PostgreSQL password            |
+| `POSTGRES_DB`          | ✅       | `hardgraph`                                                       | Docker PostgreSQL database name       |
 | `JWT_SECRET`           | ✅       | (dev value)                                                        | Secret for JWT signing (min 32 chars) |
 | `JWT_EXPIRES_IN`       |          | `7d`                                                               | JWT token expiration                  |
 | `API_PORT`             |          | `4000`                                                             | NestJS server port                    |
@@ -245,8 +245,8 @@ cp .env.production.example .env.production
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 
 # 4. Run migrations
-docker exec skillgraph-api npx prisma migrate deploy
-docker exec skillgraph-api npx prisma db seed
+docker exec hardgraph-api npx prisma migrate deploy
+docker exec hardgraph-api npx prisma db seed
 
 # 5. Put behind a reverse proxy (nginx/Caddy) for SSL
 ```

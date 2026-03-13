@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: process.env.STANDALONE === '1' ? 'standalone' : undefined,
-  transpilePackages: ['@skillgraph/ui', '@skillgraph/types'],
+  transpilePackages: ['@hardgraph/ui', '@hardgraph/types'],
 };
 
 module.exports = nextConfig;

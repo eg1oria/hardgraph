@@ -31,7 +31,7 @@ export class GithubService {
     const headers: Record<string, string> = {
       Accept: 'application/vnd.github.v3+json',
       Authorization: `Bearer ${user.githubAccessToken}`,
-      'User-Agent': 'Skillgraph-App',
+      'User-Agent': 'HardGraph-App',
     };
 
     const url = `https://api.github.com/user/repos?type=public&sort=updated&per_page=100`;
@@ -63,7 +63,7 @@ export class GithubService {
     const response = await fetch(url, {
       headers: {
         Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'Skillgraph-App',
+        'User-Agent': 'HardGraph-App',
       },
       signal: AbortSignal.timeout(10000),
     });

@@ -53,7 +53,7 @@ function LoginPageInner() {
     <div className="space-y-8">
       <div className="text-center">
         <Link href="/" className="text-2xl font-bold text-gradient">
-          Skillgraph
+          HardGraph
         </Link>
         <h1 className="text-2xl font-bold mt-8 mb-2">Welcome back</h1>
         <p className="text-muted-foreground text-sm">Sign in to continue to your skill graphs</p>

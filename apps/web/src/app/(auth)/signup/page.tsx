@@ -48,7 +48,7 @@ export default function SignupPage() {
     <div className="space-y-8">
       <div className="text-center">
         <Link href="/" className="text-2xl font-bold text-gradient">
-          Skillgraph
+          HardGraph
         </Link>
         <h1 className="text-2xl font-bold mt-8 mb-2">Create your account</h1>
         <p className="text-muted-foreground text-sm">Start building your skill tree today</p>

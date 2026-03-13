@@ -1,4 +1,4 @@
-export const APP_NAME = 'Skillgraph';
+export const APP_NAME = 'HardGraph';
 
 export const SKILL_LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'] as const;
 export type SkillLevel = (typeof SKILL_LEVELS)[number];

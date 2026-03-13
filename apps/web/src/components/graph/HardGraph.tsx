@@ -29,7 +29,7 @@ const edgeTypes: EdgeTypes = {
   evolution: EvolutionEdge,
 };
 
-export function SkillGraph({ readonly }: { readonly?: boolean } = {}) {
+export function HardGraph({ readonly }: { readonly?: boolean } = {}) {
   const isMobile = useIsMobile(1024);
   const rfNodes = useGraphStore((s) => s.rfNodes);
   const rfEdges = useGraphStore((s) => s.rfEdges);

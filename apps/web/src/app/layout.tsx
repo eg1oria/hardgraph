@@ -20,11 +20,11 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Skillgraph — Visualize Your Skills',
+  title: 'HardGraph — Visualize Your Skills',
   description:
     'Create beautiful interactive skill trees. Showcase your expertise, share your journey, and inspire others.',
   openGraph: {
-    title: 'Skillgraph — Visualize Your Skills',
+    title: 'HardGraph — Visualize Your Skills',
     description: 'Create beautiful interactive skill trees.',
     type: 'website',
   },

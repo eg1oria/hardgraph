@@ -12,7 +12,7 @@ export function Navbar() {
     <nav className="fixed top-0 w-full z-50 glass">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link href="/" className="text-xl font-bold text-gradient">
-          Skillgraph
+          HardGraph
         </Link>
 
         {/* Desktop */}

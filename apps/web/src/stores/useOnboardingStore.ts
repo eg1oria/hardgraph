@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-const STORAGE_KEY = 'skillgraph_onboarding_guide_seen';
+const STORAGE_KEY = 'hardgraph_onboarding_guide_seen';
 
 interface OnboardingState {
   /** Whether the guide tour is currently active */

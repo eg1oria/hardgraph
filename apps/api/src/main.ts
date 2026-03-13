@@ -42,7 +42,7 @@ async function bootstrap() {
 
   if (!isProd) {
     const swaggerConfig = new DocumentBuilder()
-      .setTitle('Skillgraph API')
+      .setTitle('HardGraph API')
       .setVersion('0.1.0')
       .addBearerAuth()
       .build();
@@ -54,7 +54,7 @@ async function bootstrap() {
   const host = config.get<string>('API_HOST', 'localhost');
   await app.listen(port, host);
   console.log(
-    `Skillgraph API running on ${host}:${port} [${isProd ? 'production' : 'development'}]`,
+    `HardGraph API running on ${host}:${port} [${isProd ? 'production' : 'development'}]`,
   );
 
   // Validate GitHub OAuth env vars at startup

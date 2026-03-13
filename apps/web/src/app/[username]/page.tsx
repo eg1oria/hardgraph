@@ -36,21 +36,21 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (params.username.includes('.')) {
-    return { title: 'Not Found — Skillgraph' };
+    return { title: 'Not Found — HardGraph' };
   }
   try {
     const profile = await fetchPublic<PublicProfile>(`/users/${params.username}`);
     const name = profile.displayName || profile.username;
     return {
-      title: `${name} — Skillgraph`,
-      description: profile.bio || `${name}'s skill tree on Skillgraph`,
+      title: `${name} — HardGraph`,
+      description: profile.bio || `${name}'s skill tree on HardGraph`,
       openGraph: {
-        title: `${name} — Skillgraph`,
+        title: `${name} — HardGraph`,
         description: profile.bio || `View ${name}'s skill trees`,
       },
     };
   } catch {
-    return { title: 'Profile — Skillgraph' };
+    return { title: 'Profile — HardGraph' };
   }
 }
 
@@ -79,7 +79,7 @@ export default async function PublicProfilePage({ params }: Props) {
       <header className="border-b border-border bg-surface/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-lg font-bold text-gradient">
-            Skillgraph
+            HardGraph
           </Link>
         </div>
       </header>

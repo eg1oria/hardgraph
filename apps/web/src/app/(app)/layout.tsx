@@ -105,7 +105,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="h-16 flex items-center justify-between px-4 border-b border-border">
           {(sidebarOpen || mobileMenuOpen) && (
             <Link href="/dashboard" className="text-lg font-bold text-gradient">
-              Skillgraph
+              HardGraph
             </Link>
           )}
           {/* Close button for mobile */}

@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 
 @Injectable()
-export class MailService {
+export class MailService implements OnModuleInit {
   private readonly logger = new Logger(MailService.name);
   private transporter: Transporter | null = null;
   private readonly fromAddress: string;
@@ -18,18 +18,41 @@ export class MailService {
     this.smtpConfigured = !!smtpUser;
 
     if (this.smtpConfigured) {
+      const port = this.config.get<number>('SMTP_PORT', 587);
+      const secure = this.config.get<string>('SMTP_SECURE', 'false') === 'true';
+
+      this.logger.log(
+        `SMTP config: host=${this.config.get('SMTP_HOST')}, port=${port}, secure=${secure}, user=${smtpUser}, from=${this.fromAddress}`,
+      );
+
       this.transporter = nodemailer.createTransport({
         host: this.config.get<string>('SMTP_HOST', 'localhost'),
-        port: this.config.get<number>('SMTP_PORT', 587),
-        secure: this.config.get<string>('SMTP_SECURE', 'false') === 'true',
+        port,
+        secure,
         auth: {
           user: smtpUser,
           pass: this.config.get<string>('SMTP_PASS', ''),
         },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000,
       });
     } else {
       this.logger.warn(
         'SMTP_USER is not set — emails will be logged to console instead of sent. Set SMTP_* env vars for real delivery.',
+      );
+    }
+  }
+
+  async onModuleInit(): Promise<void> {
+    if (!this.transporter) return;
+
+    try {
+      await this.transporter.verify();
+      this.logger.log('SMTP connection verified — ready to send emails');
+    } catch (err) {
+      this.logger.error(
+        `SMTP connection FAILED: ${err instanceof Error ? err.message : 'unknown error'}. Emails will not be delivered!`,
       );
     }
   }
@@ -42,8 +65,8 @@ export class MailService {
     if (!this.smtpConfigured) {
       this.logger.log(`
 ══════════════════════════════════════════════════════
-  📧 Verification email for ${to}
-  🔗 ${verifyUrl}
+  Verification email for ${to}
+  ${verifyUrl}
 ══════════════════════════════════════════════════════`);
       return;
     }
@@ -69,17 +92,17 @@ export class MailService {
     `;
 
     try {
-      await this.transporter!.sendMail({
+      const info = await this.transporter!.sendMail({
         from: this.fromAddress,
         to,
         subject: `Verify your email — ${this.appName}`,
         html,
       });
-      this.logger.log(`Verification email sent to ${to}`);
+      this.logger.log(`Verification email sent to ${to} (messageId: ${info.messageId})`);
     } catch (err) {
-      this.logger.error(
-        `Failed to send verification email to ${to}: ${err instanceof Error ? err.message : 'unknown error'}`,
-      );
+      const message = err instanceof Error ? err.message : 'unknown error';
+      this.logger.error(`Failed to send verification email to ${to}: ${message}`);
+      throw new Error(`Email delivery failed: ${message}`);
     }
   }
 }

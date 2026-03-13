@@ -22,13 +22,6 @@ interface Template {
   };
 }
 
-const FIELD_ICONS: Record<string, string> = {
-  frontend: '⚛️',
-  backend: '🚀',
-  devops: '🐳',
-  data: '🧠',
-};
-
 const FIELD_LABELS: Record<string, string> = {
   frontend: 'Frontend',
   backend: 'Backend',
@@ -95,7 +88,9 @@ export default function TemplatesPage() {
             return (
               <div key={t.id} className="card hover:border-primary/30 transition-all group">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="text-3xl">{FIELD_ICONS[t.field ?? ''] ?? '📋'}</div>
+                  <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    {FIELD_LABELS[t.field ?? ''] ?? 'General'}
+                  </div>
                   <div className="flex items-center gap-2">
                     {t.isFeatured && (
                       <Badge variant="accent" className="gap-1">

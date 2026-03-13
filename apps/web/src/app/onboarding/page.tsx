@@ -31,11 +31,11 @@ interface Template {
 
 /* ─── Constants ─── */
 
-const FIELD_ICONS: Record<string, string> = {
-  frontend: '⚛️',
-  backend: '🚀',
-  devops: '🐳',
-  data: '🧠',
+const FIELD_LABELS: Record<string, string> = {
+  frontend: 'Frontend',
+  backend: 'Backend',
+  devops: 'DevOps',
+  data: 'Data Science',
 };
 
 const STEP_META = [
@@ -492,8 +492,8 @@ export default function OnboardingPage() {
                           aria-label={`Template: ${t.name}`}
                         >
                           <div className="flex items-start gap-3">
-                            <span className="text-2xl shrink-0 mt-0.5">
-                              {FIELD_ICONS[t.field ?? ''] ?? '📋'}
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide shrink-0 mt-1">
+                              {FIELD_LABELS[t.field ?? ''] ?? 'General'}
                             </span>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-semibold text-sm mb-1 flex items-center gap-2">

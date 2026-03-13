@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -19,7 +20,7 @@ const templates = [
         {
           name: 'HTML',
           level: 'beginner',
-          icon: '🌐',
+          icon: 'globe',
           positionX: 250,
           positionY: 0,
           categoryId: 'cat-core',
@@ -27,7 +28,7 @@ const templates = [
         {
           name: 'CSS',
           level: 'beginner',
-          icon: '🎨',
+          icon: 'palette',
           positionX: 450,
           positionY: 0,
           categoryId: 'cat-core',
@@ -35,7 +36,7 @@ const templates = [
         {
           name: 'JavaScript',
           level: 'intermediate',
-          icon: '⚡',
+          icon: 'zap',
           positionX: 350,
           positionY: 150,
           categoryId: 'cat-core',
@@ -43,7 +44,7 @@ const templates = [
         {
           name: 'TypeScript',
           level: 'intermediate',
-          icon: '🔷',
+          icon: 'file-code',
           positionX: 350,
           positionY: 300,
           categoryId: 'cat-core',
@@ -51,7 +52,7 @@ const templates = [
         {
           name: 'React',
           level: 'advanced',
-          icon: '⚛️',
+          icon: 'atom',
           positionX: 200,
           positionY: 450,
           categoryId: 'cat-framework',
@@ -59,7 +60,7 @@ const templates = [
         {
           name: 'Next.js',
           level: 'advanced',
-          icon: '▲',
+          icon: 'triangle',
           positionX: 200,
           positionY: 600,
           categoryId: 'cat-framework',
@@ -67,7 +68,7 @@ const templates = [
         {
           name: 'Vue',
           level: 'intermediate',
-          icon: '💚',
+          icon: 'hexagon',
           positionX: 500,
           positionY: 450,
           categoryId: 'cat-framework',
@@ -75,7 +76,7 @@ const templates = [
         {
           name: 'Tailwind CSS',
           level: 'intermediate',
-          icon: '💨',
+          icon: 'wind',
           positionX: 600,
           positionY: 150,
           categoryId: 'cat-tooling',
@@ -83,7 +84,7 @@ const templates = [
         {
           name: 'Webpack / Vite',
           level: 'intermediate',
-          icon: '📦',
+          icon: 'package',
           positionX: 100,
           positionY: 300,
           categoryId: 'cat-tooling',
@@ -117,7 +118,7 @@ const templates = [
         {
           name: 'Node.js',
           level: 'intermediate',
-          icon: '🟢',
+          icon: 'circle',
           positionX: 300,
           positionY: 0,
           categoryId: 'cat-lang',
@@ -125,7 +126,7 @@ const templates = [
         {
           name: 'Express / NestJS',
           level: 'intermediate',
-          icon: '🚀',
+          icon: 'rocket',
           positionX: 300,
           positionY: 150,
           categoryId: 'cat-lang',
@@ -133,7 +134,7 @@ const templates = [
         {
           name: 'REST APIs',
           level: 'intermediate',
-          icon: '🔗',
+          icon: 'link',
           positionX: 150,
           positionY: 300,
           categoryId: 'cat-lang',
@@ -141,7 +142,7 @@ const templates = [
         {
           name: 'GraphQL',
           level: 'advanced',
-          icon: '◆',
+          icon: 'diamond',
           positionX: 450,
           positionY: 300,
           categoryId: 'cat-lang',
@@ -149,7 +150,7 @@ const templates = [
         {
           name: 'PostgreSQL',
           level: 'intermediate',
-          icon: '🐘',
+          icon: 'database',
           positionX: 100,
           positionY: 450,
           categoryId: 'cat-db',
@@ -157,7 +158,7 @@ const templates = [
         {
           name: 'Redis',
           level: 'intermediate',
-          icon: '🔴',
+          icon: 'server',
           positionX: 300,
           positionY: 450,
           categoryId: 'cat-db',
@@ -165,7 +166,7 @@ const templates = [
         {
           name: 'MongoDB',
           level: 'beginner',
-          icon: '🍃',
+          icon: 'leaf',
           positionX: 500,
           positionY: 450,
           categoryId: 'cat-db',
@@ -173,7 +174,7 @@ const templates = [
         {
           name: 'Docker',
           level: 'intermediate',
-          icon: '🐳',
+          icon: 'container',
           positionX: 200,
           positionY: 600,
           categoryId: 'cat-infra',
@@ -181,7 +182,7 @@ const templates = [
         {
           name: 'CI/CD',
           level: 'advanced',
-          icon: '🔄',
+          icon: 'refresh-cw',
           positionX: 400,
           positionY: 600,
           categoryId: 'cat-infra',
@@ -215,7 +216,7 @@ const templates = [
         {
           name: 'Linux',
           level: 'intermediate',
-          icon: '🐧',
+          icon: 'terminal',
           positionX: 300,
           positionY: 0,
           categoryId: 'cat-containers',
@@ -223,7 +224,7 @@ const templates = [
         {
           name: 'Docker',
           level: 'intermediate',
-          icon: '🐳',
+          icon: 'container',
           positionX: 300,
           positionY: 150,
           categoryId: 'cat-containers',
@@ -231,7 +232,7 @@ const templates = [
         {
           name: 'Kubernetes',
           level: 'advanced',
-          icon: '☸️',
+          icon: 'settings',
           positionX: 300,
           positionY: 300,
           categoryId: 'cat-containers',
@@ -239,7 +240,7 @@ const templates = [
         {
           name: 'AWS',
           level: 'advanced',
-          icon: '☁️',
+          icon: 'cloud',
           positionX: 100,
           positionY: 450,
           categoryId: 'cat-cloud',
@@ -247,7 +248,7 @@ const templates = [
         {
           name: 'Terraform',
           level: 'advanced',
-          icon: '🏗️',
+          icon: 'blocks',
           positionX: 300,
           positionY: 450,
           categoryId: 'cat-cloud',
@@ -255,7 +256,7 @@ const templates = [
         {
           name: 'GitHub Actions',
           level: 'intermediate',
-          icon: '🔄',
+          icon: 'refresh-cw',
           positionX: 500,
           positionY: 450,
           categoryId: 'cat-cloud',
@@ -263,7 +264,7 @@ const templates = [
         {
           name: 'Prometheus',
           level: 'intermediate',
-          icon: '📊',
+          icon: 'bar-chart-3',
           positionX: 200,
           positionY: 600,
           categoryId: 'cat-monitoring',
@@ -271,7 +272,7 @@ const templates = [
         {
           name: 'Grafana',
           level: 'intermediate',
-          icon: '📈',
+          icon: 'line-chart',
           positionX: 400,
           positionY: 600,
           categoryId: 'cat-monitoring',
@@ -303,7 +304,7 @@ const templates = [
         {
           name: 'Python',
           level: 'intermediate',
-          icon: '🐍',
+          icon: 'code',
           positionX: 300,
           positionY: 0,
           categoryId: 'cat-fundamentals',
@@ -311,7 +312,7 @@ const templates = [
         {
           name: 'Statistics',
           level: 'intermediate',
-          icon: '📐',
+          icon: 'ruler',
           positionX: 500,
           positionY: 0,
           categoryId: 'cat-fundamentals',
@@ -319,7 +320,7 @@ const templates = [
         {
           name: 'Pandas',
           level: 'intermediate',
-          icon: '🐼',
+          icon: 'table',
           positionX: 200,
           positionY: 150,
           categoryId: 'cat-tools',
@@ -327,7 +328,7 @@ const templates = [
         {
           name: 'NumPy',
           level: 'intermediate',
-          icon: '🔢',
+          icon: 'hash',
           positionX: 400,
           positionY: 150,
           categoryId: 'cat-tools',
@@ -335,7 +336,7 @@ const templates = [
         {
           name: 'Scikit-learn',
           level: 'advanced',
-          icon: '🤖',
+          icon: 'cpu',
           positionX: 200,
           positionY: 300,
           categoryId: 'cat-ml',
@@ -343,7 +344,7 @@ const templates = [
         {
           name: 'TensorFlow',
           level: 'advanced',
-          icon: '🧠',
+          icon: 'brain',
           positionX: 400,
           positionY: 300,
           categoryId: 'cat-ml',
@@ -351,7 +352,7 @@ const templates = [
         {
           name: 'Data Visualization',
           level: 'intermediate',
-          icon: '📊',
+          icon: 'bar-chart-3',
           positionX: 300,
           positionY: 450,
           categoryId: 'cat-tools',
@@ -359,7 +360,7 @@ const templates = [
         {
           name: 'SQL',
           level: 'beginner',
-          icon: '🗃️',
+          icon: 'database',
           positionX: 100,
           positionY: 0,
           categoryId: 'cat-fundamentals',

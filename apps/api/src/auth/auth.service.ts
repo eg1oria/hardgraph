@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   UnauthorizedException,
   ConflictException,
   BadRequestException,
@@ -21,6 +22,8 @@ const RESEND_COOLDOWN_MS = 60 * 1000;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -48,8 +51,14 @@ export class AuthService {
       displayName: dto.displayName,
     });
 
-    // Send verification email (non-blocking — failure logged, not thrown)
-    await this.createAndSendVerification(user.id, dto.email);
+    // Send verification email — don't block registration if email fails
+    try {
+      await this.createAndSendVerification(user.id, dto.email);
+    } catch (err) {
+      this.logger.error(
+        `Registration succeeded but verification email failed for ${dto.email}: ${err instanceof Error ? err.message : 'unknown'}`,
+      );
+    }
 
     const token = this.generateToken(user.id);
 

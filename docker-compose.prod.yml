@@ -62,7 +62,7 @@ services:
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
     depends_on:
       api:
-        condition: service_healthy
+        condition: service_started
     stop_grace_period: 15s
 
   nginx:
@@ -77,7 +77,7 @@ services:
       web:
         condition: service_started
       api:
-        condition: service_healthy
+        condition: service_started
     healthcheck:
       test: ['CMD', 'wget', '-q', '--spider', 'http://localhost/nginx-health']
       interval: 15s

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import Link from 'next/link';
 import {
@@ -124,6 +124,8 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
   const selectedNodeId = useGraphStore((s) => s.selectedNodeId);
   const storeNodes = useGraphStore((s) => s.nodes);
   const storeEdges = useGraphStore((s) => s.edges);
+  const [displayViewCount, setDisplayViewCount] = useState(graph.viewCount);
+  const viewTrackedRef = useRef(false);
 
   // Find selected node from the store (populated in useEffect below)
   const selectedNode =
@@ -171,12 +173,26 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
     });
   }, [graph, setGraph]);
 
-  // Track analytics view
+  // Track analytics view — fires once per graph per session
   useEffect(() => {
+    // Guard: prevent double-fire from React StrictMode or re-renders
+    if (viewTrackedRef.current) return;
+    viewTrackedRef.current = true;
+
+    // Session dedup: don't re-track if user already viewed this graph in this tab session
+    const sessionKey = `viewed:${graph.id}`;
+    if (sessionStorage.getItem(sessionKey)) return;
+
     api
-      .post('/analytics/track', {
+      .post<{ counted: boolean; viewCount: number }>('/analytics/track', {
         graphId: graph.id,
         referrer: document.referrer || null,
+      })
+      .then((res) => {
+        sessionStorage.setItem(sessionKey, '1');
+        if (res.counted) {
+          setDisplayViewCount(res.viewCount);
+        }
       })
       .catch(() => {});
   }, [graph.id]);
@@ -224,7 +240,7 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
         <div className="flex items-center gap-2 shrink-0">
           <span className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground">
             <Eye className="w-4 h-4" />
-            {graph.viewCount}
+            {displayViewCount}
           </span>
           <button
             onClick={handleShare}

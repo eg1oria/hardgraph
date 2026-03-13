@@ -52,11 +52,16 @@ function GitHubCallbackContent() {
         displayName?: string;
         avatarUrl?: string;
         githubUsername?: string;
+        emailVerified: boolean;
         onboardingCompleted: boolean;
       }>('/users/me')
       .then((user) => {
         setAuth(user, token);
-        router.replace(user.onboardingCompleted ? '/dashboard' : '/onboarding');
+        if (!user.emailVerified) {
+          router.replace('/verify-email');
+        } else {
+          router.replace(user.onboardingCompleted ? '/dashboard' : '/onboarding');
+        }
       })
       .catch(() => {
         setError('Failed to load user profile');

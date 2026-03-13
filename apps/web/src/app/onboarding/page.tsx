@@ -243,8 +243,7 @@ export default function OnboardingPage() {
       if (absX >= SWIPE_THRESHOLD && absX > absY * 1.25) {
         if (deltaX < 0) {
           goNext();
-        }
-        else goPrev();
+        } else goPrev();
       }
     },
     [goNext, goPrev],
@@ -374,234 +373,238 @@ export default function OnboardingPage() {
             animate="center"
             exit="exit"
             transition={transition}
-            className="w-full max-w-lg mx-auto max-h-[80dvh] sm:max-h-none overflow-y-auto overscroll-contain"
+            className="w-full max-w-lg mx-auto"
           >
-            {/* ── Step 0: Welcome / Profile ── */}
-            {step === 0 && (
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: 0.1, duration: 0.35 }}
-              >
-                {/* Icon */}
-                <div className="flex justify-center mb-4 sm:mb-6">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/10 flex items-center justify-center shadow-lg shadow-primary/5">
-                    <Sparkles className="w-10 h-10 text-primary" />
-                  </div>
-                </div>
-
-                {/* Heading */}
-                <div className="text-center mb-5 sm:mb-8">
-                  <h1 className="text-3xl sm:text-4xl font-bold mb-3 leading-tight">
-                    Welcome to <span className="text-gradient">HardGraph</span>
-                  </h1>
-                  <p className="text-muted-foreground text-base sm:text-lg leading-relaxed max-w-sm mx-auto">
-                    Build interactive skill trees that showcase your expertise and inspire others.
-                  </p>
-                </div>
-
-                {/* Form */}
-                <div className="space-y-4 rounded-2xl bg-surface/80 dark:bg-surface/60 backdrop-blur-sm border border-border p-5 shadow-sm">
-                  <div>
-                    <label
-                      htmlFor="onboarding-displayname"
-                      className="block text-sm font-medium text-muted-foreground mb-1.5"
-                    >
-                      Display Name
-                    </label>
-                    <input
-                      id="onboarding-displayname"
-                      className="input-field"
-                      placeholder="e.g. John Doe"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      autoFocus
-                      autoComplete="name"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="onboarding-bio"
-                      className="block text-sm font-medium text-muted-foreground mb-1.5"
-                    >
-                      Bio <span className="text-muted">(optional)</span>
-                    </label>
-                    <textarea
-                      id="onboarding-bio"
-                      className="input-field resize-none"
-                      rows={3}
-                      placeholder="Full-stack developer passionate about..."
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ── Step 1: Choose Template ── */}
-            {step === 1 && (
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: 0.1, duration: 0.35 }}
-              >
-                {/* Icon */}
-                <div className="flex justify-center mb-4 sm:mb-6">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent/20 to-primary/20 border border-accent/10 flex items-center justify-center shadow-lg shadow-accent/5">
-                    <BookTemplate className="w-10 h-10 text-accent-500" />
-                  </div>
-                </div>
-
-                {/* Heading */}
-                <div className="text-center mb-5 sm:mb-8">
-                  <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-tight">
-                    Pick a starter template
-                  </h2>
-                  <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
-                    Choose one to get started quickly, or skip to create from scratch.
-                  </p>
-                </div>
-
-                {/* Templates grid */}
-                {loadingTemplates ? (
-                  <div className="flex justify-center py-12">
-                    <Spinner size="lg" className="text-primary" />
-                  </div>
-                ) : templates.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground text-sm">
-                    <p>No templates available yet.</p>
-                    <p className="mt-1">You can create your skill tree from scratch!</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto -mx-1 px-1 pb-1">
-                    {templates.map((t) => (
-                      <button
-                        key={t.id}
-                        onClick={() => setSelectedTemplate(selectedTemplate === t.id ? null : t.id)}
-                        className={`text-left p-4 rounded-xl border-2 transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
-                          selectedTemplate === t.id
-                            ? 'border-primary bg-primary/5 ring-1 ring-primary/30 shadow-md shadow-primary/5'
-                            : 'border-border hover:border-primary/30 bg-surface/80 dark:bg-surface/60 backdrop-blur-sm hover:shadow-sm'
-                        }`}
-                        aria-pressed={selectedTemplate === t.id}
-                        aria-label={`Template: ${t.name}`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <span className="text-2xl shrink-0 mt-0.5">
-                            {FIELD_ICONS[t.field ?? ''] ?? '📋'}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-sm mb-1 flex items-center gap-2">
-                              {t.name}
-                              {selectedTemplate === t.id && (
-                                <Check className="w-4 h-4 text-primary shrink-0" />
-                              )}
-                            </h3>
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {t.description}
-                            </p>
-                          </div>
-                        </div>
-                        {t.isFeatured && (
-                          <div className="mt-2 flex items-center gap-1 text-[10px] text-amber-400">
-                            <Sparkles className="w-3 h-3" />
-                            Featured
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Skip template link */}
-                <p className="text-center mt-5 text-xs text-muted-foreground">
-                  <button
-                    onClick={() => {
-                      setSelectedTemplate(null);
-                      goNext();
-                    }}
-                    className="underline hover:text-foreground transition-colors py-1 px-2 rounded min-h-[44px] inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                  >
-                    Skip — I&apos;ll start from scratch
-                  </button>
-                </p>
-              </motion.div>
-            )}
-
-            {/* ── Step 2: Launch ── */}
-            {step === 2 && (
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: 0.1, duration: 0.35 }}
-                className="text-center"
-              >
-                {/* Icon */}
-                <div className="flex justify-center mb-4 sm:mb-6">
-                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 border border-primary/10 flex items-center justify-center shadow-xl shadow-primary/10">
-                    <Rocket className="w-12 h-12 text-primary" />
-                  </div>
-                </div>
-
-                {/* Heading */}
-                <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-tight">
-                  You&apos;re all set!
-                </h2>
-                <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-sm mx-auto mb-6">
-                  {selectedTemplate
-                    ? "We'll create your first skill tree from the chosen template."
-                    : "You'll start with a blank canvas — add nodes and build your skill tree."}
-                </p>
-
-                {/* Summary card */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-surface/80 dark:bg-surface/60 backdrop-blur-sm border border-border text-left text-sm space-y-3 shadow-sm max-w-sm mx-auto">
-                  {displayName && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <User className="w-4 h-4 text-primary" />
-                      </div>
-                      <div>
-                        <span className="text-xs text-muted-foreground">Name</span>
-                        <p className="font-medium leading-tight">{displayName}</p>
-                      </div>
+            <div className="max-h-[80dvh] sm:max-h-none overflow-y-auto overscroll-contain scrollbar-hide">
+              {/* ── Step 0: Welcome / Profile ── */}
+              {step === 0 && (
+                <motion.div
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: 0.1, duration: 0.35 }}
+                >
+                  {/* Icon */}
+                  <div className="flex justify-center mb-4 sm:mb-6">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/10 flex items-center justify-center shadow-lg shadow-primary/5">
+                      <Sparkles className="w-10 h-10 text-primary" />
                     </div>
-                  )}
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                      <BookTemplate className="w-4 h-4 text-accent-500" />
+                  </div>
+
+                  {/* Heading */}
+                  <div className="text-center mb-5 sm:mb-8">
+                    <h1 className="text-3xl sm:text-4xl font-bold mb-3 leading-tight">
+                      Welcome to <span className="text-gradient">HardGraph</span>
+                    </h1>
+                    <p className="text-muted-foreground text-base sm:text-lg leading-relaxed max-w-sm mx-auto">
+                      Build interactive skill trees that showcase your expertise and inspire others.
+                    </p>
+                  </div>
+
+                  {/* Form */}
+                  <div className="space-y-4 rounded-2xl bg-surface/80 dark:bg-surface/60 backdrop-blur-sm border border-border p-5 shadow-sm">
+                    <div>
+                      <label
+                        htmlFor="onboarding-displayname"
+                        className="block text-sm font-medium text-muted-foreground mb-1.5"
+                      >
+                        Display Name
+                      </label>
+                      <input
+                        id="onboarding-displayname"
+                        className="input-field"
+                        placeholder="e.g. John Doe"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        autoFocus
+                        autoComplete="name"
+                      />
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground">Template</span>
-                      <p className="font-medium leading-tight">
-                        {selectedTemplate
-                          ? templates.find((t) => t.id === selectedTemplate)?.name
-                          : 'Blank canvas'}
-                      </p>
+                      <label
+                        htmlFor="onboarding-bio"
+                        className="block text-sm font-medium text-muted-foreground mb-1.5"
+                      >
+                        Bio <span className="text-muted">(optional)</span>
+                      </label>
+                      <textarea
+                        id="onboarding-bio"
+                        className="input-field resize-none"
+                        rows={3}
+                        placeholder="Full-stack developer passionate about..."
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                      />
                     </div>
                   </div>
-                </div>
+                </motion.div>
+              )}
 
-                {/* Error state */}
-                {error && (
-                  <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-sm max-w-sm mx-auto flex items-center gap-2">
-                    <span className="shrink-0">⚠️</span>
-                    <span>{error}</span>
-                    <button
-                      onClick={handleFinish}
-                      disabled={loading}
-                      className="ml-auto text-xs font-medium underline hover:text-red-300 transition-colors min-h-[44px] flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                      aria-label="Retry completing onboarding"
-                    >
-                      Retry
-                    </button>
+              {/* ── Step 1: Choose Template ── */}
+              {step === 1 && (
+                <motion.div
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: 0.1, duration: 0.35 }}
+                >
+                  {/* Icon */}
+                  <div className="flex justify-center mb-4 sm:mb-6">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent/20 to-primary/20 border border-accent/10 flex items-center justify-center shadow-lg shadow-accent/5">
+                      <BookTemplate className="w-10 h-10 text-accent-500" />
+                    </div>
                   </div>
-                )}
-              </motion.div>
-            )}
+
+                  {/* Heading */}
+                  <div className="text-center mb-5 sm:mb-8">
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-tight">
+                      Pick a starter template
+                    </h2>
+                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
+                      Choose one to get started quickly, or skip to create from scratch.
+                    </p>
+                  </div>
+
+                  {/* Templates grid */}
+                  {loadingTemplates ? (
+                    <div className="flex justify-center py-12">
+                      <Spinner size="lg" className="text-primary" />
+                    </div>
+                  ) : templates.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground text-sm">
+                      <p>No templates available yet.</p>
+                      <p className="mt-1">You can create your skill tree from scratch!</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto -mx-1 px-1 pb-1">
+                      {templates.map((t) => (
+                        <button
+                          key={t.id}
+                          onClick={() =>
+                            setSelectedTemplate(selectedTemplate === t.id ? null : t.id)
+                          }
+                          className={`text-left p-4 rounded-xl border-2 transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                            selectedTemplate === t.id
+                              ? 'border-primary bg-primary/5 ring-1 ring-primary/30 shadow-md shadow-primary/5'
+                              : 'border-border hover:border-primary/30 bg-surface/80 dark:bg-surface/60 backdrop-blur-sm hover:shadow-sm'
+                          }`}
+                          aria-pressed={selectedTemplate === t.id}
+                          aria-label={`Template: ${t.name}`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className="text-2xl shrink-0 mt-0.5">
+                              {FIELD_ICONS[t.field ?? ''] ?? '📋'}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-sm mb-1 flex items-center gap-2">
+                                {t.name}
+                                {selectedTemplate === t.id && (
+                                  <Check className="w-4 h-4 text-primary shrink-0" />
+                                )}
+                              </h3>
+                              <p className="text-xs text-muted-foreground line-clamp-2">
+                                {t.description}
+                              </p>
+                            </div>
+                          </div>
+                          {t.isFeatured && (
+                            <div className="mt-2 flex items-center gap-1 text-[10px] text-amber-400">
+                              <Sparkles className="w-3 h-3" />
+                              Featured
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Skip template link */}
+                  <p className="text-center mt-5 text-xs text-muted-foreground">
+                    <button
+                      onClick={() => {
+                        setSelectedTemplate(null);
+                        goNext();
+                      }}
+                      className="underline hover:text-foreground transition-colors py-1 px-2 rounded min-h-[44px] inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                    >
+                      Skip — I&apos;ll start from scratch
+                    </button>
+                  </p>
+                </motion.div>
+              )}
+
+              {/* ── Step 2: Launch ── */}
+              {step === 2 && (
+                <motion.div
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: 0.1, duration: 0.35 }}
+                  className="text-center"
+                >
+                  {/* Icon */}
+                  <div className="flex justify-center mb-4 sm:mb-6">
+                    <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 border border-primary/10 flex items-center justify-center shadow-xl shadow-primary/10">
+                      <Rocket className="w-12 h-12 text-primary" />
+                    </div>
+                  </div>
+
+                  {/* Heading */}
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-tight">
+                    You&apos;re all set!
+                  </h2>
+                  <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-sm mx-auto mb-6">
+                    {selectedTemplate
+                      ? "We'll create your first skill tree from the chosen template."
+                      : "You'll start with a blank canvas — add nodes and build your skill tree."}
+                  </p>
+
+                  {/* Summary card */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-surface/80 dark:bg-surface/60 backdrop-blur-sm border border-border text-left text-sm space-y-3 shadow-sm max-w-sm mx-auto">
+                    {displayName && (
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <User className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <span className="text-xs text-muted-foreground">Name</span>
+                          <p className="font-medium leading-tight">{displayName}</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                        <BookTemplate className="w-4 h-4 text-accent-500" />
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground">Template</span>
+                        <p className="font-medium leading-tight">
+                          {selectedTemplate
+                            ? templates.find((t) => t.id === selectedTemplate)?.name
+                            : 'Blank canvas'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Error state */}
+                  {error && (
+                    <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-sm max-w-sm mx-auto flex items-center gap-2">
+                      <span className="shrink-0">⚠️</span>
+                      <span>{error}</span>
+                      <button
+                        onClick={handleFinish}
+                        disabled={loading}
+                        className="ml-auto text-xs font-medium underline hover:text-red-300 transition-colors min-h-[44px] flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                        aria-label="Retry completing onboarding"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </div>
           </motion.div>
         </AnimatePresence>
       </main>

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 import { CreateGraphDto } from './dto/create-graph.dto';
 import { UpdateGraphDto } from './dto/update-graph.dto';
 import slugify from 'slugify';
@@ -16,7 +17,7 @@ export class GraphsService {
     });
   }
 
-  async findRecentPublic(limit = 20) {
+  async findRecentPublic(limit = 20, skip = 0) {
     return this.prisma.graph.findMany({
       where: { isPublic: true },
       include: {
@@ -24,7 +25,8 @@ export class GraphsService {
         _count: { select: { nodes: true, edges: true } },
       },
       orderBy: { createdAt: 'desc' },
-      take: limit,
+      take: Math.min(limit, 50),
+      skip,
     });
   }
 
@@ -71,16 +73,34 @@ export class GraphsService {
     const baseSlug = slugify(dto.title, { lower: true, strict: true });
     const slug = await this.ensureUniqueSlug(userId, baseSlug);
 
-    return this.prisma.graph.create({
-      data: {
-        userId,
-        title: dto.title,
-        slug,
-        description: dto.description,
-        isPublic: dto.isPublic ?? true,
-        theme: dto.theme ?? 'cyberpunk',
-      },
-    });
+    try {
+      return await this.prisma.graph.create({
+        data: {
+          userId,
+          title: dto.title,
+          slug,
+          description: dto.description,
+          isPublic: dto.isPublic ?? true,
+          theme: dto.theme ?? 'cyberpunk',
+        },
+      });
+    } catch (error) {
+      // Retry once on unique constraint violation (slug race condition)
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const retrySlug = `${baseSlug}-${Date.now()}`;
+        return this.prisma.graph.create({
+          data: {
+            userId,
+            title: dto.title,
+            slug: retrySlug,
+            description: dto.description,
+            isPublic: dto.isPublic ?? true,
+            theme: dto.theme ?? 'cyberpunk',
+          },
+        });
+      }
+      throw error;
+    }
   }
 
   async update(id: string, userId: string, dto: UpdateGraphDto) {

@@ -8,3 +8,8 @@ dist
 *.md
 .vscode
 .turbo
+.github
+coverage
+*.log
+.DS_Store
+Thumbs.db

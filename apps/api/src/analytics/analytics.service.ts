@@ -1,38 +1,75 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { createHash } from 'crypto';
 
+/** Minimum interval (ms) between two counted views from the same viewer on the same graph */
+const VIEW_COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
+
 @Injectable()
 export class AnalyticsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(AnalyticsService.name);
 
-  async trackView(graphId: string, ip: string, referrer?: string) {
-    // Validate graphId exists and is public before tracking
+  async trackView(
+    graphId: string,
+    ip: string,
+    referrer?: string,
+    viewerUserId?: string,
+  ): Promise<{ counted: boolean; viewCount: number }> {
+    // 1. Validate graph exists and is public
     const graph = await this.prisma.graph.findUnique({
       where: { id: graphId },
-      select: { id: true, isPublic: true },
+      select: { id: true, isPublic: true, userId: true, viewCount: true },
     });
-    if (!graph || !graph.isPublic) return;
+    if (!graph || !graph.isPublic) {
+      return { counted: false, viewCount: graph?.viewCount ?? 0 };
+    }
+
+    // 2. Self-view: don't count if the viewer is the graph owner
+    if (viewerUserId && viewerUserId === graph.userId) {
+      return { counted: false, viewCount: graph.viewCount };
+    }
 
     const viewerIpHash = createHash('sha256').update(ip).digest('hex');
 
+    // 3. Deduplication: check for a recent view from the same IP on the same graph
+    const cooldownThreshold = new Date(Date.now() - VIEW_COOLDOWN_MS);
+    const recentView = await this.prisma.profileView.findFirst({
+      where: {
+        graphId,
+        viewerIpHash,
+        viewedAt: { gte: cooldownThreshold },
+      },
+      select: { id: true },
+    });
+
+    if (recentView) {
+      return { counted: false, viewCount: graph.viewCount };
+    }
+
+    // 4. Record view + atomic increment in a single transaction
     try {
-      // Atomic: create view record + increment counter in a single transaction
-      await this.prisma.$transaction([
+      const [, updatedGraph] = await this.prisma.$transaction([
         this.prisma.profileView.create({
           data: {
             graphId,
             viewerIpHash,
+            viewerUserId: viewerUserId ?? null,
             referrer: referrer?.slice(0, 500),
           },
         }),
         this.prisma.graph.update({
           where: { id: graphId },
           data: { viewCount: { increment: 1 } },
+          select: { viewCount: true },
         }),
       ]);
-    } catch {
-      // Silently ignore invalid graphId — don't break the caller
+
+      return { counted: true, viewCount: updatedGraph.viewCount };
+    } catch (error) {
+      this.logger.warn(
+        `Failed to track view for graph ${graphId}: ${error instanceof Error ? error.message : 'unknown'}`,
+      );
+      return { counted: false, viewCount: graph.viewCount };
     }
   }
 
@@ -61,4 +98,6 @@ export class AnalyticsService {
       })),
     };
   }
+
+  constructor(private readonly prisma: PrismaService) {}
 }

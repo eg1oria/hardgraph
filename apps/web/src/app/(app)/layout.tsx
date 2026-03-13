@@ -51,10 +51,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   // Hide bottom nav on editor pages (full-screen experience)
   const isEditorPage = pathname.startsWith('/editor');
 
-  // Redirect to onboarding if user hasn't completed it
+  // Redirect to email verification if not verified, then onboarding
   useEffect(() => {
-    if (!loading && user && !user.onboardingCompleted) {
-      router.replace('/onboarding');
+    if (!loading && user) {
+      if (!user.emailVerified) {
+        router.replace('/verify-email');
+      } else if (!user.onboardingCompleted) {
+        router.replace('/onboarding');
+      }
     }
   }, [loading, user, router]);
 

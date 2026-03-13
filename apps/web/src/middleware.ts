@@ -1,7 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const publicPaths = ['/', '/login', '/signup', '/explore', '/templates', '/api', '/auth'];
+const publicPaths = [
+  '/',
+  '/login',
+  '/signup',
+  '/verify-email',
+  '/explore',
+  '/templates',
+  '/api',
+  '/auth',
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -15,7 +24,8 @@ export function middleware(request: NextRequest) {
   const isPublicPath = publicPaths.some((p) => pathname === p || pathname.startsWith(p + '/'));
   const appPrefixes = ['/dashboard', '/editor', '/settings', '/onboarding', '/admin'];
   const isAppRoute = appPrefixes.some((p) => pathname === p || pathname.startsWith(p + '/'));
-  const isPublicProfile = !isAppRoute && !isPublicPath && /^\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)?$/.test(pathname);
+  const isPublicProfile =
+    !isAppRoute && !isPublicPath && /^\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)?$/.test(pathname);
 
   if (isPublicPath || isPublicProfile) {
     return NextResponse.next();

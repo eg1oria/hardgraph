@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { GraphsService } from './graphs.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,8 +18,11 @@ export class GraphsController {
   }
 
   @Get('graphs/explore')
-  explore() {
-    return this.graphsService.findRecentPublic();
+  explore(@Query('limit') limit?: string, @Query('skip') skip?: string) {
+    return this.graphsService.findRecentPublic(
+      limit ? parseInt(limit, 10) || 20 : 20,
+      skip ? parseInt(skip, 10) || 0 : 0,
+    );
   }
 
   @Post('graphs')

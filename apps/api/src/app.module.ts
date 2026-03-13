@@ -11,12 +11,22 @@ import { TemplatesModule } from './templates/templates.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { GithubModule } from './github/github.module';
 import { AdminModule } from './admin/admin.module';
+import { MailModule } from './mail/mail.module';
 import { HealthController } from './health.controller';
+
+import { join } from 'path';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [
+        '.env', // apps/api/.env (if exists)
+        join('..', '..', '.env'), // root .env (when CWD = apps/api)
+      ],
+    }),
     PrismaModule,
+    MailModule,
     AuthModule,
     UsersModule,
     GraphsModule,

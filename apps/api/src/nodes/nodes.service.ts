@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateNodeDto } from './dto/create-node.dto';
@@ -47,7 +52,8 @@ export class NodesService {
         positionX: dto.positionX,
         positionY: dto.positionY,
         categoryId: dto.categoryId,
-        customData: dto.customData !== undefined ? (dto.customData as Prisma.InputJsonValue) : undefined,
+        customData:
+          dto.customData !== undefined ? (dto.customData as Prisma.InputJsonValue) : undefined,
         isUnlocked: dto.isUnlocked,
       },
     });
@@ -144,23 +150,7 @@ export class NodesService {
       throw new ForbiddenException();
     }
 
-    // Walk up to find the root ancestor
-    let rootId = node.id;
-    const visited = new Set<string>([rootId]);
-    let currentParentId = node.parentIdeaId;
-    while (currentParentId) {
-      if (visited.has(currentParentId)) break;
-      visited.add(currentParentId);
-      const parent = await this.prisma.node.findUnique({
-        where: { id: currentParentId },
-        select: { id: true, parentIdeaId: true },
-      });
-      if (!parent) break;
-      rootId = parent.id;
-      currentParentId = parent.parentIdeaId;
-    }
-
-    // Collect the full tree from root (BFS)
+    // Fetch all nodes in this graph once (avoids N+1 for root walk)
     const allNodes = await this.prisma.node.findMany({
       where: { graphId: node.graphId },
       select: {
@@ -174,6 +164,22 @@ export class NodesService {
         createdAt: true,
       },
     });
+
+    // Build index for fast lookup
+    const nodeById = new Map(allNodes.map((n) => [n.id, n]));
+
+    // Walk up to find the root ancestor (in-memory, no extra queries)
+    let rootId = node.id;
+    const visited = new Set<string>([rootId]);
+    let current = nodeById.get(rootId);
+    while (current?.parentIdeaId) {
+      if (visited.has(current.parentIdeaId)) break;
+      visited.add(current.parentIdeaId);
+      const parent = nodeById.get(current.parentIdeaId);
+      if (!parent) break;
+      rootId = parent.id;
+      current = parent;
+    }
 
     // Build adjacency for children
     const childrenMap = new Map<string, typeof allNodes>();
@@ -190,13 +196,13 @@ export class NodesService {
     const queue = [rootId];
     const seen = new Set<string>();
     while (queue.length > 0) {
-      const current = queue.shift()!;
-      if (seen.has(current)) continue;
-      seen.add(current);
-      const n = allNodes.find((x) => x.id === current);
+      const cur = queue.shift()!;
+      if (seen.has(cur)) continue;
+      seen.add(cur);
+      const n = nodeById.get(cur);
       if (n) {
         chain.push(n);
-        const children = childrenMap.get(current) ?? [];
+        const children = childrenMap.get(cur) ?? [];
         for (const child of children) {
           queue.push(child.id);
         }

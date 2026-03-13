@@ -19,6 +19,7 @@ export class UsersService {
         githubUsername: true,
         plan: true,
         role: true,
+        emailVerified: true,
         onboardingCompleted: true,
         createdAt: true,
       },
@@ -47,6 +48,7 @@ export class UsersService {
     githubUsername?: string;
     githubAccessToken?: string;
     avatarUrl?: string;
+    emailVerified?: boolean;
   }) {
     return this.prisma.user.create({ data });
   }

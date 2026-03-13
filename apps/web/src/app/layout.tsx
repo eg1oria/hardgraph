@@ -20,6 +20,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: 'HardGraph — Visualize Your Skills',
   description:
     'Create beautiful interactive skill trees. Showcase your expertise, share your journey, and inspire others.',

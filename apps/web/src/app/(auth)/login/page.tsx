@@ -35,12 +35,18 @@ function LoginPageInner() {
           username: string;
           displayName?: string;
           avatarUrl?: string;
+          emailVerified: boolean;
           onboardingCompleted: boolean;
         };
         token: string;
       }>('/auth/login', { email, password });
       setAuth(res.user, res.token);
-      router.push('/dashboard');
+
+      if (!res.user.emailVerified) {
+        router.push('/verify-email');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Login failed';
       setError(message);

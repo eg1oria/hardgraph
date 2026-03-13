@@ -1,6 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { api } from '@/lib/api';
-import { useGraphStore, type GraphNode, type GraphEdge, type Category } from '@/stores/useGraphStore';
+import {
+  useGraphStore,
+  type GraphNode,
+  type GraphEdge,
+  type Category,
+} from '@/stores/useGraphStore';
 import { useToast } from '@/components/ui/Toast';
 
 export function useGraph(graphId: string | null) {
@@ -8,8 +13,11 @@ export function useGraph(graphId: string | null) {
   const [error, setError] = useState<string | null>(null);
   const setGraph = useGraphStore((s) => s.setGraph);
   const { toast } = useToast();
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
+
     if (!graphId || graphId === 'new') {
       setLoading(false);
       return;
@@ -27,6 +35,7 @@ export function useGraph(graphId: string | null) {
         categories?: Category[];
       }>(`/graphs/${graphId}`)
       .then((g) => {
+        if (!mountedRef.current) return;
         setGraph({
           id: g.id,
           title: g.title,
@@ -38,10 +47,17 @@ export function useGraph(graphId: string | null) {
         });
       })
       .catch((err: unknown) => {
+        if (!mountedRef.current) return;
         const message = err instanceof Error ? err.message : 'Failed to load graph';
         setError(message);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (mountedRef.current) setLoading(false);
+      });
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, [graphId, setGraph]);
 
   const saveGraph = useCallback(async () => {

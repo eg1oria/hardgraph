@@ -30,12 +30,13 @@ export default function SignupPage() {
           username: string;
           displayName?: string;
           avatarUrl?: string;
+          emailVerified: boolean;
           onboardingCompleted: boolean;
         };
         token: string;
       }>('/auth/register', form);
       setAuth(res.user, res.token);
-      router.push('/onboarding');
+      router.push('/verify-email');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Registration failed';
       setError(message);

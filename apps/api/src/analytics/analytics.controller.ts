@@ -3,7 +3,9 @@ import { ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { AnalyticsService } from './analytics.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalAuthGuard } from '../auth/guards/optional-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { TrackViewDto } from './dto/track-view.dto';
 
 @ApiTags('Analytics')
 @Controller('analytics')
@@ -11,10 +13,11 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Post('track')
-  track(@Body() body: { graphId: string }, @Req() req: Request) {
+  @UseGuards(OptionalAuthGuard)
+  track(@Body() dto: TrackViewDto, @Req() req: Request, @CurrentUser('id') userId?: string) {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const referrer = req.headers.referer;
-    return this.analyticsService.trackView(body.graphId, ip, referrer);
+    return this.analyticsService.trackView(dto.graphId, ip, referrer, userId);
   }
 
   @Get('views')

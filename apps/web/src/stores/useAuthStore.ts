@@ -14,6 +14,7 @@ export interface User {
   linkedinUrl?: string;
   plan?: string;
   role?: string;
+  emailVerified: boolean;
   onboardingCompleted: boolean;
 }
 
@@ -43,7 +44,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     removeToken();
     set({ user: null, token: null, isAuthenticated: false });
-    if (typeof window !== 'undefined') {
+    // Use window.location for clean navigation reset (clears all client state)
+    if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
       window.location.href = '/login';
     }
   },

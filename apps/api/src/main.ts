@@ -52,6 +52,9 @@ async function bootstrap() {
 
   const port = config.get<number>('API_PORT', 4000);
   const host = config.get<string>('API_HOST', 'localhost');
+
+  app.enableShutdownHooks();
+
   await app.listen(port, host);
   console.log(
     `HardGraph API running on ${host}:${port} [${isProd ? 'production' : 'development'}]`,

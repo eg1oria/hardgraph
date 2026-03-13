@@ -3,12 +3,14 @@ import {
   Post,
   Get,
   Body,
+  Query,
   HttpCode,
   HttpStatus,
   UseGuards,
   Req,
   Res,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
@@ -92,6 +94,23 @@ export class AuthController {
         `${this.frontendUrl}/login?error=${encodeURIComponent('Failed to complete GitHub sign-in. Please try again.')}`,
       );
     }
+  }
+
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    if (!token) {
+      throw new BadRequestException('Token is required');
+    }
+    return this.authService.verifyEmail(token);
+  }
+
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  resendVerification(@Body('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    return this.authService.resendVerification(email);
   }
 
   /** Ensure URL has a valid protocol and strip trailing slashes */

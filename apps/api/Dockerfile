@@ -24,7 +24,9 @@ FROM node:20-alpine AS runner
 WORKDIR /app/apps/api
 ENV NODE_ENV=production
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl \
+    && addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nestjs
 
 COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/apps/api/node_modules ./node_modules
@@ -33,8 +35,11 @@ COPY --from=build /app/apps/api/prisma ./prisma
 COPY --from=build /app/apps/api/package.json ./package.json
 COPY --from=build /app/packages /app/packages
 
+USER nestjs
+
 EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
   CMD wget -q --spider http://localhost:4000/health || exit 1
 
-CMD ["node", "dist/main.js"]
+# Run migrations then start (deploy = safe for production, no interactive prompts)
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

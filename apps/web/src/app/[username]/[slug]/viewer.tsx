@@ -405,29 +405,20 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
               </button>
             </div>
             <div className="px-4 pb-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3 min-w-0 pr-2">
-                  {isRepoNode && (
-                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
-                      <Github className="w-4 h-4 text-purple-400/80" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <h3 className="text-[15px] font-semibold text-foreground truncate">
-                      {selectedNode.name}
-                    </h3>
-                    <span className="text-[11px] font-medium" style={{ color: `${levelColor}cc` }}>
-                      {selectedNode.level.charAt(0).toUpperCase() + selectedNode.level.slice(1)}
-                    </span>
+              <div className="flex items-center gap-3 min-w-0 mb-3">
+                {isRepoNode && (
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
+                    <Github className="w-4 h-4 text-purple-400/80" />
                   </div>
+                )}
+                <div className="min-w-0">
+                  <h3 className="text-[15px] font-semibold text-foreground truncate">
+                    {selectedNode.name}
+                  </h3>
+                  <span className="text-[11px] font-medium" style={{ color: `${levelColor}cc` }}>
+                    {selectedNode.level.charAt(0).toUpperCase() + selectedNode.level.slice(1)}
+                  </span>
                 </div>
-                <button
-                  onClick={() => useGraphStore.getState().setSelectedNode(null)}
-                  className="p-2.5 rounded-lg hover:bg-surface-light text-muted-foreground min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
-                  aria-label="Close"
-                >
-                  <X className="w-4 h-4" />
-                </button>
               </div>
               {selectedNode.description && (
                 <p className="text-[13px] text-foreground/60 leading-relaxed mb-3">

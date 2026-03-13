@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Globe, Twitter, Linkedin, Eye, CalendarDays } from 'lucide-react';
 import { fetchPublic } from '@/lib/api';
+import { BackButton } from '@/components/ui/BackButton';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { GitHubReposSection } from '@/components/profile/GitHubReposSection';
@@ -78,9 +79,12 @@ export default async function PublicProfilePage({ params }: Props) {
       {/* Header */}
       <header className="border-b border-border bg-surface/50 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-lg font-bold text-gradient">
-            HardGraph
-          </Link>
+          <div className="flex items-center gap-3">
+            <BackButton />
+            <Link href="/" className="text-lg font-bold text-gradient">
+              HardGraph
+            </Link>
+          </div>
         </div>
       </header>
 

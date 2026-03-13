@@ -35,7 +35,7 @@ function RepoNodeComponent({ id, data, selected }: NodeProps) {
       <Handle
         type="target"
         position={Position.Top}
-        className="!w-2 !h-2 !bg-border !border-surface"
+        className="!w-3 !h-3 !bg-border !border-surface"
       />
 
       <div className="flex items-center gap-2 mb-1">
@@ -71,7 +71,7 @@ function RepoNodeComponent({ id, data, selected }: NodeProps) {
       <Handle
         type="source"
         position={Position.Bottom}
-        className="!w-2 !h-2 !bg-border !border-surface"
+        className="!w-3 !h-3 !bg-border !border-surface"
       />
     </div>
   );

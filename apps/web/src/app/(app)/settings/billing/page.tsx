@@ -1,6 +1,7 @@
 'use client';
 
 import { CreditCard, Zap, Check } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 
 const FREE_FEATURES = [
   'Up to 3 skill graphs',
@@ -22,7 +23,10 @@ const PRO_FEATURES = [
 export default function BillingPage() {
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-1">Billing</h1>
+      <div className="flex items-center gap-3 mb-1">
+        <BackButton />
+        <h1 className="text-2xl font-bold">Billing</h1>
+      </div>
       <p className="text-muted-foreground text-sm mb-8">Manage your subscription and plan</p>
 
       {/* Current plan */}

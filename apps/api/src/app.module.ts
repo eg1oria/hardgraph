@@ -12,6 +12,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { GithubModule } from './github/github.module';
 import { AdminModule } from './admin/admin.module';
 import { MailModule } from './mail/mail.module';
+import { EmbedModule } from './embed/embed.module';
 import { HealthController } from './health.controller';
 
 import { join } from 'path';
@@ -37,6 +38,7 @@ import { join } from 'path';
     AnalyticsModule,
     GithubModule,
     AdminModule,
+    EmbedModule,
   ],
   controllers: [HealthController],
 })

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Eye, Trash2, ExternalLink, GitFork, Github, Star } from 'lucide-react';
+import { Plus, Eye, Trash2, ExternalLink, GitFork, Github, Star, Code2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Modal } from '@/components/ui/Modal';
@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { useToast } from '@/components/ui/Toast';
+import { EmbedModal } from '@/components/embed/EmbedModal';
 
 interface Graph {
   id: string;
@@ -49,6 +50,7 @@ export default function DashboardPage() {
   const [creating, setCreating] = useState(false);
   const [repos, setRepos] = useState<GithubRepo[]>([]);
   const [reposLoading, setReposLoading] = useState(false);
+  const [embedGraph, setEmbedGraph] = useState<Graph | null>(null);
 
   const fetchGraphs = useCallback(() => {
     api
@@ -230,6 +232,19 @@ export default function DashboardPage() {
                         <ExternalLink className="w-4 h-4" />
                       </a>
                     )}
+                    {graph.isPublic && user && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEmbedGraph(graph);
+                        }}
+                        className="p-2.5 rounded-md hover:bg-cyan-500/10 active:bg-cyan-500/10 text-muted hover:text-cyan-400 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        title="Embed skill card"
+                        aria-label={`Embed ${graph.title}`}
+                      >
+                        <Code2 className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -356,6 +371,18 @@ export default function DashboardPage() {
           </div>
         </form>
       </Modal>
+
+      {embedGraph && user?.username && (
+        <EmbedModal
+          open={!!embedGraph}
+          onClose={() => setEmbedGraph(null)}
+          username={user.username}
+          slug={embedGraph.slug}
+          title={embedGraph.title}
+          isPublic={embedGraph.isPublic}
+          nodeCount={embedGraph._count.nodes}
+        />
+      )}
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   Github,
   MoreHorizontal,
   X,
+  Code2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -34,6 +35,7 @@ import { NodeDetailPanel } from '@/components/graph/NodeDetailPanel';
 import { AddNodeModal } from '@/components/editor/AddNodeModal';
 import { CategoryManager } from '@/components/editor/CategoryManager';
 import { ImportGithubModal } from '@/components/ImportGithubModal';
+import { EmbedModal } from '@/components/embed/EmbedModal';
 import { NODE_COLORS } from '@/lib/constants';
 import type { SkillLevel } from '@/lib/constants';
 
@@ -59,6 +61,7 @@ export default function EditorPage() {
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportGithub, setShowImportGithub] = useState(false);
+  const [showEmbedModal, setShowEmbedModal] = useState(false);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileNodeList, setShowMobileNodeList] = useState(false);
@@ -311,6 +314,15 @@ export default function EditorPage() {
               </button>
             )}
 
+            <button
+              onClick={() => setShowEmbedModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 active:bg-cyan-500/20 transition-colors shrink-0 min-h-[36px]"
+              title="Embed skill card"
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              <span>Embed</span>
+            </button>
+
             <div className="mx-0.5 h-5 w-px bg-border shrink-0" />
 
             <button
@@ -399,6 +411,16 @@ export default function EditorPage() {
                   Copy Link
                 </button>
               )}
+              <button
+                onClick={() => {
+                  setShowEmbedModal(true);
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-light active:bg-surface-light transition-colors"
+              >
+                <Code2 className="w-4 h-4 text-cyan-400" />
+                Embed
+              </button>
               <div className="h-px bg-border my-1" />
               <button
                 onClick={() => {
@@ -618,6 +640,18 @@ export default function EditorPage() {
         onClose={() => setShowImportGithub(false)}
         onImport={handleImportRepos}
       />
+
+      {user?.username && (
+        <EmbedModal
+          open={showEmbedModal}
+          onClose={() => setShowEmbedModal(false)}
+          username={user.username}
+          slug={slug}
+          title={title || 'Untitled Graph'}
+          isPublic={isPublic}
+          nodeCount={nodes.length}
+        />
+      )}
     </ReactFlowProvider>
   );
 }

@@ -70,15 +70,15 @@ export function HardGraph({ readonly }: { readonly?: boolean } = {}) {
         defaultEdgeOptions={defaultEdgeOptions}
         nodesDraggable={!readonly}
         nodesConnectable={!readonly}
-        elementsSelectable
+        elementsSelectable={!readonly}
         fitView
         fitViewOptions={fitViewOpts}
         proOptions={{ hideAttribution: true }}
         className="bg-background"
       >
         <Background gap={24} size={1} color="hsl(var(--border))" />
-        <GraphControls />
-        {!isMobile && <MiniMap />}
+        {!readonly && <GraphControls />}
+        {!readonly && !isMobile && <MiniMap />}
       </ReactFlow>
     </div>
   );

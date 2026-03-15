@@ -10,6 +10,7 @@ const publicPaths = [
   '/templates',
   '/api',
   '/auth',
+  '/embed',
 ];
 
 export function middleware(request: NextRequest) {

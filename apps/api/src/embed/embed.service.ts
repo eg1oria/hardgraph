@@ -58,10 +58,9 @@ const LEVEL_ICONS: Record<string, string> = {
 const MAX_SKILLS = 8;
 const W = 495;
 const PAD = 28;
-const ROW_H = 38;
+const ROW_H = 42;
 const HEADER_H = 88;
 const FOOTER_H = 52;
-const BAR_W = 90;
 const FONT = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
 
 @Injectable()
@@ -83,7 +82,8 @@ export class EmbedService {
     const username = esc(graph.user.username);
     const displayName = graph.user.displayName ? esc(truncate(graph.user.displayName, 28)) : null;
 
-    const barX = W - PAD - BAR_W;
+    const barX = PAD;
+    const barW = W - PAD * 2;
 
     const skillRows = skills
       .map((skill, i) => {
@@ -93,21 +93,21 @@ export class EmbedService {
         const progress = LEVEL_PROGRESS[level] || 0.25;
         const label = LEVEL_LABELS[level] || 'Beginner';
         const icon = LEVEL_ICONS[level] || '○';
-        const filledW = Math.round(BAR_W * progress);
-        const name = esc(truncate(skill.name, 24));
+        const filledW = Math.round(barW * progress);
+        const name = esc(truncate(skill.name, 28));
         const gradId = `bar${i}`;
 
         return `
     <g transform="translate(0, ${y})">
-      <text x="${PAD}" y="24" fill="${esc(color)}" font-size="11" font-family="${FONT}">${icon}</text>
-      <text x="${PAD + 18}" y="24" fill="#E2E8F0" font-size="13" font-weight="500" font-family="${FONT}">${name}</text>
-      <rect x="${barX}" y="12" width="${BAR_W}" height="14" rx="7" fill="#1E293B" />
+      <text x="${PAD}" y="16" fill="${esc(color)}" font-size="11" font-family="${FONT}">${icon}</text>
+      <text x="${PAD + 18}" y="16" fill="#E2E8F0" font-size="13" font-weight="500" font-family="${FONT}">${name}</text>
+      <text x="${W - PAD}" y="16" fill="#64748B" font-size="9" font-weight="500" font-family="${FONT}" letter-spacing="0.5" text-anchor="end">${esc(label.toUpperCase())}</text>
+      <rect x="${barX}" y="24" width="${barW}" height="5" rx="2.5" fill="#1E293B" />
       <linearGradient id="${gradId}" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%" stop-color="${esc(color)}" stop-opacity="0.6" />
         <stop offset="100%" stop-color="${esc(color)}" />
       </linearGradient>
-      <rect x="${barX}" y="12" width="${filledW}" height="14" rx="7" fill="url(#${gradId})" />
-      <text x="${barX + BAR_W + 8}" y="24" fill="#64748B" font-size="9" font-weight="500" font-family="${FONT}" letter-spacing="0.5">${esc(label.toUpperCase())}</text>
+      <rect x="${barX}" y="24" width="${filledW}" height="5" rx="2.5" fill="url(#${gradId})" />
     </g>`;
       })
       .join('');

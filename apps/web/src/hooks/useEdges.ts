@@ -28,6 +28,7 @@ export function useEdges() {
           edgeType: 'dependency',
         });
         useGraphStore.getState().addEdge(res);
+        useGraphStore.getState().touchUpdatedAt();
       } catch {
         toast('Failed to create edge', 'error');
       } finally {
@@ -42,6 +43,7 @@ export function useEdges() {
       try {
         await api.delete(`/edges/${id}`);
         useGraphStore.getState().removeEdge(id);
+        useGraphStore.getState().touchUpdatedAt();
       } catch {
         toast('Failed to delete edge', 'error');
       }

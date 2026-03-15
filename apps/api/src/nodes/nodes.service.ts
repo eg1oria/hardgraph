@@ -16,7 +16,7 @@ export class NodesService {
 
   async create(graphId: string, userId: string, dto: CreateNodeDto) {
     await this.verifyGraphOwnership(graphId, userId);
-    return this.prisma.node.create({
+    const node = await this.prisma.node.create({
       data: {
         graphId,
         name: dto.name,
@@ -31,6 +31,8 @@ export class NodesService {
         isUnlocked: dto.isUnlocked,
       },
     });
+    await this.touchGraph(graphId);
+    return node;
   }
 
   async update(id: string, userId: string, dto: UpdateNodeDto) {
@@ -41,7 +43,7 @@ export class NodesService {
     if (!node) throw new NotFoundException('Node not found');
     if (node.graph.userId !== userId) throw new ForbiddenException();
 
-    return this.prisma.node.update({
+    const updated = await this.prisma.node.update({
       where: { id },
       data: {
         name: dto.name,
@@ -57,6 +59,8 @@ export class NodesService {
         isUnlocked: dto.isUnlocked,
       },
     });
+    await this.touchGraph(node.graphId);
+    return updated;
   }
 
   async remove(id: string, userId: string) {
@@ -67,7 +71,9 @@ export class NodesService {
     if (!node) throw new NotFoundException('Node not found');
     if (node.graph.userId !== userId) throw new ForbiddenException();
 
-    return this.prisma.node.delete({ where: { id } });
+    const deleted = await this.prisma.node.delete({ where: { id } });
+    await this.touchGraph(node.graphId);
+    return deleted;
   }
 
   async batchUpdate(userId: string, nodes: { id: string; positionX: number; positionY: number }[]) {
@@ -95,6 +101,14 @@ export class NodesService {
     const graph = await this.prisma.graph.findUnique({ where: { id: graphId } });
     if (!graph) throw new NotFoundException('Graph not found');
     if (graph.userId !== userId) throw new ForbiddenException();
+  }
+
+  /** Bump graph.updatedAt so embed caches invalidate */
+  private async touchGraph(graphId: string) {
+    await this.prisma.graph.update({
+      where: { id: graphId },
+      data: { updatedAt: new Date() },
+    });
   }
 
   async evolve(id: string, userId: string, dto: EvolveNodeDto) {
@@ -137,6 +151,7 @@ export class NodesService {
       return [newNode, newEdge];
     });
 
+    await this.touchGraph(node.graphId);
     return { node: evolvedNode, edge };
   }
 

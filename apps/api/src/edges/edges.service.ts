@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEdgeDto } from './dto/create-edge.dto';
 
@@ -26,9 +31,11 @@ export class EdgesService {
       throw new BadRequestException('Both nodes must belong to the same graph');
     }
 
-    return this.prisma.edge.create({
+    const edge = await this.prisma.edge.create({
       data: { graphId, ...dto },
     });
+    await this.touchGraph(graphId);
+    return edge;
   }
 
   async remove(id: string, userId: string) {
@@ -39,12 +46,22 @@ export class EdgesService {
     if (!edge) throw new NotFoundException('Edge not found');
     if (edge.graph.userId !== userId) throw new ForbiddenException();
 
-    return this.prisma.edge.delete({ where: { id } });
+    const deleted = await this.prisma.edge.delete({ where: { id } });
+    await this.touchGraph(edge.graphId);
+    return deleted;
   }
 
   private async verifyGraphOwnership(graphId: string, userId: string) {
     const graph = await this.prisma.graph.findUnique({ where: { id: graphId } });
     if (!graph) throw new NotFoundException('Graph not found');
     if (graph.userId !== userId) throw new ForbiddenException();
+  }
+
+  /** Bump graph.updatedAt so embed caches invalidate */
+  private async touchGraph(graphId: string) {
+    await this.prisma.graph.update({
+      where: { id: graphId },
+      data: { updatedAt: new Date() },
+    });
   }
 }

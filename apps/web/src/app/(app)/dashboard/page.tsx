@@ -22,6 +22,7 @@ interface Graph {
   theme: string;
   viewCount: number;
   createdAt: string;
+  updatedAt: string;
   _count: { nodes: number; edges: number };
 }
 
@@ -381,6 +382,7 @@ export default function DashboardPage() {
           title={embedGraph.title}
           isPublic={embedGraph.isPublic}
           nodeCount={embedGraph._count.nodes}
+          updatedAt={embedGraph.updatedAt}
         />
       )}
     </div>

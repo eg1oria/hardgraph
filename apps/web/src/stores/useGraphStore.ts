@@ -97,6 +97,7 @@ interface GraphState {
   title: string;
   slug: string;
   isPublic: boolean;
+  updatedAt: string;
   nodes: GraphNode[];
   edges: GraphEdge[];
   categories: Category[];
@@ -113,6 +114,7 @@ interface GraphState {
     title: string;
     slug?: string;
     isPublic?: boolean;
+    updatedAt?: string;
     nodes: GraphNode[];
     edges: GraphEdge[];
     categories: Category[];
@@ -149,6 +151,7 @@ interface GraphState {
 
   setIsPublic: (isPublic: boolean) => void;
   setDirty: (dirty: boolean) => void;
+  touchUpdatedAt: () => void;
   reset: () => void;
 }
 
@@ -172,6 +175,7 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
   title: '',
   slug: '',
   isPublic: false,
+  updatedAt: '',
   nodes: [],
   edges: [],
   categories: [],
@@ -192,6 +196,7 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
       title: data.title,
       slug: data.slug ?? '',
       isPublic: data.isPublic ?? false,
+      updatedAt: data.updatedAt ?? new Date().toISOString(),
       nodes,
       edges,
       categories,
@@ -355,6 +360,7 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
   requestDeleteEdge: (id) => set({ pendingDeleteEdgeId: id }),
   setIsPublic: (isPublic) => set({ isPublic }),
   setDirty: (dirty) => set({ isDirty: dirty }),
+  touchUpdatedAt: () => set({ updatedAt: new Date().toISOString() }),
 
   reset: () =>
     set({
@@ -362,6 +368,7 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
       title: '',
       slug: '',
       isPublic: false,
+      updatedAt: '',
       nodes: [],
       edges: [],
       categories: [],

@@ -1,6 +1,6 @@
-import { Controller, Get, Param, Res, Logger, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Param, Res, Req, Logger, NotFoundException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { GraphsService } from '../graphs/graphs.service';
 import { EmbedService } from './embed.service';
 
@@ -16,17 +16,25 @@ export class EmbedController {
 
   /**
    * Returns an SVG skill card for a public graph.
-   * CDN-friendly: cached for 1 hour, stale-while-revalidate for 1 day.
-   * Uses @Res() to bypass TransformInterceptor and return raw SVG.
+   * Versioned URL (?v=<timestamp>) enables aggressive CDN caching.
+   * ETag based on graph.updatedAt for conditional requests.
    */
   @Get(':username/:slug.svg')
   async getSvg(
     @Param('username') username: string,
     @Param('slug') slug: string,
+    @Req() req: Request,
     @Res() res: Response,
   ) {
     try {
       const graph = await this.graphsService.findPublic(username, slug);
+
+      // ETag based on updatedAt — enables 304 Not Modified
+      const etag = `"embed-${graph.id}-${graph.updatedAt.getTime()}"`;
+      if (req.headers['if-none-match'] === etag) {
+        res.status(304).end();
+        return;
+      }
 
       const svg = this.embedService.generateSvg({
         title: graph.title,
@@ -46,6 +54,7 @@ export class EmbedController {
           'Content-Type': 'image/svg+xml; charset=utf-8',
           'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
           'Access-Control-Allow-Origin': '*',
+          ETag: etag,
         })
         .send(svg);
     } catch (error) {

@@ -47,6 +47,7 @@ export function useNodes() {
       try {
         const res = await api.post<GraphNode>(`/graphs/${graphId}/nodes`, data);
         useGraphStore.getState().addNode({ ...res, isUnlocked: true });
+        useGraphStore.getState().touchUpdatedAt();
         return res;
       } catch {
         toast('Failed to create node', 'error');
@@ -60,6 +61,7 @@ export function useNodes() {
       try {
         await api.put(`/nodes/${id}`, data);
         useGraphStore.getState().updateNode(id, data);
+        useGraphStore.getState().touchUpdatedAt();
       } catch {
         toast('Failed to update node', 'error');
       }
@@ -72,6 +74,7 @@ export function useNodes() {
       try {
         await api.delete(`/nodes/${id}`);
         useGraphStore.getState().removeNode(id);
+        useGraphStore.getState().touchUpdatedAt();
       } catch {
         toast('Failed to delete node', 'error');
       }
@@ -99,6 +102,7 @@ export function useNodes() {
         useGraphStore.getState().addNode({ ...node, isUnlocked: node.isUnlocked ?? true });
         useGraphStore.getState().addEdge(edge);
         useGraphStore.getState().setSelectedNode(node.id);
+        useGraphStore.getState().touchUpdatedAt();
         toast('Idea evolved!', 'success');
         return res;
       } catch {

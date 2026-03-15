@@ -1,15 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
-import {
-  Check,
-  Code2,
-  Copy,
-  AlertTriangle,
-  ExternalLink,
-  Lock,
-  Sparkles,
-} from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Check, Code2, Copy, ExternalLink, Lock, Sparkles } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 
@@ -21,6 +13,7 @@ interface EmbedModalProps {
   title: string;
   isPublic: boolean;
   nodeCount: number;
+  updatedAt?: string;
 }
 
 type EmbedFormat = 'markdown' | 'html' | 'iframe';
@@ -39,6 +32,7 @@ export function EmbedModal({
   title,
   isPublic,
   nodeCount,
+  updatedAt,
 }: EmbedModalProps) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
@@ -46,10 +40,20 @@ export function EmbedModal({
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
 
+  // Stable version key derived from updatedAt
+  const embedVersion = updatedAt ? String(new Date(updatedAt).getTime()) : '0';
+
+  // Reset image state when version changes so preview refreshes
+  useEffect(() => {
+    setImgLoaded(false);
+    setImgError(false);
+  }, [embedVersion]);
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
-  const svgUrl = `${apiUrl}/embed/${encodeURIComponent(username)}/${encodeURIComponent(slug)}.svg`;
+  const baseSvgUrl = `${apiUrl}/embed/${encodeURIComponent(username)}/${encodeURIComponent(slug)}.svg`;
+  const svgUrl = `${baseSvgUrl}?v=${embedVersion}`;
   const graphUrl = `${appUrl}/${encodeURIComponent(username)}/${encodeURIComponent(slug)}`;
   const embedUrl = `${appUrl}/embed/${encodeURIComponent(username)}/${encodeURIComponent(slug)}`;
 
@@ -60,9 +64,9 @@ export function EmbedModal({
     () => ({
       markdown: `[![${safeTitle}](${svgUrl})](${graphUrl})`,
       html: `<a href="${graphUrl}" target="_blank" rel="noopener noreferrer">\n  <img src="${svgUrl}" alt="${safeTitle}" width="495" />\n</a>`,
-      iframe: `<iframe src="${embedUrl}" width="800" height="500" style="border:none;border-radius:12px;" loading="lazy"></iframe>`,
+      iframe: `<iframe src="${embedUrl}?v=${embedVersion}" width="800" height="500" style="border:none;border-radius:12px;" loading="lazy"></iframe>`,
     }),
-    [safeTitle, svgUrl, graphUrl, embedUrl],
+    [safeTitle, svgUrl, graphUrl, embedUrl, embedVersion],
   );
 
   const currentCode = codeSnippets[format];
@@ -99,7 +103,8 @@ export function EmbedModal({
           <div className="space-y-1.5">
             <h3 className="font-semibold text-foreground">Graph is private</h3>
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-              Make your graph public to generate embed code. You can toggle visibility in the editor toolbar.
+              Make your graph public to generate embed code. You can toggle visibility in the editor
+              toolbar.
             </p>
           </div>
         </div>
@@ -145,6 +150,7 @@ export function EmbedModal({
                 </div>
               )}
               <img
+                key={embedVersion}
                 src={svgUrl}
                 alt={`${title} skill embed`}
                 className={`max-w-full h-auto transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0 absolute'}`}
@@ -197,15 +203,12 @@ export function EmbedModal({
               ? 'Paste into your GitHub README, docs, or any markdown file.'
               : format === 'html'
                 ? 'Add to any website, blog post, or portfolio page.'
-                : 'Embed an interactive skill tree viewer. Supports pan & zoom.'}
-            {' '}Updates automatically when you edit your graph.
+                : 'Embed an interactive skill tree viewer. Supports pan & zoom.'}{' '}
+            Updates automatically when you edit your graph.
           </p>
 
           {/* Primary CTA */}
-          <button
-            onClick={handleCopy}
-            className="btn-primary w-full justify-center gap-2 h-11"
-          >
+          <button onClick={handleCopy} className="btn-primary w-full justify-center gap-2 h-11">
             {copied ? (
               <>
                 <Check className="w-4 h-4" />

@@ -3,6 +3,9 @@ import type { Metadata } from 'next';
 import { fetchPublic } from '@/lib/api';
 import { EmbedViewer } from './viewer';
 
+/** Always fetch fresh data — embed must reflect latest graph state */
+export const dynamic = 'force-dynamic';
+
 interface PublicGraph {
   id: string;
   title: string;

@@ -30,6 +30,7 @@ export function useGraph(graphId: string | null) {
         title: string;
         slug: string;
         isPublic: boolean;
+        updatedAt?: string;
         nodes?: GraphNode[];
         edges?: GraphEdge[];
         categories?: Category[];
@@ -41,6 +42,7 @@ export function useGraph(graphId: string | null) {
           title: g.title,
           slug: g.slug,
           isPublic: g.isPublic,
+          updatedAt: g.updatedAt,
           nodes: g.nodes ?? [],
           edges: g.edges ?? [],
           categories: g.categories ?? [],

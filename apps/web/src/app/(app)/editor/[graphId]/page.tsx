@@ -52,6 +52,7 @@ export default function EditorPage() {
   const slug = useGraphStore((s) => s.slug);
   const isPublic = useGraphStore((s) => s.isPublic);
   const setIsPublic = useGraphStore((s) => s.setIsPublic);
+  const updatedAt = useGraphStore((s) => s.updatedAt);
   const nodes = useGraphStore((s) => s.nodes);
   const edges = useGraphStore((s) => s.edges);
   const isDirty = useGraphStore((s) => s.isDirty);
@@ -101,6 +102,7 @@ export default function EditorPage() {
     setIsPublic(next); // optimistic
     try {
       await api.put(`/graphs/${graphId}`, { isPublic: next });
+      useGraphStore.getState().touchUpdatedAt();
       toast(next ? 'Graph is now public!' : 'Graph is now private', next ? 'success' : 'info');
     } catch {
       setIsPublic(!next); // rollback
@@ -263,6 +265,9 @@ export default function EditorPage() {
 
           {/* Desktop-only buttons */}
           <div className="hidden sm:flex items-center gap-1">
+            <Badge variant="muted" className="mx-1 hidden lg:inline-flex">
+              {nodes.length} nodes · {edges.length} edges
+            </Badge>
             <button
               onClick={() => setShowAddModal(true)}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-primary/10 text-primary-400 hover:bg-primary/20 active:bg-primary/20 transition-colors shrink-0 min-h-[36px]"
@@ -278,10 +283,6 @@ export default function EditorPage() {
               <Github className="w-3.5 h-3.5" />
               <span>Import</span>
             </button>
-
-            <Badge variant="muted" className="mx-1 hidden lg:inline-flex">
-              {nodes.length} nodes · {edges.length} edges
-            </Badge>
 
             <button
               onClick={handleTogglePublic}
@@ -650,6 +651,7 @@ export default function EditorPage() {
           title={title || 'Untitled Graph'}
           isPublic={isPublic}
           nodeCount={nodes.length}
+          updatedAt={updatedAt}
         />
       )}
     </ReactFlowProvider>

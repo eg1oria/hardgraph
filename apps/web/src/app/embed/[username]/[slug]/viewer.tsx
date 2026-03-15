@@ -63,6 +63,7 @@ export function EmbedViewer({ graph }: { graph: GraphData }) {
   }, [graph, setGraph]);
 
   const graphUrl = `/${graph.user.username}/${graph.slug}`;
+  const author = graph.user.displayName || graph.user.username;
 
   return (
     <div className="h-screen w-screen flex flex-col bg-background">
@@ -72,37 +73,37 @@ export function EmbedViewer({ graph }: { graph: GraphData }) {
         </div>
       </ReactFlowProvider>
 
-      {/* CTA Footer */}
-      <div className="h-10 border-t border-border bg-surface flex items-center justify-center gap-2 px-4 shrink-0">
-        <span className="text-xs text-muted-foreground">⬡</span>
-        <span className="text-xs text-muted-foreground">
+      {/* CTA Footer — minimal, elegant */}
+      <div className="h-11 border-t border-border bg-surface/80 backdrop-blur-sm flex items-center justify-between px-4 shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {/* Logo mark */}
+          <svg width="16" height="18" viewBox="0 0 16 18" fill="none" className="shrink-0 opacity-50">
+            <polygon points="8,1 14.93,5 14.93,13 8,17 1.07,13 1.07,5" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-indigo-400" />
+          </svg>
           <Link
             href={graphUrl}
-            className="text-primary-400 hover:underline font-medium"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors truncate font-medium"
             target="_blank"
             rel="noopener noreferrer"
           >
             {graph.title}
+            <span className="font-normal opacity-60"> by {author}</span>
           </Link>
-          {' · Made with '}
-          <Link
-            href="/"
-            className="text-primary-400 hover:underline font-medium"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            HardGraph
-          </Link>
-          {' — '}
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0 ml-3">
+          <span className="text-[10px] text-muted-foreground/50 hidden sm:inline">
+            Powered by HardGraph
+          </span>
           <Link
             href="/signup"
-            className="text-foreground hover:underline font-medium"
+            className="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors whitespace-nowrap"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Create yours free
+            Create yours →
           </Link>
-        </span>
+        </div>
       </div>
     </div>
   );

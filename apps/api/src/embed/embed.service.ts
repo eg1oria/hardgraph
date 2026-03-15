@@ -29,9 +29,9 @@ function truncate(text: string, maxLen: number): string {
 
 const LEVEL_COLORS: Record<string, string> = {
   beginner: '#22D3EE',
-  intermediate: '#6366F1',
-  advanced: '#A855F7',
-  expert: '#F59E0B',
+  intermediate: '#818CF8',
+  advanced: '#A78BFA',
+  expert: '#FBBF24',
 };
 
 const LEVEL_PROGRESS: Record<string, number> = {
@@ -48,15 +48,21 @@ const LEVEL_LABELS: Record<string, string> = {
   expert: 'Expert',
 };
 
+const LEVEL_ICONS: Record<string, string> = {
+  beginner: '○',
+  intermediate: '◐',
+  advanced: '◕',
+  expert: '●',
+};
+
 const MAX_SKILLS = 8;
-const CARD_WIDTH = 480;
-const ROW_HEIGHT = 36;
-const HEADER_HEIGHT = 72;
-const FOOTER_HEIGHT = 48;
-const PADDING = 24;
-const BAR_WIDTH = 100;
-const LABEL_WIDTH = 75;
-const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+const W = 495;
+const PAD = 28;
+const ROW_H = 38;
+const HEADER_H = 88;
+const FOOTER_H = 52;
+const BAR_W = 90;
+const FONT = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
 
 @Injectable()
 export class EmbedService {
@@ -68,94 +74,156 @@ export class EmbedService {
     }
 
     const extraCount = Math.max(0, graph.nodes.length - MAX_SKILLS);
-    const rowCount = skills.length + (extraCount > 0 ? 1 : 0);
-    const contentHeight = rowCount * ROW_HEIGHT;
-    const totalHeight = HEADER_HEIGHT + contentHeight + FOOTER_HEIGHT + PADDING;
+    const hasExtra = extraCount > 0;
+    const rowCount = skills.length + (hasExtra ? 1 : 0);
+    const contentH = rowCount * ROW_H;
+    const H = HEADER_H + contentH + FOOTER_H + 12;
 
-    const title = esc(truncate(graph.title, 40));
+    const title = esc(truncate(graph.title, 36));
     const username = esc(graph.user.username);
+    const displayName = graph.user.displayName ? esc(truncate(graph.user.displayName, 28)) : null;
 
-    // Layout: [padding][dot][name ... ][bar][gap][label][padding]
-    const labelX = CARD_WIDTH - PADDING - LABEL_WIDTH;
-    const barX = labelX - BAR_WIDTH - 8;
+    const barX = W - PAD - BAR_W;
 
     const skillRows = skills
       .map((skill, i) => {
-        const y = HEADER_HEIGHT + i * ROW_HEIGHT;
+        const y = HEADER_H + i * ROW_H;
         const level = skill.level || 'beginner';
-        const color = skill.category?.color || LEVEL_COLORS[level] || '#6366F1';
+        const color = skill.category?.color || LEVEL_COLORS[level] || '#818CF8';
         const progress = LEVEL_PROGRESS[level] || 0.25;
         const label = LEVEL_LABELS[level] || 'Beginner';
-        const filledWidth = Math.round(BAR_WIDTH * progress);
-        const name = esc(truncate(skill.name, 22));
+        const icon = LEVEL_ICONS[level] || '○';
+        const filledW = Math.round(BAR_W * progress);
+        const name = esc(truncate(skill.name, 24));
+        const gradId = `bar${i}`;
 
         return `
     <g transform="translate(0, ${y})">
-      <circle cx="${PADDING + 6}" cy="18" r="4" fill="${esc(color)}" />
-      <text x="${PADDING + 18}" y="22" fill="#E2E8F0" font-size="13" font-family="${FONT}">${name}</text>
-      <rect x="${barX}" y="10" width="${BAR_WIDTH}" height="16" rx="4" fill="#1E293B" />
-      <rect x="${barX}" y="10" width="${filledWidth}" height="16" rx="4" fill="${esc(color)}" opacity="0.8" />
-      <text x="${CARD_WIDTH - PADDING}" y="22" fill="#94A3B8" font-size="10" font-family="${FONT}" text-anchor="end">${esc(label)}</text>
+      <text x="${PAD}" y="24" fill="${esc(color)}" font-size="11" font-family="${FONT}">${icon}</text>
+      <text x="${PAD + 18}" y="24" fill="#E2E8F0" font-size="13" font-weight="500" font-family="${FONT}">${name}</text>
+      <rect x="${barX}" y="12" width="${BAR_W}" height="14" rx="7" fill="#1E293B" />
+      <linearGradient id="${gradId}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${esc(color)}" stop-opacity="0.6" />
+        <stop offset="100%" stop-color="${esc(color)}" />
+      </linearGradient>
+      <rect x="${barX}" y="12" width="${filledW}" height="14" rx="7" fill="url(#${gradId})" />
+      <text x="${barX + BAR_W + 8}" y="24" fill="#64748B" font-size="9" font-weight="500" font-family="${FONT}" letter-spacing="0.5">${esc(label.toUpperCase())}</text>
     </g>`;
       })
       .join('');
 
-    const extraRow =
-      extraCount > 0
-        ? `<text x="${PADDING}" y="${HEADER_HEIGHT + skills.length * ROW_HEIGHT + 22}" fill="#64748B" font-size="12" font-family="${FONT}">+${extraCount} more skills</text>`
-        : '';
+    const extraRow = hasExtra
+      ? `<text x="${PAD}" y="${HEADER_H + skills.length * ROW_H + 24}" fill="#475569" font-size="11" font-weight="500" font-family="${FONT}">+${extraCount} more skills</text>`
+      : '';
 
-    const footerY = totalHeight - FOOTER_HEIGHT;
+    const footerY = H - FOOTER_H;
 
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${CARD_WIDTH}" height="${totalHeight}" viewBox="0 0 ${CARD_WIDTH} ${totalHeight}" fill="none">
-  <rect width="${CARD_WIDTH}" height="${totalHeight}" rx="12" fill="#0F172A" />
-  <rect width="${CARD_WIDTH}" height="${totalHeight}" rx="12" stroke="#1E293B" stroke-width="1" />
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none">
+  <defs>
+    <linearGradient id="cardBg" x1="0" y1="0" x2="${W}" y2="${H}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B1120" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="accentLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="50%" stop-color="#22D3EE" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Card background -->
+  <rect width="${W}" height="${H}" rx="16" fill="url(#cardBg)" />
+  <rect width="${W}" height="${H}" rx="16" stroke="#1E293B" stroke-width="1" />
+
+  <!-- Top accent line -->
+  <rect x="1" y="1" width="${W - 2}" height="3" rx="16" fill="url(#accentLine)" opacity="0.7" />
 
   <!-- Header -->
   <g>
-    <text x="${PADDING}" y="32" fill="#F8FAFC" font-size="16" font-weight="600" font-family="${FONT}">${title}</text>
-    <text x="${PADDING}" y="52" fill="#94A3B8" font-size="12" font-family="${FONT}">@${username} · ${graph.nodes.length} skills</text>
-    <line x1="${PADDING}" y1="64" x2="${CARD_WIDTH - PADDING}" y2="64" stroke="#1E293B" stroke-width="1" />
+    <text x="${PAD}" y="38" fill="#F8FAFC" font-size="18" font-weight="700" font-family="${FONT}" letter-spacing="-0.3">${title}</text>
+    <text x="${PAD}" y="58" fill="#64748B" font-size="12" font-weight="400" font-family="${FONT}">${displayName ? displayName + ' · ' : ''}@${username}</text>
+    <text x="${W - PAD}" y="58" fill="#475569" font-size="11" font-weight="500" font-family="${FONT}" text-anchor="end">${graph.nodes.length} skills</text>
+    <line x1="${PAD}" y1="72" x2="${W - PAD}" y2="72" stroke="#1E293B" stroke-width="1" />
   </g>
 
   <!-- Skills -->
   ${skillRows}
   ${extraRow}
 
-  <!-- Footer -->
-  <line x1="${PADDING}" y1="${footerY}" x2="${CARD_WIDTH - PADDING}" y2="${footerY}" stroke="#1E293B" stroke-width="1" />
-  <text x="${PADDING}" y="${footerY + 20}" fill="#64748B" font-size="11" font-family="${FONT}">⬡ Made with HardGraph</text>
-  <text x="${CARD_WIDTH - PADDING}" y="${footerY + 20}" fill="#475569" font-size="10" font-family="${FONT}" text-anchor="end">Create yours →</text>
+  <!-- Footer divider -->
+  <line x1="${PAD}" y1="${footerY}" x2="${W - PAD}" y2="${footerY}" stroke="#1E293B" stroke-width="1" />
 
-  <!-- Clickable overlay for GitHub rendering (links are not supported in img src, but useful when SVG opened directly) -->
-  <a href="https://hardgraph.io/signup" target="_blank">
-    <rect x="${CARD_WIDTH - PADDING - 80}" y="${footerY + 6}" width="80" height="20" fill="transparent" />
-  </a>
+  <!-- Footer -->
+  <g transform="translate(0, ${footerY})">
+    <!-- HardGraph logo mark -->
+    <g transform="translate(${PAD}, 14)">
+      <polygon points="8,0 14.93,4 14.93,12 8,16 1.07,12 1.07,4" fill="none" stroke="#6366F1" stroke-width="1.2" opacity="0.6" />
+      <polygon points="8,3 11.46,5 11.46,11 8,13 4.54,11 4.54,5" fill="#6366F1" opacity="0.15" />
+    </g>
+    <text x="${PAD + 22}" y="27" fill="#475569" font-size="11" font-weight="500" font-family="${FONT}">HardGraph</text>
+    <text x="${W - PAD}" y="27" fill="#334155" font-size="10" font-weight="500" font-family="${FONT}" text-anchor="end">hardgraph.io</text>
+  </g>
 </svg>`;
   }
 
   private generateEmptySvg(graph: EmbedGraphData): string {
-    const title = esc(truncate(graph.title, 40));
+    const title = esc(truncate(graph.title, 36));
     const username = esc(graph.user.username);
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${CARD_WIDTH}" height="160" viewBox="0 0 ${CARD_WIDTH} 160" fill="none">
-  <rect width="${CARD_WIDTH}" height="160" rx="12" fill="#0F172A" />
-  <rect width="${CARD_WIDTH}" height="160" rx="12" stroke="#1E293B" stroke-width="1" />
-  <text x="${PADDING}" y="32" fill="#F8FAFC" font-size="16" font-weight="600" font-family="${FONT}">${title}</text>
-  <text x="${PADDING}" y="52" fill="#94A3B8" font-size="12" font-family="${FONT}">@${username}</text>
-  <line x1="${PADDING}" y1="64" x2="${CARD_WIDTH - PADDING}" y2="64" stroke="#1E293B" stroke-width="1" />
-  <text x="${CARD_WIDTH / 2}" y="96" fill="#64748B" font-size="13" font-family="${FONT}" text-anchor="middle">No skills added yet</text>
-  <line x1="${PADDING}" y1="116" x2="${CARD_WIDTH - PADDING}" y2="116" stroke="#1E293B" stroke-width="1" />
-  <text x="${PADDING}" y="142" fill="#64748B" font-size="11" font-family="${FONT}">⬡ Made with HardGraph</text>
-  <text x="${CARD_WIDTH - PADDING}" y="142" fill="#475569" font-size="10" font-family="${FONT}" text-anchor="end">Create yours →</text>
+    const H = 180;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none">
+  <defs>
+    <linearGradient id="cardBg" x1="0" y1="0" x2="${W}" y2="${H}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B1120" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <linearGradient id="accentLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="50%" stop-color="#22D3EE" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+  </defs>
+  <rect width="${W}" height="${H}" rx="16" fill="url(#cardBg)" />
+  <rect width="${W}" height="${H}" rx="16" stroke="#1E293B" stroke-width="1" />
+  <rect x="1" y="1" width="${W - 2}" height="3" rx="16" fill="url(#accentLine)" opacity="0.7" />
+  <text x="${PAD}" y="38" fill="#F8FAFC" font-size="18" font-weight="700" font-family="${FONT}" letter-spacing="-0.3">${title}</text>
+  <text x="${PAD}" y="58" fill="#64748B" font-size="12" font-family="${FONT}">@${username}</text>
+  <line x1="${PAD}" y1="72" x2="${W - PAD}" y2="72" stroke="#1E293B" stroke-width="1" />
+  <g transform="translate(${W / 2}, 105)">
+    <circle cx="0" cy="-8" r="16" fill="#1E293B" />
+    <text x="0" y="-3" fill="#475569" font-size="14" font-family="${FONT}" text-anchor="middle">+</text>
+    <text x="0" y="20" fill="#475569" font-size="12" font-weight="500" font-family="${FONT}" text-anchor="middle">No skills yet</text>
+  </g>
+  <line x1="${PAD}" y1="${H - 48}" x2="${W - PAD}" y2="${H - 48}" stroke="#1E293B" stroke-width="1" />
+  <g transform="translate(${PAD}, ${H - 34})">
+    <polygon points="8,0 14.93,4 14.93,12 8,16 1.07,12 1.07,4" fill="none" stroke="#6366F1" stroke-width="1.2" opacity="0.6" />
+  </g>
+  <text x="${PAD + 22}" y="${H - 21}" fill="#475569" font-size="11" font-weight="500" font-family="${FONT}">HardGraph</text>
 </svg>`;
   }
 
   generateErrorSvg(message: string): string {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${CARD_WIDTH}" height="120" viewBox="0 0 ${CARD_WIDTH} 120" fill="none">
-  <rect width="${CARD_WIDTH}" height="120" rx="12" fill="#0F172A" />
-  <rect width="${CARD_WIDTH}" height="120" rx="12" stroke="#1E293B" stroke-width="1" />
-  <text x="${CARD_WIDTH / 2}" y="55" fill="#94A3B8" font-size="14" font-family="${FONT}" text-anchor="middle">${esc(message)}</text>
-  <text x="${CARD_WIDTH / 2}" y="80" fill="#64748B" font-size="11" font-family="${FONT}" text-anchor="middle">⬡ hardgraph.io</text>
+    const H = 140;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none">
+  <defs>
+    <linearGradient id="cardBg" x1="0" y1="0" x2="${W}" y2="${H}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B1120" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+  </defs>
+  <rect width="${W}" height="${H}" rx="16" fill="url(#cardBg)" />
+  <rect width="${W}" height="${H}" rx="16" stroke="#1E293B" stroke-width="1" />
+  <text x="${W / 2}" y="60" fill="#64748B" font-size="13" font-weight="500" font-family="${FONT}" text-anchor="middle">${esc(message)}</text>
+  <g transform="translate(${W / 2 - 48}, ${H - 40})">
+    <polygon points="8,0 14.93,4 14.93,12 8,16 1.07,12 1.07,4" fill="none" stroke="#6366F1" stroke-width="1.2" opacity="0.4" />
+    <text x="22" y="13" fill="#334155" font-size="11" font-weight="500" font-family="${FONT}">hardgraph.io</text>
+  </g>
 </svg>`;
   }
 }

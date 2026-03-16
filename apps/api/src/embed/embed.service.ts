@@ -222,7 +222,7 @@ export class EmbedService {
   <text x="${W / 2}" y="60" fill="#64748B" font-size="13" font-weight="500" font-family="${FONT}" text-anchor="middle">${esc(message)}</text>
   <g transform="translate(${W / 2 - 48}, ${H - 40})">
     <polygon points="8,0 14.93,4 14.93,12 8,16 1.07,12 1.07,4" fill="none" stroke="#6366F1" stroke-width="1.2" opacity="0.4" />
-    <text x="22" y="13" fill="#334155" font-size="11" font-weight="500" font-family="${FONT}">hardgraph.io</text>
+    <text x="22" y="13" fill="#334155" font-size="11" font-weight="500" font-family="${FONT}">hardgraph.com</text>
   </g>
 </svg>`;
   }

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   Eye,
@@ -17,7 +18,9 @@ import {
 
 import { HardGraph } from '@/components/graph/HardGraph';
 import { HashtagText } from '@/components/graph/HashtagText';
+import { ForkModal } from '@/components/graph/ForkModal';
 import { useGraphStore } from '@/stores/useGraphStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { NODE_COLORS, type SkillLevel } from '@/lib/constants';
 import { hasHashtags } from '@/lib/hashtag-parser';
 import { api } from '@/lib/api';
@@ -61,6 +64,13 @@ interface GraphData {
     color?: string;
     sortOrder: number;
   }>;
+  forkCount: number;
+  forkedFrom?: {
+    id: string;
+    slug: string;
+    title: string;
+    user: { username: string };
+  } | null;
 }
 
 interface ConnNode {
@@ -120,11 +130,14 @@ function ConnectionSection({ label, nodes }: { label: string; nodes: ConnNode[] 
 }
 
 export function PublicGraphViewer({ graph }: { graph: GraphData }) {
+  const router = useRouter();
   const setGraph = useGraphStore((s) => s.setGraph);
   const selectedNodeId = useGraphStore((s) => s.selectedNodeId);
   const storeNodes = useGraphStore((s) => s.nodes);
   const storeEdges = useGraphStore((s) => s.edges);
+  const currentUser = useAuthStore((s) => s.user);
   const [displayViewCount, setDisplayViewCount] = useState(graph.viewCount);
+  const [showForkModal, setShowForkModal] = useState(false);
   const viewTrackedRef = useRef(false);
 
   // Find selected node from the store (populated in useEffect below)
@@ -208,6 +221,11 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
     }
   };
 
+  const handleFork = async (title: string) => {
+    const res = await api.post<{ id: string; slug: string }>(`/graphs/${graph.id}/fork`, { title });
+    router.push(`/editor/${res.id}`);
+  };
+
   const levelColor = selectedNode
     ? (NODE_COLORS[selectedNode.level as SkillLevel] ?? '#6366F1')
     : '#6366F1';
@@ -234,6 +252,18 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
                 {author}
               </Link>
             </p>
+            {graph.forkedFrom && (
+              <p className="text-[11px] text-muted-foreground/60 flex items-center gap-1 mt-0.5">
+                <GitFork className="w-3 h-3" />
+                Forked from{' '}
+                <Link
+                  href={`/${graph.forkedFrom.user.username}/${graph.forkedFrom.slug}`}
+                  className="text-primary/70 hover:text-primary hover:underline"
+                >
+                  {graph.forkedFrom.user.username}/{graph.forkedFrom.slug}
+                </Link>
+              </p>
+            )}
           </div>
         </div>
 
@@ -242,6 +272,35 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
             <Eye className="w-4 h-4" />
             {displayViewCount}
           </span>
+          {currentUser && currentUser.id !== graph.user.id ? (
+            <button
+              onClick={() => setShowForkModal(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors min-h-[44px]"
+              title="Fork this skill tree"
+            >
+              <GitFork className="w-4 h-4" />
+              <span className="hidden sm:inline">Fork</span>
+              {graph.forkCount > 0 && (
+                <span className="text-xs tabular-nums text-purple-400/70 ml-0.5">
+                  {graph.forkCount}
+                </span>
+              )}
+            </button>
+          ) : !currentUser ? (
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors min-h-[44px]"
+              title="Login to fork this skill tree"
+            >
+              <GitFork className="w-4 h-4" />
+              <span className="hidden sm:inline">Fork</span>
+              {graph.forkCount > 0 && (
+                <span className="text-xs tabular-nums text-purple-400/70 ml-0.5">
+                  {graph.forkCount}
+                </span>
+              )}
+            </Link>
+          ) : null}
           <button
             onClick={handleShare}
             className="btn-ghost p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -451,6 +510,14 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
           <p className="text-sm text-muted-foreground max-w-2xl">{graph.description}</p>
         </footer>
       )}
+
+      <ForkModal
+        open={showForkModal}
+        onClose={() => setShowForkModal(false)}
+        graphTitle={graph.title}
+        authorUsername={graph.user.username}
+        onFork={handleFork}
+      />
     </div>
   );
 }

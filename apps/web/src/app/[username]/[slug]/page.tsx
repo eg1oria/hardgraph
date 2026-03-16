@@ -42,6 +42,13 @@ interface PublicGraph {
     color?: string;
     sortOrder: number;
   }>;
+  forkCount: number;
+  forkedFrom?: {
+    id: string;
+    slug: string;
+    title: string;
+    user: { username: string };
+  } | null;
 }
 
 interface Props {

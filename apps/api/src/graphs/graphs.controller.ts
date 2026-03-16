@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { CreateGraphDto } from './dto/create-graph.dto';
 import { UpdateGraphDto } from './dto/update-graph.dto';
+import { ForkGraphDto } from './dto/fork-graph.dto';
 
 @ApiTags('Graphs')
 @Controller()
@@ -29,6 +30,12 @@ export class GraphsController {
   @UseGuards(JwtAuthGuard)
   create(@CurrentUser('id') userId: string, @Body() dto: CreateGraphDto) {
     return this.graphsService.create(userId, dto);
+  }
+
+  @Post('graphs/:id/fork')
+  @UseGuards(JwtAuthGuard)
+  fork(@Param('id') id: string, @CurrentUser('id') userId: string, @Body() dto: ForkGraphDto) {
+    return this.graphsService.forkGraph(id, userId, dto);
   }
 
   @Get('graphs/:id')

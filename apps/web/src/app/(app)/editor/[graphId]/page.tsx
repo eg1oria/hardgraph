@@ -14,6 +14,7 @@ import {
   Check,
   Loader2,
   Github,
+  GitFork,
   MoreHorizontal,
   X,
   Code2,
@@ -43,7 +44,7 @@ export default function EditorPage() {
   const { graphId } = useParams<{ graphId: string }>();
   const router = useRouter();
   const { toast } = useToast();
-  const { loading, error, saveGraph } = useGraph(graphId);
+  const { loading, error, saveGraph, forkedFrom } = useGraph(graphId);
   const { createNode, editNode, deleteNode, evolveNode } = useNodes();
   const { deleteEdge } = useEdges();
 
@@ -259,6 +260,20 @@ export default function EditorPage() {
           <span className="text-sm font-medium truncate max-w-[8rem] sm:max-w-48 shrink-0">
             {title || 'Untitled Graph'}
           </span>
+          {forkedFrom && (
+            <span className="text-[11px] text-muted-foreground flex items-center gap-1 ml-2 shrink-0 hidden sm:flex">
+              <GitFork className="w-3 h-3" />
+              from{' '}
+              <a
+                href={`/${forkedFrom.user.username}/${forkedFrom.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary/70 hover:text-primary hover:underline"
+              >
+                @{forkedFrom.user.username}
+              </a>
+            </span>
+          )}
           {isDirty && <span className="text-xs text-amber-400 ml-1 shrink-0">●</span>}
 
           <div className="flex-1 min-w-1" />

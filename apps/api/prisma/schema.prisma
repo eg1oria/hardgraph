@@ -51,10 +51,14 @@ model Graph {
   customStyles Json     @default("{}") @map("custom_styles")
   viewport     Json     @default("{}") @map("viewport")
   viewCount    Int      @default(0) @map("view_count")
+  forkedFromId String?  @map("forked_from_id") @db.Uuid
+  forkCount    Int      @default(0) @map("fork_count")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  forkedFrom   Graph?        @relation("GraphForks", fields: [forkedFromId], references: [id], onDelete: SetNull)
+  forks        Graph[]       @relation("GraphForks")
   categories   Category[]
   nodes        Node[]
   edges        Edge[]

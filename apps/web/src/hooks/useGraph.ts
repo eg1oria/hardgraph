@@ -8,9 +8,17 @@ import {
 } from '@/stores/useGraphStore';
 import { useToast } from '@/components/ui/Toast';
 
+export interface ForkedFromInfo {
+  id: string;
+  slug: string;
+  title: string;
+  user: { username: string };
+}
+
 export function useGraph(graphId: string | null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [forkedFrom, setForkedFrom] = useState<ForkedFromInfo | null>(null);
   const setGraph = useGraphStore((s) => s.setGraph);
   const { toast } = useToast();
   const mountedRef = useRef(true);
@@ -34,6 +42,7 @@ export function useGraph(graphId: string | null) {
         nodes?: GraphNode[];
         edges?: GraphEdge[];
         categories?: Category[];
+        forkedFrom?: ForkedFromInfo | null;
       }>(`/graphs/${graphId}`)
       .then((g) => {
         if (!mountedRef.current) return;
@@ -47,6 +56,7 @@ export function useGraph(graphId: string | null) {
           edges: g.edges ?? [],
           categories: g.categories ?? [],
         });
+        setForkedFrom(g.forkedFrom ?? null);
       })
       .catch((err: unknown) => {
         if (!mountedRef.current) return;
@@ -80,5 +90,5 @@ export function useGraph(graphId: string | null) {
     }
   }, [toast]);
 
-  return { loading, error, saveGraph };
+  return { loading, error, saveGraph, forkedFrom };
 }

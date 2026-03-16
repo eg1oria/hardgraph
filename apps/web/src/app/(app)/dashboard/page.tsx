@@ -24,6 +24,7 @@ interface Graph {
   createdAt: string;
   updatedAt: string;
   _count: { nodes: number; edges: number };
+  forkCount: number;
 }
 
 interface GithubRepo {
@@ -219,6 +220,12 @@ export default function DashboardPage() {
                       <Eye className="w-3 h-3" />
                       {graph.viewCount}
                     </span>
+                    {graph.forkCount > 0 && (
+                      <span className="flex items-center gap-1">
+                        <GitFork className="w-3 h-3" />
+                        {graph.forkCount}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 pointer-events-auto">
                     {graph.isPublic && user && (

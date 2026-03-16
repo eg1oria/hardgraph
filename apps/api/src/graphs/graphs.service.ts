@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateGraphDto } from './dto/create-graph.dto';
 import { UpdateGraphDto } from './dto/update-graph.dto';
+import { ForkGraphDto } from './dto/fork-graph.dto';
 import slugify from 'slugify';
 
 @Injectable()
@@ -37,6 +38,14 @@ export class GraphsService {
         nodes: { include: { category: true } },
         edges: true,
         categories: { orderBy: { sortOrder: 'asc' } },
+        forkedFrom: {
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            user: { select: { username: true } },
+          },
+        },
       },
     });
     if (!graph) throw new NotFoundException('Graph not found');
@@ -58,6 +67,14 @@ export class GraphsService {
             username: true,
             displayName: true,
             avatarUrl: true,
+          },
+        },
+        forkedFrom: {
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            user: { select: { username: true } },
           },
         },
         nodes: { include: { category: true } },
@@ -158,5 +175,119 @@ export class GraphsService {
 
     // Fallback: append timestamp to guarantee uniqueness
     return `${baseSlug}-${Date.now()}`;
+  }
+
+  async forkGraph(sourceGraphId: string, userId: string, dto: ForkGraphDto) {
+    const sourceGraph = await this.prisma.graph.findUnique({
+      where: { id: sourceGraphId },
+      include: {
+        nodes: { include: { category: true } },
+        edges: true,
+        categories: { orderBy: { sortOrder: 'asc' } },
+        user: { select: { username: true } },
+      },
+    });
+
+    if (!sourceGraph) throw new NotFoundException('Graph not found');
+    if (!sourceGraph.isPublic) throw new ForbiddenException('Cannot fork a private graph');
+    if (sourceGraph.userId === userId) throw new ForbiddenException('Cannot fork your own graph');
+
+    const title = (dto.title?.trim() || `${sourceGraph.title} (fork)`).slice(0, 200);
+    const includeEdges = dto.includeEdges !== false;
+
+    const slug = await this.ensureUniqueSlug(
+      userId,
+      slugify(title, { lower: true, strict: true }),
+    );
+
+    const newGraph = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.graph.create({
+        data: {
+          userId,
+          title,
+          slug,
+          description: sourceGraph.description,
+          isPublic: true,
+          theme: sourceGraph.theme,
+          forkedFromId: sourceGraph.id,
+        },
+      });
+
+      // Copy categories
+      const categoryMap = new Map<string, string>();
+      for (const cat of sourceGraph.categories) {
+        const newCat = await tx.category.create({
+          data: {
+            graphId: created.id,
+            name: cat.name,
+            color: cat.color,
+            sortOrder: cat.sortOrder,
+          },
+        });
+        categoryMap.set(cat.id, newCat.id);
+      }
+
+      // Copy nodes
+      const nodeMap = new Map<string, string>();
+      for (const node of sourceGraph.nodes) {
+        const newCatId = node.categoryId
+          ? (categoryMap.get(node.categoryId) ?? null)
+          : null;
+        const newNode = await tx.node.create({
+          data: {
+            graphId: created.id,
+            name: node.name,
+            description: node.description,
+            level: node.level,
+            nodeType: node.nodeType,
+            icon: node.icon,
+            positionX: node.positionX,
+            positionY: node.positionY,
+            customData: (node.customData as object) ?? {},
+            isUnlocked: node.isUnlocked,
+            categoryId: newCatId,
+          },
+        });
+        nodeMap.set(node.id, newNode.id);
+      }
+
+      // Copy edges
+      if (includeEdges && sourceGraph.edges.length > 0) {
+        const edgeData = sourceGraph.edges
+          .map((edge) => {
+            const newSource = nodeMap.get(edge.sourceNodeId);
+            const newTarget = nodeMap.get(edge.targetNodeId);
+            if (!newSource || !newTarget) return null;
+            return {
+              graphId: created.id,
+              sourceNodeId: newSource,
+              targetNodeId: newTarget,
+              label: edge.label,
+              edgeType: edge.edgeType,
+            };
+          })
+          .filter(Boolean) as Array<{
+            graphId: string;
+            sourceNodeId: string;
+            targetNodeId: string;
+            label: string | null;
+            edgeType: string;
+          }>;
+
+        if (edgeData.length > 0) {
+          await tx.edge.createMany({ data: edgeData });
+        }
+      }
+
+      // Increment fork count on source
+      await tx.graph.update({
+        where: { id: sourceGraph.id },
+        data: { forkCount: { increment: 1 } },
+      });
+
+      return created;
+    });
+
+    return { id: newGraph.id, slug: newGraph.slug };
   }
 }

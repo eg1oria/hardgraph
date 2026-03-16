@@ -20,6 +20,7 @@ interface ExploreGraph {
     avatarUrl: string | null;
   };
   _count: { nodes: number; edges: number };
+  forkCount: number;
 }
 
 export default function ExplorePage() {
@@ -136,6 +137,12 @@ export default function ExplorePage() {
                     <Eye className="w-3.5 h-3.5" />
                     {graph.viewCount}
                   </span>
+                  {graph.forkCount > 0 && (
+                    <span className="flex items-center gap-1">
+                      <GitFork className="w-3.5 h-3.5" />
+                      {graph.forkCount}
+                    </span>
+                  )}
                 </div>
               </div>
             </Link>

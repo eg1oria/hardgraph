@@ -3,7 +3,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Eye, Trash2, ExternalLink, GitFork, Github, Star, Code2 } from 'lucide-react';
+import {
+  Plus,
+  Eye,
+  Trash2,
+  ExternalLink,
+  GitFork,
+  Github,
+  Star,
+  Code2,
+  Sparkles,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Modal } from '@/components/ui/Modal';
@@ -132,14 +142,23 @@ export default function DashboardPage() {
             Create and manage your interactive skill trees
           </p>
         </div>
-        <button
-          data-onboarding="create-graph"
-          onClick={() => setShowCreate(true)}
-          className="btn-primary"
-        >
-          <Plus className="w-4 h-4" />
-          New Graph
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push('/generate')}
+            className="btn-ghost flex items-center gap-2 border border-primary/30 hover:border-primary/60 text-primary"
+          >
+            <Sparkles className="w-4 h-4" />
+            Generate from GitHub
+          </button>
+          <button
+            data-onboarding="create-graph"
+            onClick={() => setShowCreate(true)}
+            className="btn-primary"
+          >
+            <Plus className="w-4 h-4" />
+            New Graph
+          </button>
+        </div>
       </div>
 
       {loading ? (

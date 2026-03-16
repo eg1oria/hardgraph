@@ -23,7 +23,7 @@ export function middleware(request: NextRequest) {
 
   // Check if path is public (landing, public profiles at /[username], public graphs at /[username]/[slug])
   const isPublicPath = publicPaths.some((p) => pathname === p || pathname.startsWith(p + '/'));
-  const appPrefixes = ['/dashboard', '/editor', '/settings', '/onboarding', '/admin'];
+  const appPrefixes = ['/dashboard', '/editor', '/settings', '/onboarding', '/admin', '/generate'];
   const isAppRoute = appPrefixes.some((p) => pathname === p || pathname.startsWith(p + '/'));
   const isPublicProfile =
     !isAppRoute && !isPublicPath && /^\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)?$/.test(pathname);

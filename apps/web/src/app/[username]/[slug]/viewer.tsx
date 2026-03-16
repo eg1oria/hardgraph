@@ -14,6 +14,7 @@ import {
   GitFork,
   Layers,
   ChevronDown,
+  Zap,
 } from 'lucide-react';
 
 import { HardGraph } from '@/components/graph/HardGraph';
@@ -65,6 +66,7 @@ interface GraphData {
     sortOrder: number;
   }>;
   forkCount: number;
+  customStyles?: Record<string, unknown>;
   forkedFrom?: {
     id: string;
     slug: string;
@@ -246,12 +248,20 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
             <h1 className="text-base sm:text-lg font-semibold text-foreground truncate">
               {graph.title}
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground truncate">
-              by{' '}
-              <Link href={`/${graph.user.username}`} className="text-primary hover:underline">
-                {author}
-              </Link>
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                by{' '}
+                <Link href={`/${graph.user.username}`} className="text-primary hover:underline">
+                  {author}
+                </Link>
+              </p>
+              {!!(graph.customStyles as Record<string, unknown> | undefined)?.aiGenerated && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  <Zap className="w-3 h-3" />
+                  AI Generated
+                </span>
+              )}
+            </div>
             {graph.forkedFrom && (
               <p className="text-[11px] text-muted-foreground/60 flex items-center gap-1 mt-0.5">
                 <GitFork className="w-3 h-3" />

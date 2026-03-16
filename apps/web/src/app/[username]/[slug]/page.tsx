@@ -43,6 +43,7 @@ interface PublicGraph {
     sortOrder: number;
   }>;
   forkCount: number;
+  customStyles?: Record<string, unknown>;
   forkedFrom?: {
     id: string;
     slug: string;

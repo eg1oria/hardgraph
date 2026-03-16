@@ -10,6 +10,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { TemplatesModule } from './templates/templates.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { GithubModule } from './github/github.module';
+import { GenerateModule } from './generate/generate.module';
 import { AdminModule } from './admin/admin.module';
 import { MailModule } from './mail/mail.module';
 import { EmbedModule } from './embed/embed.module';
@@ -37,6 +38,7 @@ import { join } from 'path';
     TemplatesModule,
     AnalyticsModule,
     GithubModule,
+    GenerateModule,
     AdminModule,
     EmbedModule,
   ],

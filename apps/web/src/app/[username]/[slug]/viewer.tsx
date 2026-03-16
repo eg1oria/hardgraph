@@ -14,7 +14,6 @@ import {
   GitFork,
   Layers,
   ChevronDown,
-  Zap,
 } from 'lucide-react';
 
 import { HardGraph } from '@/components/graph/HardGraph';
@@ -192,11 +191,19 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
   useEffect(() => {
     // Guard: prevent double-fire from React StrictMode or re-renders
     if (viewTrackedRef.current) return;
-    viewTrackedRef.current = true;
 
     // Session dedup: don't re-track if user already viewed this graph in this tab session
     const sessionKey = `viewed:${graph.id}`;
-    if (sessionStorage.getItem(sessionKey)) return;
+    try {
+      if (sessionStorage.getItem(sessionKey)) {
+        viewTrackedRef.current = true;
+        return;
+      }
+    } catch {
+      // sessionStorage unavailable (e.g. private browsing)
+    }
+
+    viewTrackedRef.current = true;
 
     api
       .post<{ counted: boolean; viewCount: number }>('/analytics/track', {
@@ -205,7 +212,11 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
       })
       .then((res) => {
         if (res.counted) {
-          sessionStorage.setItem(sessionKey, '1');
+          try {
+            sessionStorage.setItem(sessionKey, '1');
+          } catch {
+            // ignore
+          }
           setDisplayViewCount(res.viewCount);
         }
       })
@@ -255,12 +266,6 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
                   {author}
                 </Link>
               </p>
-              {!!(graph.customStyles as Record<string, unknown> | undefined)?.aiGenerated && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                  <Zap className="w-3 h-3" />
-                  AI Generated
-                </span>
-              )}
             </div>
             {graph.forkedFrom && (
               <p className="text-[11px] text-muted-foreground/60 flex items-center gap-1 mt-0.5">

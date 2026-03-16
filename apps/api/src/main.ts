@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -11,6 +11,7 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+  const logger = new Logger('Bootstrap');
   const isProd = config.get<string>('NODE_ENV') === 'production';
 
   // Trust the first reverse proxy (nginx) so req.ip reflects the real client IP
@@ -60,29 +61,23 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   await app.listen(port, host);
-  console.log(
-    `HardGraph API running on ${host}:${port} [${isProd ? 'production' : 'development'}]`,
-  );
+  logger.log(`HardGraph API running on ${host}:${port} [${isProd ? 'production' : 'development'}]`);
 
   // Validate GitHub OAuth env vars at startup
   const ghClientId = config.get<string>('GITHUB_CLIENT_ID');
   const ghClientSecret = config.get<string>('GITHUB_CLIENT_SECRET');
   const ghCallbackUrl = config.get<string>('GITHUB_CALLBACK_URL');
   if (!ghClientId || !ghClientSecret) {
-    console.warn(
-      '[OAuth] WARNING: GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET is not set — GitHub login will fail.',
-    );
+    logger.warn('GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET is not set — GitHub login will fail.');
   } else {
-    console.log(
-      `[OAuth] GitHub OAuth: clientID=${ghClientId.slice(0, 4)}..., callbackURL=${ghCallbackUrl || '(default)'}`,
+    logger.log(
+      `GitHub OAuth: clientID=${ghClientId.slice(0, 4)}..., callbackURL=${ghCallbackUrl || '(default)'}`,
     );
   }
 
   const frontendUrl = config.get<string>('NEXT_PUBLIC_APP_URL');
   if (!frontendUrl) {
-    console.warn(
-      '[OAuth] WARNING: NEXT_PUBLIC_APP_URL is not set — OAuth redirects will use http://localhost:3000',
-    );
+    logger.warn('NEXT_PUBLIC_APP_URL is not set — OAuth redirects will use http://localhost:3000');
   }
 }
 

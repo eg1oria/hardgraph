@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -44,11 +45,13 @@ export class AuthController {
   }
 
   @Post('register')
+  @Throttle({ short: { ttl: 60_000, limit: 5 } })
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
   @Post('login')
+  @Throttle({ short: { ttl: 60_000, limit: 10 } })
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
@@ -105,6 +108,7 @@ export class AuthController {
   }
 
   @Post('resend-verification')
+  @Throttle({ short: { ttl: 60_000, limit: 3 } })
   @HttpCode(HttpStatus.OK)
   resendVerification(@Body('email') email: string) {
     if (!email) {

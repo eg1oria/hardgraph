@@ -45,7 +45,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { loading, user } = useAuthGuard();
   const logout = useAuthStore((s) => s.logout);
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const sidebarOpen = useUIStore((s) => s.sidebarOpen);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Hide bottom nav on editor pages (full-screen experience)

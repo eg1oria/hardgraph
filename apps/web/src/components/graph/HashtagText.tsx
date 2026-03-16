@@ -16,20 +16,25 @@ interface HashtagTextProps {
  * Renders text with inline hashtags highlighted.
  * Hashtags become clickable buttons when `onTagClick` is provided.
  */
-export const HashtagText = memo(function HashtagText({ text, onTagClick, className }: HashtagTextProps) {
+export const HashtagText = memo(function HashtagText({
+  text,
+  onTagClick,
+  className,
+}: HashtagTextProps) {
   const segments: Segment[] = useMemo(() => parseHashtags(text), [text]);
 
   return (
     <span className={className}>
       {segments.map((seg, i) => {
+        const key = `${i}-${seg.type === 'text' ? 't' : seg.tag}`;
         if (seg.type === 'text') {
-          return <span key={i}>{seg.value}</span>;
+          return <span key={key}>{seg.value}</span>;
         }
 
         if (onTagClick) {
           return (
             <button
-              key={i}
+              key={key}
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
@@ -45,7 +50,7 @@ export const HashtagText = memo(function HashtagText({ text, onTagClick, classNa
         }
 
         return (
-          <span key={i} className="text-primary-400 font-medium">
+          <span key={key} className="text-primary-400 font-medium">
             #{seg.tag}
           </span>
         );

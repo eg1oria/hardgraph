@@ -16,7 +16,8 @@ function VerifyInner() {
   const [state, setState] = useState<VerifyState>('loading');
   const [errorMsg, setErrorMsg] = useState('');
   const didVerify = useRef(false);
-  const { user, setUser } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
 
   useEffect(() => {
     if (!token) {

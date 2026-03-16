@@ -8,7 +8,10 @@ import { getToken } from '@/lib/auth';
 
 export function useAuthGuard() {
   const router = useRouter();
-  const { user, isAuthenticated, setAuth, logout } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const logout = useAuthStore((s) => s.logout);
   const [loading, setLoading] = useState(true);
   const didFetch = useRef(false);
 
@@ -30,6 +33,8 @@ export function useAuthGuard() {
     if (didFetch.current) return;
     didFetch.current = true;
 
+    const controller = new AbortController();
+
     // Try to restore session from stored token
     api
       .get<{
@@ -40,14 +45,27 @@ export function useAuthGuard() {
         avatarUrl?: string;
         emailVerified: boolean;
         onboardingCompleted: boolean;
-      }>('/users/me')
+      }>('/users/me', controller.signal)
       .then((me) => {
-        setAuth(me, token);
+        if (!controller.signal.aborted) {
+          setAuth(me, token);
+        }
       })
-      .catch(() => {
-        logout();
+      .catch((err) => {
+        if (!controller.signal.aborted) {
+          // Only logout on auth errors, not on network failures
+          if (err?.name !== 'AbortError') {
+            logout();
+          }
+        }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => {
+      controller.abort();
+    };
   }, [router, user, isAuthenticated, setAuth, logout]);
 
   return { loading, user, isAuthenticated };

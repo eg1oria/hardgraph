@@ -12,7 +12,6 @@ import {
   Github,
   Star,
   Code2,
-  Sparkles,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -143,13 +142,6 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push('/generate')}
-            className="btn-ghost flex items-center gap-2 border border-primary/30 hover:border-primary/60 text-primary"
-          >
-            <Sparkles className="w-4 h-4" />
-            Generate from GitHub
-          </button>
           <button
             data-onboarding="create-graph"
             onClick={() => setShowCreate(true)}

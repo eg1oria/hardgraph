@@ -54,8 +54,9 @@ export function useEdges() {
   // Handle pending edge deletion from edge component
   useEffect(() => {
     if (!pendingDeleteEdgeId) return;
+    const edgeId = pendingDeleteEdgeId;
     useGraphStore.setState({ pendingDeleteEdgeId: null });
-    deleteEdge(pendingDeleteEdgeId);
+    deleteEdge(edgeId);
   }, [pendingDeleteEdgeId, deleteEdge]);
 
   return { deleteEdge };

@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(
     public statusCode: number,
     message: string,
@@ -10,10 +10,33 @@ class ApiError extends Error {
   }
 }
 
-type ApiEnvelope<T> = { data: T; timestamp: string } | T;
+function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return localStorage.getItem('token');
+  } catch {
+    return null;
+  }
+}
 
-async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+/** Check if the response JSON matches the API envelope shape { data, timestamp } */
+function isEnvelope(json: unknown): json is { data: unknown; timestamp: string } {
+  return (
+    json != null &&
+    typeof json === 'object' &&
+    'data' in json &&
+    'timestamp' in json &&
+    typeof (json as Record<string, unknown>).timestamp === 'string'
+  );
+}
+
+async function request<T>(
+  method: string,
+  path: string,
+  body?: unknown,
+  signal?: AbortSignal,
+): Promise<T> {
+  const token = getStoredToken();
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -28,6 +51,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     headers,
     body: body ? JSON.stringify(body) : undefined,
     credentials: 'include',
+    signal,
   });
 
   let parsed: unknown;
@@ -38,6 +62,15 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   }
 
   if (!res.ok) {
+    // On 401, clear stale token (but don't redirect — let the auth guard handle it)
+    if (res.status === 401 && typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('token');
+      } catch {
+        // ignore
+      }
+    }
+
     const error = (parsed ?? {}) as { message?: string | string[] } | null;
     const rawMessage = error?.message;
     const message: string =
@@ -49,20 +82,22 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     throw new ApiError(res.status, message);
   }
 
-  const json = parsed as ApiEnvelope<T> | null;
-  if (json && typeof json === 'object' && 'data' in json && 'timestamp' in json) {
-    return (json as { data: T }).data;
+  if (isEnvelope(parsed)) {
+    return parsed.data as T;
   }
 
-  return json as T;
+  return parsed as T;
 }
 
 export const api = {
-  get: <T>(path: string) => request<T>('GET', path),
-  post: <T>(path: string, body?: unknown) => request<T>('POST', path, body),
-  put: <T>(path: string, body?: unknown) => request<T>('PUT', path, body),
-  patch: <T>(path: string, body?: unknown) => request<T>('PATCH', path, body),
-  delete: <T>(path: string) => request<T>('DELETE', path),
+  get: <T>(path: string, signal?: AbortSignal) => request<T>('GET', path, undefined, signal),
+  post: <T>(path: string, body?: unknown, signal?: AbortSignal) =>
+    request<T>('POST', path, body, signal),
+  put: <T>(path: string, body?: unknown, signal?: AbortSignal) =>
+    request<T>('PUT', path, body, signal),
+  patch: <T>(path: string, body?: unknown, signal?: AbortSignal) =>
+    request<T>('PATCH', path, body, signal),
+  delete: <T>(path: string, signal?: AbortSignal) => request<T>('DELETE', path, undefined, signal),
 };
 
 /** Server-side fetch — no auth, no credentials, with Next.js revalidation */
@@ -77,5 +112,8 @@ export async function fetchPublic<T>(path: string, revalidate = 60): Promise<T> 
   }
 
   const json = await res.json();
-  return json.data !== undefined ? json.data : json;
+  if (isEnvelope(json)) {
+    return json.data as T;
+  }
+  return json as T;
 }

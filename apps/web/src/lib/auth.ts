@@ -1,15 +1,27 @@
-// Auth utilities — placeholder for token management
+// Auth utilities — token management with safe storage access
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
+  try {
+    return localStorage.getItem('token');
+  } catch {
+    return null;
+  }
 }
 
 export function setToken(token: string): void {
-  localStorage.setItem('token', token);
+  try {
+    localStorage.setItem('token', token);
+  } catch {
+    // Storage unavailable (private browsing, quota exceeded)
+  }
 }
 
 export function removeToken(): void {
-  localStorage.removeItem('token');
+  try {
+    localStorage.removeItem('token');
+  } catch {
+    // ignore
+  }
 }
 
 export function isAuthenticated(): boolean {

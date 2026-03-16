@@ -1,127 +1,234 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Trash2, Loader2, Globe, Lock } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { Trash2, Eye, Globe, Lock, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
-import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { AdminTable } from '@/components/admin/AdminTable';
+import { AdminPagination } from '@/components/admin/AdminPagination';
+import { AdminSearch } from '@/components/admin/AdminSearch';
+import { AdminFilter } from '@/components/admin/AdminFilter';
+import { ConfirmModal } from '@/components/admin/AdminModal';
 
 interface AdminGraph {
   id: string;
   title: string;
+  slug: string;
   isPublic: boolean;
+  viewCount: number;
+  forkCount: number;
   createdAt: string;
-  user: { username: string };
-  _count: { nodes: number };
+  user: { id: string; username: string };
+  _count: { nodes: number; edges: number; categories: number };
 }
 
+interface GraphsResponse {
+  data: AdminGraph[];
+  total: number;
+}
+
+const TAKE = 20;
+const publicOptions = [
+  { value: 'true', label: 'Public' },
+  { value: 'false', label: 'Private' },
+];
+
 export default function AdminGraphsPage() {
-  const [graphs, setGraphs] = useState<AdminGraph[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const router = useRouter();
   const { toast } = useToast();
+  const [graphs, setGraphs] = useState<AdminGraph[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [skip, setSkip] = useState(0);
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [publicFilter, setPublicFilter] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<AdminGraph | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const fetchGraphs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set('take', String(TAKE));
+      params.set('skip', String(skip));
+      params.set('sortBy', sortBy);
+      params.set('order', sortOrder);
+      if (search) params.set('search', search);
+      if (publicFilter) params.set('isPublic', publicFilter);
+
+      const res = await api.get<GraphsResponse>(`/admin/graphs?${params}`);
+      setGraphs(res.data);
+      setTotal(res.total);
+    } catch {
+      toast('Failed to load graphs', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [skip, sortBy, sortOrder, search, publicFilter, toast]);
 
   useEffect(() => {
-    api
-      .get<AdminGraph[]>('/admin/graphs')
-      .then((data) => setGraphs(data))
-      .catch(() => toast('Failed to load graphs', 'error'))
-      .finally(() => setLoading(false));
-  }, [toast]);
+    fetchGraphs();
+  }, [fetchGraphs]);
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Delete graph "${title}"? This action cannot be undone.`)) return;
-    setDeleting(id);
+  const handleSort = (key: string) => {
+    if (sortBy === key) {
+      setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(key);
+      setSortOrder('desc');
+    }
+    setSkip(0);
+  };
+
+  const handleSearch = (val: string) => {
+    setSearch(val);
+    setSkip(0);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await api.delete(`/admin/graphs/${id}`);
-      setGraphs((prev) => prev.filter((g) => g.id !== id));
+      await api.delete(`/admin/graphs/${deleteTarget.id}`);
       toast('Graph deleted', 'success');
+      setDeleteTarget(null);
+      fetchGraphs();
     } catch {
       toast('Failed to delete graph', 'error');
     } finally {
-      setDeleting(null);
+      setDeleting(false);
     }
   };
 
-  return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
-        <Link
-          href="/admin"
-          className="p-1.5 rounded-md hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold">Graphs</h1>
-          <p className="text-sm text-muted-foreground">{graphs.length} total</p>
+  const columns = [
+    {
+      key: 'title',
+      label: 'Title',
+      sortable: true,
+      render: (g: AdminGraph) => <span className="font-medium">{g.title}</span>,
+    },
+    {
+      key: 'user',
+      label: 'User',
+      render: (g: AdminGraph) => <span className="text-muted-foreground">{g.user.username}</span>,
+    },
+    {
+      key: 'nodes',
+      label: 'Nodes',
+      className: 'text-center',
+      render: (g: AdminGraph) => <span className="text-center block">{g._count.nodes}</span>,
+    },
+    {
+      key: 'viewCount',
+      label: 'Views',
+      sortable: true,
+      className: 'text-center',
+      render: (g: AdminGraph) => <span className="text-center block">{g.viewCount}</span>,
+    },
+    {
+      key: 'isPublic',
+      label: 'Status',
+      render: (g: AdminGraph) =>
+        g.isPublic ? (
+          <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
+            <Globe className="w-3 h-3" /> Public
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <Lock className="w-3 h-3" /> Private
+          </span>
+        ),
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      sortable: true,
+      render: (g: AdminGraph) => (
+        <span className="text-muted-foreground">{new Date(g.createdAt).toLocaleDateString()}</span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: '',
+      className: 'w-28',
+      render: (g: AdminGraph) => (
+        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          {g.isPublic && (
+            <a
+              href={`/${g.user.username}/${g.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-1.5 rounded-md text-muted-foreground hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+              title="Open public graph"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          )}
+          <button
+            onClick={() => router.push(`/admin/graphs/${g.id}`)}
+            className="p-1.5 rounded-md text-muted-foreground hover:text-primary-400 hover:bg-primary/10 transition-colors"
+            title="View details"
+          >
+            <Eye className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setDeleteTarget(g)}
+            className="p-1.5 rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            title="Delete graph"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-4">
+      <div>
+        <h1 className="text-2xl font-bold">Graphs</h1>
+        <p className="text-sm text-muted-foreground">{total} total</p>
       </div>
 
-      <div className="rounded-xl border border-border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-surface border-b border-border text-left text-xs text-muted-foreground">
-                <th className="px-4 py-3 font-medium">Title</th>
-                <th className="px-4 py-3 font-medium">User</th>
-                <th className="px-4 py-3 font-medium">Nodes</th>
-                <th className="px-4 py-3 font-medium">Public</th>
-                <th className="px-4 py-3 font-medium">Created</th>
-                <th className="px-4 py-3 font-medium w-16"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {loading
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i}>
-                      {Array.from({ length: 6 }).map((_, j) => (
-                        <td key={j} className="px-4 py-3">
-                          <Skeleton className="h-4 w-20" />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                : graphs.map((graph) => (
-                    <tr key={graph.id} className="hover:bg-surface-light/50 transition-colors">
-                      <td className="px-4 py-3 font-medium">{graph.title}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{graph.user.username}</td>
-                      <td className="px-4 py-3 text-center">{graph._count.nodes}</td>
-                      <td className="px-4 py-3">
-                        {graph.isPublic ? (
-                          <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
-                            <Globe className="w-3 h-3" /> Public
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                            <Lock className="w-3 h-3" /> Private
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {new Date(graph.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-3">
-                        <button
-                          onClick={() => handleDelete(graph.id, graph.title)}
-                          disabled={deleting === graph.id}
-                          className="p-1.5 rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-30"
-                          title="Delete graph"
-                        >
-                          {deleting === graph.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-            </tbody>
-          </table>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1">
+          <AdminSearch value={search} onChange={handleSearch} placeholder="Search by title…" />
         </div>
+        <AdminFilter
+          label="All statuses"
+          value={publicFilter}
+          options={publicOptions}
+          onChange={(v) => {
+            setPublicFilter(v);
+            setSkip(0);
+          }}
+        />
       </div>
+
+      <AdminTable
+        columns={columns}
+        data={graphs}
+        loading={loading}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
+        rowKey={(g) => g.id}
+        onRowClick={(g) => router.push(`/admin/graphs/${g.id}`)}
+      />
+
+      <AdminPagination total={total} take={TAKE} skip={skip} onPageChange={setSkip} />
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete Graph"
+        message={`Are you sure you want to delete "${deleteTarget?.title}"? All nodes, edges and categories will be permanently removed.`}
+        loading={deleting}
+      />
     </div>
   );
 }

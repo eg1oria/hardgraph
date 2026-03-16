@@ -1,7 +1,26 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ReactFlow,
+  Background,
+  addEdge,
+  applyNodeChanges,
+  type NodeTypes,
+  type EdgeTypes,
+  type Node,
+  type Edge,
+  type NodeChange,
+  type Connection,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import { SkillNode } from '@/components/graph/SkillNode';
+import { RepoNode } from '@/components/graph/RepoNode';
+import { SkillEdge } from '@/components/graph/SkillEdge';
+import { EvolutionEdge } from '@/components/graph/EvolutionEdge';
+import { toRFNodes, toRFEdges, type GraphNode, type GraphEdge } from '@/stores/useGraphStore';
 
+/* ── Feature metadata ── */
 const features = [
   {
     number: '01',
@@ -9,7 +28,6 @@ const features = [
     title: 'Sign in with GitHub',
     description:
       'Zero forms. Zero passwords. One click and your GitHub identity becomes your profile — repositories, contributions, and all.',
-    image: '/view/img1.webp',
     accent: '#6366f1',
     accentRgb: '99,102,241',
   },
@@ -19,7 +37,6 @@ const features = [
     title: 'Pull repos as nodes',
     description:
       'Browse your GitHub repositories and drop them straight onto the map. Your actual work — not made-up skills.',
-    image: '/view/img2.webp',
     accent: '#22d3ee',
     accentRgb: '34,211,238',
   },
@@ -29,7 +46,6 @@ const features = [
     title: 'See it on the map',
     description:
       "An interactive graph that shows exactly where you've been and where you're headed. Nodes, edges, depth — all yours.",
-    image: '/view/img3.webp',
     accent: '#a855f7',
     accentRgb: '168,85,247',
   },
@@ -39,16 +55,382 @@ const features = [
     title: 'Add your social links',
     description:
       'Twitter, LinkedIn, your personal site — pin them all to your profile. Your skill map becomes your living portfolio.',
-    image: '/view/img4.webp',
     accent: '#fb923c',
     accentRgb: '251,146,60',
   },
 ];
 
+/* ================================================================
+   MOCK UI PANELS — replicate actual app UI instead of screenshots
+   ================================================================ */
+
+/** Mock 1 — Login page with GitHub button */
+function MockLogin() {
+  return (
+    <div className="p-6 flex flex-col items-center gap-5 pointer-events-none select-none">
+      <span className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+        HardGraph
+      </span>
+      <div className="text-center">
+        <h3 className="text-base font-bold text-white/90 mb-1">Welcome back</h3>
+        <p className="text-[11px] text-white/40">Sign in to continue to your skill graphs</p>
+      </div>
+      <div className="w-full space-y-3">
+        <div>
+          <span className="block text-[10px] text-white/40 mb-1">Email</span>
+          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-white/25">
+            you@example.com
+          </div>
+        </div>
+        <div>
+          <span className="block text-[10px] text-white/40 mb-1">Password</span>
+          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-white/25">
+            ••••••••
+          </div>
+        </div>
+        <div className="h-9 rounded-lg bg-indigo-500 flex items-center justify-center text-[11px] font-medium text-white">
+          Sign in
+        </div>
+      </div>
+      {/* Divider */}
+      <div className="flex items-center w-full gap-3">
+        <span className="flex-1 h-px bg-white/10" />
+        <span className="text-[9px] uppercase text-white/30 tracking-wider">or</span>
+        <span className="flex-1 h-px bg-white/10" />
+      </div>
+      {/* GitHub button — the focus */}
+      <div className="w-full h-10 rounded-lg bg-[#24292f] border border-white/10 flex items-center justify-center gap-2 text-[12px] font-medium text-white shadow-lg shadow-indigo-500/10 ring-1 ring-indigo-500/20">
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+        </svg>
+        Continue with GitHub
+      </div>
+      <p className="text-[10px] text-white/30">
+        Don&apos;t have an account? <span className="text-indigo-400">Sign up</span>
+      </p>
+    </div>
+  );
+}
+
+/** Mock 2 — Import from GitHub modal */
+function MockImportGithub() {
+  const repos = [
+    {
+      name: 'skill-graph-api',
+      desc: 'REST API for skill graph platform',
+      lang: 'TypeScript',
+      stars: 48,
+      selected: true,
+    },
+    {
+      name: 'react-flow-hooks',
+      desc: 'Custom hooks for React Flow',
+      lang: 'TypeScript',
+      stars: 124,
+      selected: true,
+    },
+    {
+      name: 'ml-experiments',
+      desc: 'Machine learning playground',
+      lang: 'Python',
+      stars: 12,
+      selected: false,
+    },
+    {
+      name: 'portfolio-site',
+      desc: 'Personal portfolio website',
+      lang: 'JavaScript',
+      stars: 7,
+      selected: false,
+    },
+  ];
+  const langColors: Record<string, string> = {
+    TypeScript: '#3178c6',
+    Python: '#3572a5',
+    JavaScript: '#f1e05a',
+  };
+  return (
+    <div className="p-5 space-y-4 pointer-events-none select-none">
+      <div className="flex items-center gap-2 mb-1">
+        <svg className="w-4 h-4 text-white/60" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+        </svg>
+        <span className="text-sm font-semibold text-white/90">Import from GitHub</span>
+      </div>
+      {/* Search */}
+      <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-white/25">
+        Search repositories…
+      </div>
+      {/* Repo list */}
+      <div className="space-y-1.5 max-h-[200px] overflow-hidden">
+        {repos.map((r) => (
+          <div
+            key={r.name}
+            className={`flex items-start gap-2.5 p-2.5 rounded-lg text-left transition-colors ${
+              r.selected
+                ? 'bg-cyan-500/10 border border-cyan-500/25'
+                : 'bg-white/[0.03] border border-transparent'
+            }`}
+          >
+            <div
+              className={`mt-0.5 w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
+                r.selected ? 'bg-cyan-500 border-cyan-500' : 'border-white/20'
+              }`}
+            >
+              {r.selected && (
+                <svg
+                  className="w-2.5 h-2.5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-medium text-white/85 truncate">{r.name}</p>
+              <p className="text-[10px] text-white/35 truncate">{r.desc}</p>
+              <div className="flex items-center gap-2.5 mt-1 text-[9px] text-white/30">
+                <span className="flex items-center gap-1">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ background: langColors[r.lang] ?? '#888' }}
+                  />
+                  {r.lang}
+                </span>
+                <span className="flex items-center gap-0.5">★ {r.stars}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-2 border-t border-white/10">
+        <span className="text-[10px] text-white/35">2 selected</span>
+        <div className="flex gap-2">
+          <span className="text-[10px] text-white/40 px-3 py-1.5 rounded-lg border border-white/10">
+            Cancel
+          </span>
+          <span className="text-[10px] text-white font-medium px-3 py-1.5 rounded-lg bg-cyan-500">
+            Import 2 repos
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Mock 3 — Real ReactFlow graph (same components as the app) */
+
+const DEMO_NODES: GraphNode[] = [
+  {
+    id: 'd-react',
+    name: 'React',
+    description: 'UI framework',
+    level: 'advanced',
+    nodeType: 'skill',
+    positionX: 200,
+    positionY: 0,
+    isUnlocked: true,
+  },
+  {
+    id: 'd-next',
+    name: 'Next.js',
+    description: 'Full-stack framework',
+    level: 'intermediate',
+    nodeType: 'skill',
+    positionX: 380,
+    positionY: 140,
+    isUnlocked: true,
+  },
+  {
+    id: 'd-ts',
+    name: 'TypeScript',
+    description: 'Type-safe JS',
+    level: 'advanced',
+    nodeType: 'skill',
+    positionX: 200,
+    positionY: 280,
+    isUnlocked: true,
+  },
+  {
+    id: 'd-repo',
+    name: 'hardgraph-api',
+    description: 'REST API for skill graphs',
+    level: 'intermediate',
+    nodeType: 'repository',
+    positionX: 20,
+    positionY: 140,
+    isUnlocked: true,
+    customData: {
+      repoUrl: '#',
+      language: 'TypeScript',
+      stars: 48,
+      forks: 5,
+      fullName: 'user/hardgraph-api',
+    },
+  },
+  /* Unconnected node — user can drag it and connect it themselves */
+  {
+    id: 'd-node',
+    name: 'Node.js',
+    description: 'Connect me! →',
+    level: 'beginner',
+    nodeType: 'skill',
+    positionX: 420,
+    positionY: 300,
+    isUnlocked: true,
+  },
+];
+
+const DEMO_EDGES: GraphEdge[] = [
+  { id: 'de-1', sourceNodeId: 'd-react', targetNodeId: 'd-next', edgeType: 'skill' },
+  { id: 'de-2', sourceNodeId: 'd-react', targetNodeId: 'd-repo', edgeType: 'skill' },
+  { id: 'de-3', sourceNodeId: 'd-next', targetNodeId: 'd-ts', edgeType: 'skill' },
+  { id: 'de-4', sourceNodeId: 'd-repo', targetNodeId: 'd-ts', edgeType: 'skill' },
+];
+
+const demoNodeTypes: NodeTypes = { skill: SkillNode, repository: RepoNode };
+const demoEdgeTypes: EdgeTypes = { skill: SkillEdge, evolution: EvolutionEdge };
+const demoDefaultEdgeOptions = { type: 'skill' as const, animated: false };
+
+function MockNodeGraph() {
+  const [nodes, setNodes] = useState<Node[]>(() => toRFNodes(DEMO_NODES, []));
+  const [edges, setEdges] = useState<Edge[]>(() => toRFEdges(DEMO_EDGES));
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [],
+  );
+
+  const onConnect = useCallback(
+    (conn: Connection) => setEdges((eds) => addEdge({ ...conn, type: 'skill' }, eds)),
+    [],
+  );
+
+  return (
+    <div className="h-[340px] w-full">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onConnect={onConnect}
+        nodeTypes={demoNodeTypes}
+        edgeTypes={demoEdgeTypes}
+        defaultEdgeOptions={demoDefaultEdgeOptions}
+        nodesDraggable
+        nodesConnectable
+        elementsSelectable
+        fitView
+        fitViewOptions={{ padding: 0.35 }}
+        proOptions={{ hideAttribution: true }}
+        className="!bg-[#0a0c14]"
+        minZoom={0.5}
+        maxZoom={1.5}
+      >
+        <Background gap={24} size={1} color="rgba(255,255,255,0.06)" />
+      </ReactFlow>
+    </div>
+  );
+}
+
+/** Mock 4 — Social links settings panel */
+function MockSocialLinks() {
+  return (
+    <div className="p-5 space-y-4 pointer-events-none select-none">
+      {/* Section header */}
+      <div className="flex items-center gap-2">
+        <svg
+          className="w-3.5 h-3.5 text-orange-400/70"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 21a9 9 0 100-18 9 9 0 000 18z"
+          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.6 9h16.8M3.6 15h16.8" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 3a15.3 15.3 0 014 9 15.3 15.3 0 01-4 9 15.3 15.3 0 01-4-9 15.3 15.3 0 014-9z"
+          />
+        </svg>
+        <span className="text-[10px] font-semibold text-white/40 uppercase tracking-wider">
+          Social Links
+        </span>
+      </div>
+      <div className="rounded-xl bg-white/[0.03] border border-white/10 p-4 space-y-3.5">
+        {/* Website */}
+        <div>
+          <span className="block text-[10px] text-white/40 mb-1">Website</span>
+          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-orange-300/70">
+            https://johndoe.dev
+          </div>
+        </div>
+        {/* Twitter */}
+        <div>
+          <div className="flex items-center gap-1.5 mb-1">
+            <svg className="w-3 h-3 text-white/30" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+            <span className="text-[10px] text-white/40">Twitter Handle</span>
+          </div>
+          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-orange-300/70">
+            johndoe
+          </div>
+        </div>
+        {/* LinkedIn */}
+        <div>
+          <div className="flex items-center gap-1.5 mb-1">
+            <svg className="w-3 h-3 text-white/30" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+            </svg>
+            <span className="text-[10px] text-white/40">LinkedIn URL</span>
+          </div>
+          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-orange-300/70">
+            https://linkedin.com/in/johndoe
+          </div>
+        </div>
+      </div>
+      {/* Save button */}
+      <div className="flex justify-end">
+        <div className="flex items-center gap-1.5 text-[10px] font-medium text-white px-3 py-1.5 rounded-lg bg-orange-500">
+          <svg
+            className="w-3 h-3"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Save Changes
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Mapping index → mock component ── */
+const mockPanels: Record<number, React.FC> = {
+  0: MockLogin,
+  1: MockImportGithub,
+  2: MockNodeGraph,
+  3: MockSocialLinks,
+};
+
+/* ── Feature row (text + mock) ── */
 function FeatureRow({ feature, index }: { feature: (typeof features)[0]; index: number }) {
   const rowRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const isEven = index % 2 === 0;
+  const MockPanel = mockPanels[index] ?? (() => null);
 
   useEffect(() => {
     const el = rowRef.current;
@@ -111,7 +493,7 @@ function FeatureRow({ feature, index }: { feature: (typeof features)[0]; index: 
         />
       </div>
 
-      {/* ── Screenshot block ── */}
+      {/* ── Mock UI block ── */}
       <div className={`relative ${isEven ? 'md:order-2' : 'md:order-1'}`}>
         {/* Soft glow behind */}
         <div
@@ -124,7 +506,7 @@ function FeatureRow({ feature, index }: { feature: (typeof features)[0]; index: 
           className="relative rounded-2xl overflow-hidden"
           style={{
             border: `1px solid rgba(${feature.accentRgb},0.18)`,
-            background: 'var(--surface, #111)',
+            background: '#0a0c14',
             boxShadow: `0 20px 60px -16px rgba(${feature.accentRgb},0.18)`,
           }}
         >
@@ -147,15 +529,8 @@ function FeatureRow({ feature, index }: { feature: (typeof features)[0]; index: 
             </span>
           </div>
 
-          {/* Screenshot */}
-          <div className="relative">
-            <img
-              src={feature.image}
-              alt={feature.title}
-              className="w-full h-auto block"
-              loading="lazy"
-            />
-          </div>
+          {/* Inline mock UI */}
+          <MockPanel />
         </div>
 
         {/* Corner number — decorative */}

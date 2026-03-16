@@ -9,24 +9,24 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 w-full z-50 glass">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-gradient">
+    <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border/40">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <Link href="/" className="text-lg font-semibold tracking-tight text-gradient">
           HardGraph
         </Link>
 
         {/* Desktop */}
-        <div className="hidden sm:flex items-center gap-4">
+        <div className="hidden sm:flex items-center gap-3">
           <ThemeToggle />
           <Link
             href="/login"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
           >
             Log in
           </Link>
           <Link
             href="/signup"
-            className="text-sm px-4 py-2.5 rounded-lg bg-primary hover:bg-primary-600 text-white transition-colors"
+            className="text-xs px-4 py-2 rounded-lg bg-primary hover:bg-primary-600 text-white transition-colors"
           >
             Get Started
           </Link>
@@ -47,7 +47,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="sm:hidden border-t border-border bg-surface/95 backdrop-blur-lg px-4 py-3 space-y-1 animate-in">
+        <div className="sm:hidden border-t border-border/40 bg-background/95 backdrop-blur-xl px-4 py-3 space-y-1 animate-in">
           <Link
             href="/login"
             onClick={() => setOpen(false)}

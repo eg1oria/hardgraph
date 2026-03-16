@@ -17,7 +17,7 @@ export class AnalyticsController {
   track(@Body() dto: TrackViewDto, @Req() req: Request, @CurrentUser('id') userId?: string) {
     const forwarded = req.headers['x-forwarded-for'];
     const ip =
-      (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null) ||
+      (typeof forwarded === 'string' ? (forwarded.split(',')[0] ?? '').trim() || null : null) ||
       req.ip ||
       req.socket.remoteAddress ||
       'unknown';

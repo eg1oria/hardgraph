@@ -204,8 +204,8 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
         referrer: document.referrer || null,
       })
       .then((res) => {
-        sessionStorage.setItem(sessionKey, '1');
         if (res.counted) {
+          sessionStorage.setItem(sessionKey, '1');
           setDisplayViewCount(res.viewCount);
         }
       })

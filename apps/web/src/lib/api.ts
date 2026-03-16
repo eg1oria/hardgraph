@@ -50,7 +50,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   }
 
   const json = parsed as ApiEnvelope<T> | null;
-  if (json && typeof json === 'object' && 'data' in json) {
+  if (json && typeof json === 'object' && 'data' in json && 'timestamp' in json) {
     return (json as { data: T }).data;
   }
 

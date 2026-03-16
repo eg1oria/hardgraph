@@ -15,7 +15,12 @@ export class AnalyticsController {
   @Post('track')
   @UseGuards(OptionalAuthGuard)
   track(@Body() dto: TrackViewDto, @Req() req: Request, @CurrentUser('id') userId?: string) {
-    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip =
+      (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null) ||
+      req.ip ||
+      req.socket.remoteAddress ||
+      'unknown';
     const referrer = req.headers.referer;
     return this.analyticsService.trackView(dto.graphId, ip, referrer, userId);
   }

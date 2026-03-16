@@ -29,6 +29,12 @@ export class AnalyticsService {
       return { counted: false, viewCount: graph.viewCount };
     }
 
+    // 3. Skip if IP could not be determined — a single hash for all visitors breaks dedup
+    if (!ip || ip === 'unknown' || ip === '::1') {
+      this.logger.warn(`Skipping view track for graph ${graphId}: invalid IP "${ip}"`);
+      return { counted: false, viewCount: graph.viewCount };
+    }
+
     const viewerIpHash = createHash('sha256').update(ip).digest('hex');
 
     // 3. Deduplication: check for a recent view from the same IP on the same graph

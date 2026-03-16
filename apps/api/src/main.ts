@@ -13,6 +13,10 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const isProd = config.get<string>('NODE_ENV') === 'production';
 
+  // Trust the first reverse proxy (nginx) so req.ip reflects the real client IP
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', 1);
+
   app.use(helmet());
   app.use(cookieParser());
 

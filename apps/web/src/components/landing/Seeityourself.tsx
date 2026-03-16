@@ -61,52 +61,54 @@ const features = [
 ];
 
 /* ================================================================
-   MOCK UI PANELS — replicate actual app UI instead of screenshots
+   MOCK UI PANELS — theme-aware (light + dark)
    ================================================================ */
 
 /** Mock 1 — Login page with GitHub button */
 function MockLogin() {
   return (
     <div className="p-6 flex flex-col items-center gap-5 pointer-events-none select-none">
-      <span className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+      <span className="text-lg font-bold bg-gradient-to-r from-indigo-500 to-cyan-500 bg-clip-text text-transparent">
         HardGraph
       </span>
       <div className="text-center">
-        <h3 className="text-base font-bold text-white/90 mb-1">Welcome back</h3>
-        <p className="text-[11px] text-white/40">Sign in to continue to your skill graphs</p>
+        <h3 className="text-base font-bold text-foreground mb-1">Welcome back</h3>
+        <p className="text-[11px] text-muted-foreground">
+          Sign in to continue to your skill graphs
+        </p>
       </div>
       <div className="w-full space-y-3">
         <div>
-          <span className="block text-[10px] text-white/40 mb-1">Email</span>
-          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-white/25">
+          <span className="block text-[10px] text-muted-foreground mb-1">Email</span>
+          <div className="h-8 rounded-lg bg-secondary border border-border px-3 flex items-center text-[11px] text-muted">
             you@example.com
           </div>
         </div>
         <div>
-          <span className="block text-[10px] text-white/40 mb-1">Password</span>
-          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-white/25">
+          <span className="block text-[10px] text-muted-foreground mb-1">Password</span>
+          <div className="h-8 rounded-lg bg-secondary border border-border px-3 flex items-center text-[11px] text-muted">
             ••••••••
           </div>
         </div>
-        <div className="h-9 rounded-lg bg-indigo-500 flex items-center justify-center text-[11px] font-medium text-white">
+        <div className="h-9 rounded-lg bg-primary flex items-center justify-center text-[11px] font-medium text-white">
           Sign in
         </div>
       </div>
       {/* Divider */}
       <div className="flex items-center w-full gap-3">
-        <span className="flex-1 h-px bg-white/10" />
-        <span className="text-[9px] uppercase text-white/30 tracking-wider">or</span>
-        <span className="flex-1 h-px bg-white/10" />
+        <span className="flex-1 h-px bg-border" />
+        <span className="text-[9px] uppercase text-muted-foreground tracking-wider">or</span>
+        <span className="flex-1 h-px bg-border" />
       </div>
-      {/* GitHub button — the focus */}
-      <div className="w-full h-10 rounded-lg bg-[#24292f] border border-white/10 flex items-center justify-center gap-2 text-[12px] font-medium text-white shadow-lg shadow-indigo-500/10 ring-1 ring-indigo-500/20">
+      {/* GitHub button */}
+      <div className="w-full h-10 rounded-lg bg-[#24292f] dark:bg-[#1c2128] border border-border flex items-center justify-center gap-2 text-[12px] font-medium text-white shadow-sm ring-1 ring-indigo-500/20">
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
         </svg>
         Continue with GitHub
       </div>
-      <p className="text-[10px] text-white/30">
-        Don&apos;t have an account? <span className="text-indigo-400">Sign up</span>
+      <p className="text-[10px] text-muted-foreground">
+        Don&apos;t have an account? <span className="text-primary">Sign up</span>
       </p>
     </div>
   );
@@ -152,13 +154,13 @@ function MockImportGithub() {
   return (
     <div className="p-5 space-y-4 pointer-events-none select-none">
       <div className="flex items-center gap-2 mb-1">
-        <svg className="w-4 h-4 text-white/60" fill="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
         </svg>
-        <span className="text-sm font-semibold text-white/90">Import from GitHub</span>
+        <span className="text-sm font-semibold text-foreground">Import from GitHub</span>
       </div>
       {/* Search */}
-      <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-white/25">
+      <div className="h-8 rounded-lg bg-secondary border border-border px-3 flex items-center text-[11px] text-muted">
         Search repositories…
       </div>
       {/* Repo list */}
@@ -168,13 +170,13 @@ function MockImportGithub() {
             key={r.name}
             className={`flex items-start gap-2.5 p-2.5 rounded-lg text-left transition-colors ${
               r.selected
-                ? 'bg-cyan-500/10 border border-cyan-500/25'
-                : 'bg-white/[0.03] border border-transparent'
+                ? 'bg-cyan-500/10 border border-cyan-500/30'
+                : 'bg-secondary/60 border border-transparent'
             }`}
           >
             <div
               className={`mt-0.5 w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
-                r.selected ? 'bg-cyan-500 border-cyan-500' : 'border-white/20'
+                r.selected ? 'bg-cyan-500 border-cyan-500' : 'border-border'
               }`}
             >
               {r.selected && (
@@ -190,9 +192,9 @@ function MockImportGithub() {
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-medium text-white/85 truncate">{r.name}</p>
-              <p className="text-[10px] text-white/35 truncate">{r.desc}</p>
-              <div className="flex items-center gap-2.5 mt-1 text-[9px] text-white/30">
+              <p className="text-[11px] font-medium text-foreground truncate">{r.name}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{r.desc}</p>
+              <div className="flex items-center gap-2.5 mt-1 text-[9px] text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <span
                     className="w-1.5 h-1.5 rounded-full"
@@ -207,10 +209,10 @@ function MockImportGithub() {
         ))}
       </div>
       {/* Footer */}
-      <div className="flex items-center justify-between pt-2 border-t border-white/10">
-        <span className="text-[10px] text-white/35">2 selected</span>
+      <div className="flex items-center justify-between pt-2 border-t border-border">
+        <span className="text-[10px] text-muted-foreground">2 selected</span>
         <div className="flex gap-2">
-          <span className="text-[10px] text-white/40 px-3 py-1.5 rounded-lg border border-white/10">
+          <span className="text-[10px] text-muted-foreground px-3 py-1.5 rounded-lg border border-border bg-secondary">
             Cancel
           </span>
           <span className="text-[10px] text-white font-medium px-3 py-1.5 rounded-lg bg-cyan-500">
@@ -222,8 +224,7 @@ function MockImportGithub() {
   );
 }
 
-/** Mock 3 — Real ReactFlow graph (same components as the app) */
-
+/** Mock 3 — Real ReactFlow graph */
 const DEMO_NODES: GraphNode[] = [
   {
     id: 'd-react',
@@ -272,7 +273,6 @@ const DEMO_NODES: GraphNode[] = [
       fullName: 'user/hardgraph-api',
     },
   },
-  /* Unconnected node — user can drag it and connect it themselves */
   {
     id: 'd-node',
     name: 'Node.js',
@@ -326,11 +326,22 @@ function MockNodeGraph() {
         fitView
         fitViewOptions={{ padding: 0.35 }}
         proOptions={{ hideAttribution: true }}
-        className="!bg-[#0a0c14]"
+        /*
+         * ReactFlow не читает Tailwind-классы для своего фона напрямую,
+         * поэтому используем CSS-переменную из globals.css через inline style.
+         * В тёмной теме .dark выставляет --background: 240 33% 5%,
+         * в светлой — 220 16% 96%.
+         */
+        style={{ background: 'hsl(var(--background))' }}
         minZoom={0.5}
         maxZoom={1.5}
       >
-        <Background gap={24} size={1} color="rgba(255,255,255,0.06)" />
+        {/*
+         * Background dot/line color тоже адаптируем:
+         * в светлой теме — тёмные точки, в тёмной — светлые.
+         * Используем currentColor через CSS-переменную border.
+         */}
+        <Background gap={24} size={1} color="hsl(var(--border))" />
       </ReactFlow>
     </div>
   );
@@ -343,7 +354,7 @@ function MockSocialLinks() {
       {/* Section header */}
       <div className="flex items-center gap-2">
         <svg
-          className="w-3.5 h-3.5 text-orange-400/70"
+          className="w-3.5 h-3.5 text-orange-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -361,39 +372,39 @@ function MockSocialLinks() {
             d="M12 3a15.3 15.3 0 014 9 15.3 15.3 0 01-4 9 15.3 15.3 0 01-4-9 15.3 15.3 0 014-9z"
           />
         </svg>
-        <span className="text-[10px] font-semibold text-white/40 uppercase tracking-wider">
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
           Social Links
         </span>
       </div>
-      <div className="rounded-xl bg-white/[0.03] border border-white/10 p-4 space-y-3.5">
+      <div className="rounded-xl bg-secondary/60 border border-border p-4 space-y-3.5">
         {/* Website */}
         <div>
-          <span className="block text-[10px] text-white/40 mb-1">Website</span>
-          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-orange-300/70">
+          <span className="block text-[10px] text-muted-foreground mb-1">Website</span>
+          <div className="h-8 rounded-lg bg-surface border border-border px-3 flex items-center text-[11px] text-orange-500 dark:text-orange-300">
             https://johndoe.dev
           </div>
         </div>
         {/* Twitter */}
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <svg className="w-3 h-3 text-white/30" viewBox="0 0 24 24" fill="currentColor">
+            <svg className="w-3 h-3 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
-            <span className="text-[10px] text-white/40">Twitter Handle</span>
+            <span className="text-[10px] text-muted-foreground">Twitter Handle</span>
           </div>
-          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-orange-300/70">
+          <div className="h-8 rounded-lg bg-surface border border-border px-3 flex items-center text-[11px] text-orange-500 dark:text-orange-300">
             johndoe
           </div>
         </div>
         {/* LinkedIn */}
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <svg className="w-3 h-3 text-white/30" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
             </svg>
-            <span className="text-[10px] text-white/40">LinkedIn URL</span>
+            <span className="text-[10px] text-muted-foreground">LinkedIn URL</span>
           </div>
-          <div className="h-8 rounded-lg bg-white/[0.05] border border-white/10 px-3 flex items-center text-[11px] text-orange-300/70">
+          <div className="h-8 rounded-lg bg-surface border border-border px-3 flex items-center text-[11px] text-orange-500 dark:text-orange-300">
             https://linkedin.com/in/johndoe
           </div>
         </div>
@@ -497,32 +508,27 @@ function FeatureRow({ feature, index }: { feature: (typeof features)[0]; index: 
       <div className={`relative ${isEven ? 'md:order-2' : 'md:order-1'}`}>
         {/* Soft glow behind */}
         <div
-          className="absolute -inset-6 rounded-3xl opacity-[0.15] blur-2xl pointer-events-none"
+          className="absolute -inset-6 rounded-3xl opacity-[0.12] blur-2xl pointer-events-none"
           style={{ background: feature.accent }}
         />
 
         {/* Card */}
         <div
-          className="relative rounded-2xl overflow-hidden"
+          className="relative rounded-2xl overflow-hidden bg-surface"
           style={{
             border: `1px solid rgba(${feature.accentRgb},0.18)`,
-            background: '#0a0c14',
-            boxShadow: `0 20px 60px -16px rgba(${feature.accentRgb},0.18)`,
+            boxShadow: `0 20px 60px -16px rgba(${feature.accentRgb},0.15)`,
           }}
         >
           {/* Fake browser chrome */}
-          <div
-            className="flex items-center gap-1.5 px-4 py-2.5 border-b"
-            style={{ borderColor: `rgba(${feature.accentRgb},0.12)` }}
-          >
-            <span className="w-2.5 h-2.5 rounded-full bg-red-400/40" />
-            <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/40" />
-            <span className="w-2.5 h-2.5 rounded-full bg-green-400/40" />
+          <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-border">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
+            <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/60" />
+            <span className="w-2.5 h-2.5 rounded-full bg-green-400/60" />
             <span
-              className="ml-3 h-5 flex-1 rounded text-[10px] px-2 flex items-center"
+              className="ml-3 h-5 flex-1 rounded text-[10px] px-2 flex items-center text-muted-foreground"
               style={{
                 background: `rgba(${feature.accentRgb},0.07)`,
-                color: `rgba(${feature.accentRgb},0.45)`,
               }}
             >
               hardgraph.com
@@ -573,11 +579,11 @@ export function SeeItYourself() {
     <section className="py-20 sm:py-32 px-4 sm:px-6 relative overflow-hidden">
       {/* Ambient orbs */}
       <div
-        className="absolute top-1/4 -left-32 w-80 h-80 rounded-full blur-3xl opacity-[0.04] pointer-events-none"
+        className="absolute top-1/4 -left-32 w-80 h-80 rounded-full blur-3xl opacity-[0.06] pointer-events-none"
         style={{ background: '#6366f1' }}
       />
       <div
-        className="absolute bottom-1/4 -right-32 w-80 h-80 rounded-full blur-3xl opacity-[0.04] pointer-events-none"
+        className="absolute bottom-1/4 -right-32 w-80 h-80 rounded-full blur-3xl opacity-[0.06] pointer-events-none"
         style={{ background: '#22d3ee' }}
       />
 
@@ -599,7 +605,7 @@ export function SeeItYourself() {
             />
             See it yourself
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5 text-foreground">
             Everything you need,{' '}
             <span
               style={{

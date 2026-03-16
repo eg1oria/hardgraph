@@ -58,8 +58,15 @@ export function Hero() {
 
   return (
     <section className="relative pt-28 sm:pt-40 pb-20 sm:pb-28 px-4 sm:px-6 overflow-hidden">
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/[0.04] rounded-full blur-[120px] pointer-events-none" />
-
+      <div
+        className="absolute top-1/4 -left-32 w-80 h-80 rounded-full blur-3xl opacity-[0.06] pointer-events-none"
+        style={{ background: '#63e8f1' }}
+      />
+      <div
+        className="absolute bottom-1/4 -right-32 w-80 h-80 rounded-full blur-3xl opacity-[0.06] pointer-events-none"
+        style={{ background: '#22ee7e' }}
+      />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[650px] h-[400px] bg-primary/[0.04] rounded-full blur-[120px] pointer-events-none" />
       <div className="relative max-w-3xl mx-auto text-center">
         <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground/60 mb-6 animate-fade-in">
           Visual skill mapping
@@ -95,7 +102,7 @@ export function Hero() {
           ref={containerRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          className="mt-16 sm:mt-24 relative animate-slide-up"
+          className="mt-16 sm:mt-24 relative left-1/2 -translate-x-1/2 w-[min(100vw-2rem,1080px)] animate-slide-up"
         >
           <div className="absolute -inset-4 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none" />
           <div className="rounded-2xl border border-border/50 overflow-hidden bg-surface/30 backdrop-blur-sm aspect-video relative">
@@ -207,16 +214,16 @@ export function Hero() {
               {/* Root node */}
               <g style={{ transform: `translate(${t0.x}px, ${t0.y}px)` }}>
                 <rect
-                  x="208"
-                  y="245"
-                  width="64"
-                  height="50"
-                  rx="12"
+                  x="198"
+                  y="239"
+                  width="84"
+                  height="62"
+                  rx="14"
                   fill="rgb(99,102,241)"
-                  fillOpacity="0.08"
+                  fillOpacity="0.12"
                   stroke="rgb(99,102,241)"
-                  strokeOpacity="0.4"
-                  strokeWidth="1.5"
+                  strokeOpacity="0.55"
+                  strokeWidth="1.8"
                 >
                   <animate
                     attributeName="stroke-opacity"
@@ -227,11 +234,11 @@ export function Hero() {
                 </rect>
                 <text
                   x="240"
-                  y="275"
+                  y="276"
                   textAnchor="middle"
                   fill="rgb(99,102,241)"
-                  fontSize="11"
-                  fontWeight="600"
+                  fontSize="13"
+                  fontWeight="700"
                 >
                   Core
                 </text>
@@ -240,51 +247,51 @@ export function Hero() {
               {/* Tier 1 */}
               <g style={{ transform: `translate(${t1.x}px, ${t1.y}px)` }}>
                 <rect
-                  x="420"
-                  y="160"
-                  width="60"
-                  height="38"
-                  rx="10"
+                  x="411"
+                  y="154"
+                  width="78"
+                  height="50"
+                  rx="12"
                   fill="currentColor"
-                  fillOpacity="0.03"
+                  fillOpacity="0.06"
                   stroke="rgb(99,102,241)"
-                  strokeOpacity="0.25"
-                  strokeWidth="1"
+                  strokeOpacity="0.4"
+                  strokeWidth="1.2"
                   className="text-foreground"
                 />
                 <text
                   x="450"
-                  y="184"
+                  y="185"
                   textAnchor="middle"
                   fill="currentColor"
-                  fontSize="10"
-                  fontWeight="500"
-                  opacity="0.6"
+                  fontSize="11"
+                  fontWeight="600"
+                  opacity="0.82"
                   className="text-foreground"
                 >
                   React
                 </text>
                 <rect
-                  x="420"
-                  y="340"
-                  width="60"
-                  height="38"
-                  rx="10"
+                  x="411"
+                  y="334"
+                  width="78"
+                  height="50"
+                  rx="12"
                   fill="currentColor"
-                  fillOpacity="0.03"
+                  fillOpacity="0.06"
                   stroke="rgb(99,102,241)"
-                  strokeOpacity="0.25"
-                  strokeWidth="1"
+                  strokeOpacity="0.4"
+                  strokeWidth="1.2"
                   className="text-foreground"
                 />
                 <text
                   x="450"
-                  y="364"
+                  y="365"
                   textAnchor="middle"
                   fill="currentColor"
-                  fontSize="10"
-                  fontWeight="500"
-                  opacity="0.6"
+                  fontSize="11"
+                  fontWeight="600"
+                  opacity="0.82"
                   className="text-foreground"
                 >
                   Python
@@ -301,26 +308,26 @@ export function Hero() {
                 ].map((n) => (
                   <g key={n.label}>
                     <rect
-                      x="620"
+                      x="611"
                       y={n.y}
-                      width="56"
-                      height="32"
-                      rx="8"
+                      width="74"
+                      height="40"
+                      rx="10"
                       fill="currentColor"
-                      fillOpacity="0.02"
+                      fillOpacity="0.045"
                       stroke="rgb(34,211,238)"
-                      strokeOpacity="0.18"
-                      strokeWidth="1"
+                      strokeOpacity="0.35"
+                      strokeWidth="1.1"
                       className="text-foreground"
                     />
                     <text
                       x="648"
-                      y={n.y + 20}
+                      y={n.y + 25}
                       textAnchor="middle"
                       fill="currentColor"
-                      fontSize="9"
-                      fontWeight="400"
-                      opacity="0.4"
+                      fontSize="10"
+                      fontWeight="500"
+                      opacity="0.7"
                       className="text-foreground"
                     >
                       {n.label}

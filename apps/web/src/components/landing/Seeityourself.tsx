@@ -208,7 +208,6 @@ function MockImportGithub() {
           </div>
         ))}
       </div>
-      {/* Footer */}
       <div className="flex items-center justify-between pt-2 border-t border-border">
         <span className="text-[10px] text-muted-foreground">2 selected</span>
         <div className="flex gap-2">
@@ -224,7 +223,6 @@ function MockImportGithub() {
   );
 }
 
-/** Mock 3 — Real ReactFlow graph */
 const DEMO_NODES: GraphNode[] = [
   {
     id: 'd-react',

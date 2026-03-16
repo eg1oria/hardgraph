@@ -80,7 +80,11 @@ function FeatureCard({ feature, i }: { feature: (typeof features)[0]; i: number 
 
 export function Features() {
   return (
-    <section className="py-20 sm:py-32 px-4 sm:px-6">
+    <section className="py-20 sm:py-32 px-4 sm:px-6 relative ">
+      <div
+        className="absolute bottom-1/4 -left-32 w-80 h-80 rounded-full blur-3xl opacity-[0.06] pointer-events-none"
+        style={{ background: '#22d3ee' }}
+      />
       <div className="max-w-4xl mx-auto">
         <div className="mb-12 sm:mb-16">
           <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground/60 mb-3">

@@ -13,6 +13,7 @@ import {
   Star,
   Code2,
   FileText,
+  Loader2,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -64,6 +65,7 @@ export default function DashboardPage() {
   const [reposLoading, setReposLoading] = useState(false);
   const [reposError, setReposError] = useState(false);
   const [embedGraph, setEmbedGraph] = useState<Graph | null>(null);
+  const [scanCreating, setScanCreating] = useState(false);
 
   const fetchGraphs = useCallback(() => {
     api
@@ -124,6 +126,21 @@ export default function DashboardPage() {
     }
   };
 
+  const handleCreateFromScan = async () => {
+    setScanCreating(true);
+    try {
+      const res = await api.post<{ id: string; slug: string }>('/graphs/from-scan');
+      toast('Graph created from GitHub!', 'success');
+      router.push(`/editor/${res.id}`);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to create graph from GitHub scan';
+      toast(message, 'error');
+    } finally {
+      setScanCreating(false);
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'short',
@@ -144,6 +161,20 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {user?.githubUsername && (
+            <button
+              onClick={handleCreateFromScan}
+              disabled={scanCreating}
+              className="btn-secondary flex items-center gap-2"
+            >
+              {scanCreating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Github className="w-4 h-4" />
+              )}
+              {scanCreating ? 'Scanning...' : 'From GitHub'}
+            </button>
+          )}
           <button
             data-onboarding="create-graph"
             onClick={() => setShowCreate(true)}

@@ -49,6 +49,12 @@ export class GraphsController {
     return this.graphsService.create(userId, dto);
   }
 
+  @Post('graphs/from-scan')
+  @UseGuards(JwtAuthGuard)
+  createFromScan(@CurrentUser('id') userId: string) {
+    return this.graphsService.createFromScan(userId);
+  }
+
   @Post('graphs/:id/fork')
   @UseGuards(JwtAuthGuard)
   fork(

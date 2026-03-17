@@ -17,6 +17,12 @@ export function Navbar() {
 
         {/* Desktop */}
         <div className="hidden sm:flex items-center gap-3">
+          <Link
+            href="/scan"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+          >
+            Skill Scan
+          </Link>
           <ThemeToggle />
           <Link
             href="/login"
@@ -48,6 +54,13 @@ export function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div className="sm:hidden border-t border-border/40 bg-background/95 backdrop-blur-xl px-4 py-3 space-y-1 animate-in">
+          <Link
+            href="/scan"
+            onClick={() => setOpen(false)}
+            className="block text-sm text-muted-foreground hover:text-foreground transition-colors py-3 px-3 rounded-lg active:bg-surface-light min-h-[44px] flex items-center"
+          >
+            Skill Scan
+          </Link>
           <Link
             href="/login"
             onClick={() => setOpen(false)}

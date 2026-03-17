@@ -7,6 +7,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { GitHubReposSection } from '@/components/profile/GitHubReposSection';
+import { GitHubStatsSection } from '@/components/profile/GitHubStatsSection';
 
 interface PublicProfile {
   id: string;
@@ -199,6 +200,9 @@ export default async function PublicProfilePage({ params }: Props) {
             ))}
           </div>
         )}
+
+        {/* GitHub Skill Stats */}
+        {profile.githubUsername && <GitHubStatsSection githubUsername={profile.githubUsername} />}
 
         {/* GitHub Repositories */}
         {profile.githubUsername && <GitHubReposSection username={profile.githubUsername} />}

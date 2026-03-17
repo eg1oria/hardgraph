@@ -1,14 +1,23 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateGraphDto } from './dto/create-graph.dto';
 import { UpdateGraphDto } from './dto/update-graph.dto';
 import { ForkGraphDto } from './dto/fork-graph.dto';
+import { ScanService } from '../scan/scan.service';
 import slugify from 'slugify';
 
 @Injectable()
 export class GraphsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly scanService: ScanService,
+  ) {}
 
   async findAllByUser(userId: string) {
     return this.prisma.graph.findMany({
@@ -281,6 +290,160 @@ export class GraphsService {
       });
 
       return created;
+    });
+
+    return { id: newGraph.id, slug: newGraph.slug };
+  }
+
+  async createFromScan(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { githubUsername: true, username: true },
+    });
+    if (!user?.githubUsername) {
+      throw new BadRequestException('GitHub account not linked. Connect GitHub in settings first.');
+    }
+
+    const scan = await this.scanService.scanUsername(user.githubUsername);
+
+    if (scan.categories.length === 0) {
+      throw new BadRequestException(
+        'No recognizable skills found in your GitHub repositories. Make sure you have public repos with code.',
+      );
+    }
+
+    const title = `GitHub Skills — ${user.githubUsername}`;
+    const slug = await this.ensureUniqueSlug(userId, slugify(title, { lower: true, strict: true }));
+
+    const newGraph = await this.prisma.$transaction(async (tx) => {
+      const graph = await tx.graph.create({
+        data: {
+          userId,
+          title,
+          slug,
+          description: `Auto-generated skill tree from ${scan.totalRepos} GitHub repos. ${scan.totalSkills} skills across ${scan.categories.length} categories.`,
+          isPublic: true,
+          theme: 'cyberpunk',
+        },
+      });
+
+      // Create categories and collect mapping
+      const categoryMap = new Map<string, string>();
+      for (let i = 0; i < scan.categories.length; i++) {
+        const cat = scan.categories[i]!;
+        const created = await tx.category.create({
+          data: {
+            graphId: graph.id,
+            name: cat.name,
+            color: cat.color,
+            sortOrder: i,
+          },
+        });
+        categoryMap.set(cat.name, created.id);
+      }
+
+      // Layout: root at center, categories in a circle, skills fan out from each category
+      const centerX = 0;
+      const centerY = 0;
+      const categoryRadius = 350;
+      const skillRadius = 200;
+
+      // Root node
+      const rootNode = await tx.node.create({
+        data: {
+          graphId: graph.id,
+          name: user.githubUsername!,
+          description: `${scan.totalRepos} repos · ${scan.totalLanguages} languages · ${scan.totalSkills} skills`,
+          level: 'expert',
+          nodeType: 'skill',
+          positionX: centerX,
+          positionY: centerY,
+          isUnlocked: true,
+        },
+      });
+
+      const edgeData: Array<{
+        graphId: string;
+        sourceNodeId: string;
+        targetNodeId: string;
+        label: string | null;
+        edgeType: string;
+      }> = [];
+
+      for (let ci = 0; ci < scan.categories.length; ci++) {
+        const cat = scan.categories[ci]!;
+        const categoryId = categoryMap.get(cat.name)!;
+        const angle = (2 * Math.PI * ci) / scan.categories.length - Math.PI / 2;
+        const catX = centerX + Math.cos(angle) * categoryRadius;
+        const catY = centerY + Math.sin(angle) * categoryRadius;
+
+        // Create hub node (top skill in category)
+        const hubSkill = cat.skills[0];
+        const hubNode = await tx.node.create({
+          data: {
+            graphId: graph.id,
+            categoryId,
+            name: hubSkill?.name ?? cat.name,
+            description: `Score: ${cat.score}/100`,
+            level: hubSkill?.level ?? 'intermediate',
+            nodeType: 'skill',
+            positionX: catX,
+            positionY: catY,
+            isUnlocked: true,
+          },
+        });
+
+        // Edge: root → hub
+        edgeData.push({
+          graphId: graph.id,
+          sourceNodeId: rootNode.id,
+          targetNodeId: hubNode.id,
+          label: cat.name,
+          edgeType: 'default',
+        });
+
+        // Create remaining skill nodes
+        const remainingSkills = cat.skills.slice(1);
+        const fanAngle = Math.PI / 3; // 60 degree fan
+        for (let si = 0; si < remainingSkills.length; si++) {
+          const skill = remainingSkills[si]!;
+          // Spread skills in a fan pattern extending outward from hub
+          const skillAngle =
+            remainingSkills.length === 1
+              ? angle
+              : angle - fanAngle / 2 + (fanAngle * si) / (remainingSkills.length - 1);
+          const skillX = catX + Math.cos(skillAngle) * skillRadius;
+          const skillY = catY + Math.sin(skillAngle) * skillRadius;
+
+          const skillNode = await tx.node.create({
+            data: {
+              graphId: graph.id,
+              categoryId,
+              name: skill.name,
+              level: skill.level,
+              nodeType: 'skill',
+              positionX: skillX,
+              positionY: skillY,
+              isUnlocked: true,
+            },
+          });
+
+          // Edge: hub → skill
+          edgeData.push({
+            graphId: graph.id,
+            sourceNodeId: hubNode.id,
+            targetNodeId: skillNode.id,
+            label: null,
+            edgeType: 'dependency',
+          });
+        }
+      }
+
+      if (edgeData.length > 0) {
+        await tx.edge.createMany({ data: edgeData });
+      }
+
+      return graph;
     });
 
     return { id: newGraph.id, slug: newGraph.slug };

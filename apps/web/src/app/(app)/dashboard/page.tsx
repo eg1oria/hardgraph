@@ -155,7 +155,7 @@ export default function DashboardPage() {
       </div>
 
       {loading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card space-y-3">
               <Skeleton className="h-5 w-3/4" />
@@ -201,33 +201,37 @@ export default function DashboardPage() {
           className="rounded-xl border border-dashed border-border"
         />
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {graphs.map((graph) => (
-            <div key={graph.id} className="group card-hover relative">
+            <div key={graph.id} className="group card-hover relative flex flex-col">
               <Link href={`/editor/${graph.id}`} className="absolute inset-0 z-0" />
 
-              <div className="relative z-10 pointer-events-none">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-semibold group-hover:text-primary-400 transition-colors truncate pr-2">
+              <div className="relative z-10 pointer-events-none flex flex-col flex-1">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-[15px] group-hover:text-primary-400 transition-colors truncate pr-2">
                     {graph.title}
                   </h3>
-                  <div className="flex items-center gap-1.5 pointer-events-auto">
-                    <Badge variant={graph.isPublic ? 'primary' : 'muted'}>
-                      {graph.isPublic ? 'Public' : 'Private'}
-                    </Badge>
-                  </div>
+                  <Badge variant={graph.isPublic ? 'primary' : 'muted'}>
+                    {graph.isPublic ? 'Public' : 'Private'}
+                  </Badge>
                 </div>
 
                 {graph.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                     {graph.description}
                   </p>
                 )}
 
-                <div className="flex items-center justify-between">
+                <div className="mt-auto">
                   <div className="flex items-center gap-3 text-xs text-muted">
-                    <span>{graph._count.nodes} nodes</span>
-                    <span>{graph._count.edges} edges</span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+                      {graph._count.nodes} nodes
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent/60" />
+                      {graph._count.edges} edges
+                    </span>
                     <span className="flex items-center gap-1">
                       <Eye className="w-3 h-3" />
                       {graph.viewCount}
@@ -239,62 +243,61 @@ export default function DashboardPage() {
                       </span>
                     )}
                   </div>
-                </div>
 
-                <div className="flex items-center justify-end gap-0.5 mt-2 pointer-events-auto">
-                  {graph.isPublic && user && (
-                    <a
-                      href={`/${user.username}/${graph.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 rounded-md hover:bg-surface-light active:bg-surface-light text-muted hover:text-foreground transition-colors flex items-center justify-center"
-                      title="View public page"
-                      aria-label={`View ${graph.title} public page`}
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                  {graph.isPublic && user && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEmbedGraph(graph);
-                      }}
-                      className="p-2 rounded-md hover:bg-cyan-500/10 active:bg-cyan-500/10 text-muted hover:text-cyan-400 transition-colors flex items-center justify-center"
-                      title="Embed skill card"
-                      aria-label={`Embed ${graph.title}`}
-                    >
-                      <Code2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {graph.isPublic && user && (
-                    <a
-                      href={`/${user.username}/resume/${graph.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-2 rounded-md hover:bg-emerald-500/10 active:bg-emerald-500/10 text-muted hover:text-emerald-400 transition-colors flex items-center justify-center"
-                      title="Generate CV"
-                      aria-label={`Generate CV from ${graph.title}`}
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(graph.id, graph.title);
-                    }}
-                    className="p-2 rounded-md hover:bg-red-500/10 active:bg-red-500/10 text-muted hover:text-red-400 transition-colors flex items-center justify-center"
-                    title="Delete graph"
-                    aria-label={`Delete ${graph.title}`}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="mt-3 pt-3 border-t border-border text-xs text-muted">
-                  Created {formatDate(graph.createdAt)}
+                  <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+                    <span className="text-xs text-muted">{formatDate(graph.createdAt)}</span>
+                    <div className="flex items-center gap-0.5 pointer-events-auto">
+                      {graph.isPublic && user && (
+                        <a
+                          href={`/${user.username}/${graph.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-md hover:bg-surface-light text-muted hover:text-foreground transition-colors"
+                          title="View public page"
+                          aria-label={`View ${graph.title} public page`}
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                      {graph.isPublic && user && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEmbedGraph(graph);
+                          }}
+                          className="p-1.5 rounded-md hover:bg-cyan-500/10 text-muted hover:text-cyan-400 transition-colors"
+                          title="Embed skill card"
+                          aria-label={`Embed ${graph.title}`}
+                        >
+                          <Code2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {graph.isPublic && user && (
+                        <a
+                          href={`/${user.username}/resume/${graph.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1.5 rounded-md hover:bg-emerald-500/10 text-muted hover:text-emerald-400 transition-colors"
+                          title="Generate CV"
+                          aria-label={`Generate CV from ${graph.title}`}
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(graph.id, graph.title);
+                        }}
+                        className="p-1.5 rounded-md hover:bg-red-500/10 text-muted hover:text-red-400 transition-colors"
+                        title="Delete graph"
+                        aria-label={`Delete ${graph.title}`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -312,7 +315,7 @@ export default function DashboardPage() {
           </div>
 
           {reposLoading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="card space-y-3">
                   <Skeleton className="h-5 w-3/4" />
@@ -324,7 +327,7 @@ export default function DashboardPage() {
           ) : repos.length === 0 ? (
             <p className="text-sm text-muted-foreground">No public repositories found.</p>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {repos.slice(0, 9).map((repo) => (
                 <a
                   key={repo.id}

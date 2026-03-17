@@ -218,7 +218,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
-                  className="p-1 rounded-md hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors"
+                  className="p-1 rounded-lg hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors"
                   title="Create graph"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -227,7 +227,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {!graphsLoaded ? (
                 <div className="space-y-1 px-2">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-8 rounded-md bg-surface-light/50 animate-pulse" />
+                    <div key={i} className="h-8 rounded-lg bg-surface-light/50 animate-pulse" />
                   ))}
                 </div>
               ) : sidebarGraphs.length === 0 ? (
@@ -240,7 +240,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       <Link
                         key={graph.id}
                         href={`/editor/${graph.id}`}
-                        className={`group flex items-center gap-2.5 px-2 py-1.5 rounded-md text-[13px] transition-colors ${
+                        className={`group flex items-center gap-2.5 px-2 py-2 rounded-lg text-[13px] transition-colors ${
                           isActive
                             ? 'bg-primary/10 text-primary-400'
                             : 'text-muted-foreground hover:text-foreground hover:bg-surface-light'

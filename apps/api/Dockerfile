@@ -44,5 +44,5 @@ EXPOSE 4000
 HEALTHCHECK --interval=15s --timeout=5s --start-period=120s --retries=5 \
   CMD wget -q --spider http://localhost:4000/health || exit 1
 
-# Run migrations, seed data, then start
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/seed.js && node dist/main.js"]
+# Run migrations, seed data (non-fatal), then start
+CMD ["sh", "-c", "npx prisma migrate deploy && (node dist/seed.js || echo 'Seed skipped or already applied') && node dist/main.js"]

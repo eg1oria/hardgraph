@@ -38,7 +38,7 @@ export class GitHubStrategy extends PassportStrategy(Strategy, 'github') {
     });
 
     this.logger.log(
-      `GitHub OAuth configured: callbackURL=${callbackURL}, clientID=${clientID ? clientID.slice(0, 4) + '...' : '(empty)'}`,
+      `GitHub OAuth configured: callbackURL=${callbackURL}, clientID=${clientID ? '***' : '(empty)'}`,
     );
   }
 

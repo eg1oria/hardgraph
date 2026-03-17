@@ -26,7 +26,7 @@ export function middleware(request: NextRequest) {
   const appPrefixes = ['/dashboard', '/editor', '/settings', '/onboarding', '/admin'];
   const isAppRoute = appPrefixes.some((p) => pathname === p || pathname.startsWith(p + '/'));
   const isPublicProfile =
-    !isAppRoute && !isPublicPath && /^\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)?$/.test(pathname);
+    !isAppRoute && !isPublicPath && /^\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+){0,2}$/.test(pathname);
 
   if (isPublicPath || isPublicProfile) {
     return NextResponse.next();

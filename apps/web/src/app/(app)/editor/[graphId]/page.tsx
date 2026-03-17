@@ -18,6 +18,7 @@ import {
   MoreHorizontal,
   X,
   Code2,
+  Download,
 } from 'lucide-react';
 import Link from 'next/link';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -37,6 +38,7 @@ import { AddNodeModal } from '@/components/editor/AddNodeModal';
 import { CategoryManager } from '@/components/editor/CategoryManager';
 import { ImportGithubModal } from '@/components/ImportGithubModal';
 import { EmbedModal } from '@/components/embed/EmbedModal';
+import { ExportModal } from '@/components/export/ExportModal';
 import { NODE_COLORS } from '@/lib/constants';
 import type { SkillLevel } from '@/lib/constants';
 
@@ -64,6 +66,7 @@ export default function EditorPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportGithub, setShowImportGithub] = useState(false);
   const [showEmbedModal, setShowEmbedModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showMobileNodeList, setShowMobileNodeList] = useState(false);
@@ -339,6 +342,15 @@ export default function EditorPage() {
               <span>Embed</span>
             </button>
 
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 active:bg-amber-500/20 transition-colors shrink-0 min-h-[36px]"
+              title="Export & share"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export</span>
+            </button>
+
             <div className="mx-0.5 h-5 w-px bg-border shrink-0" />
 
             <button
@@ -436,6 +448,16 @@ export default function EditorPage() {
               >
                 <Code2 className="w-4 h-4 text-cyan-400" />
                 Embed
+              </button>
+              <button
+                onClick={() => {
+                  setShowExportModal(true);
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-light active:bg-surface-light transition-colors"
+              >
+                <Download className="w-4 h-4 text-amber-400" />
+                Export
               </button>
               <div className="h-px bg-border my-1" />
               <button
@@ -667,6 +689,19 @@ export default function EditorPage() {
           isPublic={isPublic}
           nodeCount={nodes.length}
           updatedAt={updatedAt}
+        />
+      )}
+
+      {user?.username && (
+        <ExportModal
+          open={showExportModal}
+          onClose={() => setShowExportModal(false)}
+          graphId={graphId}
+          username={user.username}
+          slug={slug}
+          title={title || 'Untitled Graph'}
+          isPublic={isPublic}
+          userPlan={user.plan || 'free'}
         />
       )}
     </ReactFlowProvider>

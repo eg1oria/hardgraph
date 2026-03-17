@@ -12,6 +12,7 @@ import {
   Github,
   Star,
   Code2,
+  FileText,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -263,6 +264,19 @@ export default function DashboardPage() {
                       >
                         <Code2 className="w-4 h-4" />
                       </button>
+                    )}
+                    {graph.isPublic && user && (
+                      <a
+                        href={`/${user.username}/resume/${graph.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-2.5 rounded-md hover:bg-emerald-500/10 active:bg-emerald-500/10 text-muted hover:text-emerald-400 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        title="Generate CV"
+                        aria-label={`Generate CV from ${graph.title}`}
+                      >
+                        <FileText className="w-4 h-4" />
+                      </a>
                     )}
                     <button
                       onClick={(e) => {

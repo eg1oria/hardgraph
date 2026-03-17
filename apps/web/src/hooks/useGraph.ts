@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/api';
 import {
   useGraphStore,
@@ -21,17 +21,17 @@ export function useGraph(graphId: string | null) {
   const [forkedFrom, setForkedFrom] = useState<ForkedFromInfo | null>(null);
   const setGraph = useGraphStore((s) => s.setGraph);
   const { toast } = useToast();
-  const mountedRef = useRef(true);
 
   useEffect(() => {
-    mountedRef.current = true;
+    const controller = new AbortController();
 
     if (!graphId || graphId === 'new') {
       setLoading(false);
-      return;
+      return () => { controller.abort(); };
     }
 
     setLoading(true);
+    setError(null);
     api
       .get<{
         id: string;
@@ -43,9 +43,9 @@ export function useGraph(graphId: string | null) {
         edges?: GraphEdge[];
         categories?: Category[];
         forkedFrom?: ForkedFromInfo | null;
-      }>(`/graphs/${graphId}`)
+      }>(`/graphs/${graphId}`, controller.signal)
       .then((g) => {
-        if (!mountedRef.current) return;
+        if (controller.signal.aborted) return;
         setGraph({
           id: g.id,
           title: g.title,
@@ -59,16 +59,18 @@ export function useGraph(graphId: string | null) {
         setForkedFrom(g.forkedFrom ?? null);
       })
       .catch((err: unknown) => {
-        if (!mountedRef.current) return;
+        if (controller.signal.aborted) return;
         const message = err instanceof Error ? err.message : 'Failed to load graph';
         setError(message);
       })
       .finally(() => {
-        if (mountedRef.current) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       });
 
     return () => {
-      mountedRef.current = false;
+      controller.abort();
+      // Reset store to prevent stale graph data leaking to other pages
+      useGraphStore.getState().reset();
     };
   }, [graphId, setGraph]);
 

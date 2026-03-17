@@ -8,18 +8,25 @@ export function useEdges() {
   const pendingConnection = useGraphStore((s) => s.pendingConnection);
   const pendingDeleteEdgeId = useGraphStore((s) => s.pendingDeleteEdgeId);
   const { toast } = useToast();
-  const creatingEdge = useRef(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // When a connection is made on the canvas, create it on the backend
   useEffect(() => {
-    if (!pendingConnection || !graphId || creatingEdge.current) return;
+    if (!pendingConnection || !graphId) return;
     const { source, target } = pendingConnection;
-    if (!source || !target) {
-      useGraphStore.getState().setPendingConnection(null);
-      return;
-    }
 
-    creatingEdge.current = true;
+    // Clear immediately so new connections can be queued while this one is in-flight
+    useGraphStore.getState().setPendingConnection(null);
+
+    if (!source || !target) return;
+
     (async () => {
       try {
         const res = await api.post<GraphEdge>(`/graphs/${graphId}/edges`, {
@@ -27,13 +34,12 @@ export function useEdges() {
           targetNodeId: target,
           edgeType: 'dependency',
         });
+        if (!mountedRef.current) return;
         useGraphStore.getState().addEdge(res);
         useGraphStore.getState().touchUpdatedAt();
       } catch {
+        if (!mountedRef.current) return;
         toast('Failed to create edge', 'error');
-      } finally {
-        useGraphStore.getState().setPendingConnection(null);
-        creatingEdge.current = false;
       }
     })();
   }, [pendingConnection, graphId, toast]);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Compass, Eye, GitFork, Search, ThumbsUp } from 'lucide-react';
 
@@ -31,11 +31,11 @@ export default function ExplorePage() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<'recent' | 'endorsed'>('recent');
 
-  const loadGraphs = (sortBy: 'recent' | 'endorsed' = sort) => {
+  const loadGraphs = useCallback(() => {
     setLoading(true);
     setError(false);
     api
-      .get<ExploreGraph[]>(`/graphs/explore?sort=${sortBy}`)
+      .get<ExploreGraph[]>(`/graphs/explore?sort=${sort}`)
       .then((data) => {
         setGraphs(data);
       })
@@ -45,11 +45,11 @@ export default function ExplorePage() {
       .finally(() => {
         setLoading(false);
       });
-  };
+  }, [sort]);
 
   useEffect(() => {
-    loadGraphs(sort);
-  }, [sort]);
+    loadGraphs();
+  }, [loadGraphs]);
 
   const filtered = graphs.filter(
     (g) =>
@@ -117,7 +117,7 @@ export default function ExplorePage() {
         <div className="text-center py-20 text-muted-foreground">
           <Compass className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="mb-3">Failed to load skill trees</p>
-          <button onClick={loadGraphs} className="btn-secondary text-sm">
+          <button onClick={() => loadGraphs()} className="btn-secondary text-sm">
             Try again
           </button>
         </div>

@@ -62,12 +62,22 @@ async function request<T>(
   }
 
   if (!res.ok) {
-    // On 401, clear stale token (but don't redirect — let the auth guard handle it)
+    // On 401, clear stale token and sync auth store
     if (res.status === 401 && typeof window !== 'undefined') {
       try {
         localStorage.removeItem('token');
       } catch {
         // ignore
+      }
+      // Lazy-import to avoid circular dependency; notify store so UI reacts
+      try {
+        const { useAuthStore } = await import('@/stores/useAuthStore');
+        const state = useAuthStore.getState();
+        if (state.isAuthenticated) {
+          state.logout();
+        }
+      } catch {
+        // ignore — store may not be available during SSR
       }
     }
 

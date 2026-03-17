@@ -14,6 +14,7 @@ import {
   GitFork,
   Layers,
   ChevronDown,
+  FileText,
 } from 'lucide-react';
 
 import { HardGraph } from '@/components/graph/HardGraph';
@@ -136,8 +137,6 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
   const router = useRouter();
   const setGraph = useGraphStore((s) => s.setGraph);
   const selectedNodeId = useGraphStore((s) => s.selectedNodeId);
-  const storeNodes = useGraphStore((s) => s.nodes);
-  const storeEdges = useGraphStore((s) => s.edges);
   const currentUser = useAuthStore((s) => s.user);
   const [displayViewCount, setDisplayViewCount] = useState(graph.viewCount);
   const [showForkModal, setShowForkModal] = useState(false);
@@ -153,10 +152,10 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
 
   const isOwner = currentUser?.id === graph.user.id;
 
-  // Find selected node from the store (populated in useEffect below)
-  const selectedNode =
-    storeNodes.find((n) => n.id === selectedNodeId) ??
-    graph.nodes.find((n) => n.id === selectedNodeId);
+  // Find selected node from graph props (authoritative source for readonly viewer)
+  const selectedNode = selectedNodeId
+    ? (graph.nodes.find((n) => n.id === selectedNodeId) ?? null)
+    : null;
   const isRepoNode = selectedNode?.nodeType === 'repository';
   const repoUrl = isRepoNode
     ? (selectedNode?.customData?.repoUrl as string | undefined)
@@ -168,23 +167,21 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
     return graph.categories.find((c) => c.id === selectedNode.categoryId) ?? null;
   }, [selectedNode?.categoryId, graph.categories]);
 
-  // Resolve connected nodes (dependencies + dependents)
+  // Resolve connected nodes (dependencies + dependents) from graph props directly
   const connections = useMemo(() => {
     if (!selectedNodeId) return { dependencies: [], dependents: [] };
-    const edges = storeEdges.length > 0 ? storeEdges : graph.edges;
-    const allNodes = storeNodes.length > 0 ? storeNodes : graph.nodes;
-    const findNode = (id: string) => allNodes.find((n) => n.id === id);
+    const findNode = (id: string) => graph.nodes.find((n) => n.id === id);
     return {
-      dependencies: edges
+      dependencies: graph.edges
         .filter((e) => e.sourceNodeId === selectedNodeId)
         .map((e) => findNode(e.targetNodeId))
-        .filter(Boolean) as typeof allNodes,
-      dependents: edges
+        .filter(Boolean) as typeof graph.nodes,
+      dependents: graph.edges
         .filter((e) => e.targetNodeId === selectedNodeId)
         .map((e) => findNode(e.sourceNodeId))
-        .filter(Boolean) as typeof allNodes,
+        .filter(Boolean) as typeof graph.nodes,
     };
-  }, [selectedNodeId, storeEdges, storeNodes, graph.edges, graph.nodes]);
+  }, [selectedNodeId, graph.edges, graph.nodes]);
 
   // Populate store with graph data for HardGraph to read
   useEffect(() => {
@@ -197,6 +194,11 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
       edges: graph.edges,
       categories: graph.categories,
     });
+
+    return () => {
+      // Reset global store on unmount to prevent stale data leaking to other pages
+      useGraphStore.getState().reset();
+    };
   }, [graph, setGraph]);
 
   // Track analytics view — fires once per graph per session
@@ -350,6 +352,14 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
               )}
             </Link>
           ) : null}
+          <Link
+            href={`/${graph.user.username}/resume/${graph.slug}`}
+            className="btn-ghost p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            title="View Resume"
+            aria-label="View resume generated from this graph"
+          >
+            <FileText className="w-5 h-5" />
+          </Link>
           <button
             onClick={handleShare}
             className="btn-ghost p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center"

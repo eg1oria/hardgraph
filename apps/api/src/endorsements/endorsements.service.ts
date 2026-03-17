@@ -123,20 +123,32 @@ export class EndorsementsService {
       throw new NotFoundException('Endorsement not found');
     }
 
-    const [, updatedNode] = await this.prisma.$transaction([
-      this.prisma.endorsement.delete({ where: { id: endorsement.id } }),
-      this.prisma.node.update({
-        where: { id: nodeId },
-        data: { endorsementCount: { decrement: 1 } },
-        select: { endorsementCount: true },
-      }),
-      this.prisma.graph.update({
-        where: { id: endorsement.graphId },
-        data: { endorsementCount: { decrement: 1 } },
-      }),
-    ]);
+    const result = await this.prisma.$transaction(async (tx) => {
+      await tx.endorsement.delete({ where: { id: endorsement.id } });
 
-    return { endorsementCount: Math.max(0, updatedNode.endorsementCount) };
+      const node = await tx.node.findUniqueOrThrow({
+        where: { id: nodeId },
+        select: { endorsementCount: true },
+      });
+      const newNodeCount = Math.max(0, node.endorsementCount - 1);
+      await tx.node.update({
+        where: { id: nodeId },
+        data: { endorsementCount: newNodeCount },
+      });
+
+      const graph = await tx.graph.findUniqueOrThrow({
+        where: { id: endorsement.graphId },
+        select: { endorsementCount: true },
+      });
+      await tx.graph.update({
+        where: { id: endorsement.graphId },
+        data: { endorsementCount: Math.max(0, graph.endorsementCount - 1) },
+      });
+
+      return { endorsementCount: newNodeCount };
+    });
+
+    return result;
   }
 
   async getUserEndorsements(graphId: string, userId?: string, ip?: string): Promise<string[]> {

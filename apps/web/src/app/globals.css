@@ -428,3 +428,22 @@
     scrollbar-width: none;
   }
 }
+
+/* Print styles for Resume/CV */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+}

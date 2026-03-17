@@ -70,7 +70,7 @@ export function HardGraph({ readonly }: { readonly?: boolean } = {}) {
         defaultEdgeOptions={defaultEdgeOptions}
         nodesDraggable={!readonly}
         nodesConnectable={!readonly}
-        elementsSelectable={!readonly}
+        elementsSelectable
         fitView
         fitViewOptions={fitViewOpts}
         proOptions={{ hideAttribution: true }}

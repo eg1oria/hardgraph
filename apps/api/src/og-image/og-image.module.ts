@@ -5,5 +5,6 @@ import { OgImageService } from './og-image.service';
 @Module({
   controllers: [OgImageController],
   providers: [OgImageService],
+  exports: [OgImageService],
 })
 export class OgImageModule {}

@@ -58,15 +58,31 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
   try {
     const graph = await fetchPublic<PublicGraph>(`/public/${params.username}/${params.slug}`, 0);
     const author = graph.user.displayName || graph.user.username;
+    const ogImageUrl = `${apiUrl}/og-image/${encodeURIComponent(params.username)}/${encodeURIComponent(params.slug)}.png`;
     return {
       title: `${graph.title} by ${author} — HardGraph`,
       description: graph.description || `${graph.title} — a skill tree by ${author}`,
       openGraph: {
         title: `${graph.title} — HardGraph`,
         description: graph.description || `Interactive skill tree by ${author}`,
+        images: [
+          {
+            url: ogImageUrl,
+            width: 1200,
+            height: 630,
+            alt: `${graph.title} skill tree`,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${graph.title} — HardGraph`,
+        description: graph.description || `Interactive skill tree by ${author}`,
+        images: [ogImageUrl],
       },
     };
   } catch {

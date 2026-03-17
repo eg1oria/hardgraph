@@ -17,6 +17,9 @@ import { EndorsementsModule } from './endorsements/endorsements.module';
 import { AdminModule } from './admin/admin.module';
 import { MailModule } from './mail/mail.module';
 import { EmbedModule } from './embed/embed.module';
+import { ExportModule } from './export/export.module';
+import { OgImageModule } from './og-image/og-image.module';
+import { ResumeModule } from './resume/resume.module';
 import { HealthController } from './health.controller';
 
 import { join } from 'path';
@@ -56,6 +59,9 @@ import { join } from 'path';
     EndorsementsModule,
     AdminModule,
     EmbedModule,
+    ExportModule,
+    OgImageModule,
+    ResumeModule,
   ],
   controllers: [HealthController],
   providers: [

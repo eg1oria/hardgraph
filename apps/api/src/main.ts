@@ -29,6 +29,7 @@ async function bootstrap() {
   app.enableCors({
     origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
     credentials: true,
+    maxAge: 86400,
   });
 
   app.useGlobalPipes(
@@ -70,9 +71,7 @@ async function bootstrap() {
   if (!ghClientId || !ghClientSecret) {
     logger.warn('GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET is not set — GitHub login will fail.');
   } else {
-    logger.log(
-      `GitHub OAuth: clientID=${ghClientId.slice(0, 4)}..., callbackURL=${ghCallbackUrl || '(default)'}`,
-    );
+    logger.log(`GitHub OAuth: clientID=***, callbackURL=${ghCallbackUrl || '(default)'}`);
   }
 
   const frontendUrl = config.get<string>('NEXT_PUBLIC_APP_URL');

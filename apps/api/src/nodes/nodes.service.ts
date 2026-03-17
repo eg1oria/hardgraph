@@ -148,10 +148,15 @@ export class NodesService {
         },
       });
 
+      // Bump updatedAt inside the transaction to ensure consistency
+      await tx.graph.update({
+        where: { id: node.graphId },
+        data: { updatedAt: new Date() },
+      });
+
       return [newNode, newEdge];
     });
 
-    await this.touchGraph(node.graphId);
     return { node: evolvedNode, edge };
   }
 

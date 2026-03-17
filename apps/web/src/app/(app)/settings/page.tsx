@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Save, User, Globe, Twitter, Linkedin, Shield } from 'lucide-react';
+import { Save, User, Globe, Twitter, Linkedin, Github, Shield } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from '@/components/ui/Toast';
@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [twitterHandle, setTwitterHandle] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [githubUsername, setGithubUsername] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export default function SettingsPage() {
       setWebsiteUrl(user.websiteUrl || '');
       setTwitterHandle(user.twitterHandle || '');
       setLinkedinUrl(user.linkedinUrl || '');
+      setGithubUsername(user.githubUsername || '');
     }
   }, [user]);
 
@@ -40,6 +42,7 @@ export default function SettingsPage() {
         websiteUrl: websiteUrl.trim() || null,
         twitterHandle: twitterHandle.trim() || null,
         linkedinUrl: linkedinUrl.trim() || null,
+        githubUsername: githubUsername.trim() || null,
       });
       if (user && res) {
         setUser({ ...user, ...res });
@@ -148,6 +151,18 @@ export default function SettingsPage() {
                 placeholder="https://linkedin.com/in/username"
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                <Github className="w-3.5 h-3.5" />
+                GitHub Username
+              </label>
+              <input
+                className="input-field"
+                placeholder="username"
+                value={githubUsername}
+                onChange={(e) => setGithubUsername(e.target.value)}
               />
             </div>
           </div>

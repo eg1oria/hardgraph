@@ -29,6 +29,11 @@ export class UpdateUserDto {
   linkedinUrl?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  githubUsername?: string;
+
+  @IsOptional()
   @IsBoolean()
   onboardingCompleted?: boolean;
 }

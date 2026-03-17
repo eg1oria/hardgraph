@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Globe, Twitter, Linkedin, Eye, CalendarDays } from 'lucide-react';
+import { Globe, Twitter, Linkedin, Github, Eye, CalendarDays } from 'lucide-react';
 import { fetchPublic } from '@/lib/api';
 import { BackButton } from '@/components/ui/BackButton';
 import { Avatar } from '@/components/ui/Avatar';
@@ -136,6 +136,17 @@ export default async function PublicProfilePage({ params }: Props) {
                 >
                   <Linkedin className="w-3.5 h-3.5" />
                   LinkedIn
+                </a>
+              )}
+              {profile.githubUsername && (
+                <a
+                  href={`https://github.com/${profile.githubUsername}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Github className="w-3.5 h-3.5" />
+                  GitHub
                 </a>
               )}
               <span className="flex items-center gap-1 text-xs text-muted">

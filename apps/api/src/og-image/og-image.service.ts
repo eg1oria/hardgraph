@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Resvg } from '@resvg/resvg-js';
+import { ScanResult } from '../scan/scan.types';
 
 function esc(text: string): string {
   return text
@@ -203,5 +204,108 @@ export class OgImageService {
 
     const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } });
     return Buffer.from(resvg.render().asPng());
+  }
+
+  generateScanOgImage(result: ScanResult): Buffer {
+    const cacheKey = `scan:${result.username}:${result.scannedAt}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.createdAt < CACHE_TTL) {
+      return cached.png;
+    }
+
+    const svg = this.generateScanSvg(result);
+    const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } });
+    const png = Buffer.from(resvg.render().asPng());
+
+    this.cache.set(cacheKey, { png, createdAt: Date.now() });
+    return png;
+  }
+
+  private generateScanSvg(result: ScanResult): string {
+    const W = 1200;
+    const H = 630;
+    const PAD = 60;
+
+    const username = esc(truncate(result.username, 30));
+    const topCats = result.categories.slice(0, 4);
+
+    const barY0 = 200;
+    const barSpacing = 70;
+    const barMaxW = 500;
+
+    const bars = topCats
+      .map((cat, i) => {
+        const y = barY0 + i * barSpacing;
+        const barW = Math.round((cat.score / 100) * barMaxW);
+        const catName = esc(truncate(cat.name, 15));
+        const color = esc(cat.color);
+        return `
+    <text x="${PAD}" y="${y}" fill="#94A3B8" font-size="16" font-weight="600" font-family="${FONT}" width="120">${catName}</text>
+    <rect x="${PAD + 140}" y="${y - 14}" width="${barMaxW}" height="20" rx="10" fill="#1E293B" />
+    <rect x="${PAD + 140}" y="${y - 14}" width="${barW}" height="20" rx="10" fill="${color}" />
+    <text x="${PAD + 140 + barMaxW + 16}" y="${y}" fill="${color}" font-size="16" font-weight="700" font-family="${FONT}">${cat.score}%</text>`;
+      })
+      .join('');
+
+    const topSkillsText = result.topSkills
+      .slice(0, 5)
+      .map((s) => esc(s))
+      .join(' · ');
+    const statsText = `${result.totalRepos} repos · ${result.totalLanguages} languages`;
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="${W}" y2="${H}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B1120" />
+      <stop offset="50%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#0B1120" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="50%" stop-color="#22D3EE" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+  </defs>
+
+  <rect width="${W}" height="${H}" fill="url(#bg)" />
+  <rect x="0" y="0" width="${W}" height="4" fill="url(#accent)" opacity="0.8" />
+
+  <!-- Decorative grid -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <circle cx="20" cy="20" r="0.8" fill="#1E293B" />
+  </pattern>
+  <rect width="${W}" height="${H}" fill="url(#grid)" opacity="0.5" />
+
+  <!-- URL -->
+  <text x="${PAD}" y="60" fill="#475569" font-size="14" font-weight="500" font-family="${FONT}">hardgraph.io/scan/${username}</text>
+
+  <!-- Username -->
+  <text x="${PAD}" y="110" fill="#F8FAFC" font-size="42" font-weight="800" font-family="${FONT}" letter-spacing="-1">${username}</text>
+
+  <!-- Stats -->
+  <text x="${PAD}" y="150" fill="#64748B" font-size="18" font-weight="400" font-family="${FONT}">${esc(statsText)}</text>
+
+  <!-- Divider -->
+  <line x1="${PAD}" y1="170" x2="${W - PAD}" y2="170" stroke="#1E293B" stroke-width="1" />
+
+  <!-- Category bars -->
+  ${bars}
+
+  <!-- Top Skills -->
+  <text x="${PAD}" y="${barY0 + topCats.length * barSpacing + 30}" fill="#94A3B8" font-size="11" font-weight="700" font-family="${FONT}" letter-spacing="1.5">TOP SKILLS</text>
+  <text x="${PAD}" y="${barY0 + topCats.length * barSpacing + 58}" fill="#E2E8F0" font-size="20" font-weight="600" font-family="${FONT}">${topSkillsText}</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="${H - 64}" width="${W}" height="64" fill="#080D18" opacity="0.8" />
+  <line x1="0" y1="${H - 64}" x2="${W}" y2="${H - 64}" stroke="#1E293B" stroke-width="1" />
+
+  <!-- Logo -->
+  <g transform="translate(${PAD}, ${H - 44})">
+    <polygon points="10,0 18.66,5 18.66,15 10,20 1.34,15 1.34,5" fill="none" stroke="#6366F1" stroke-width="1.5" opacity="0.7" />
+    <polygon points="10,4 14.33,6.5 14.33,13.5 10,16 5.67,13.5 5.67,6.5" fill="#6366F1" opacity="0.2" />
+  </g>
+  <text x="${PAD + 28}" y="${H - 27}" fill="#64748B" font-size="15" font-weight="600" font-family="${FONT}">HardGraph</text>
+  <text x="${W - PAD}" y="${H - 27}" fill="#334155" font-size="13" font-weight="500" font-family="${FONT}" text-anchor="end">Made with HardGraph</text>
+</svg>`;
   }
 }

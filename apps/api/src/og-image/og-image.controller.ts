@@ -4,6 +4,7 @@ import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { OgImageService } from './og-image.service';
+import { ScanService } from '../scan/scan.service';
 
 @ApiTags('OG Image')
 @Controller('og-image')
@@ -13,7 +14,41 @@ export class OgImageController {
   constructor(
     private readonly ogImageService: OgImageService,
     private readonly prisma: PrismaService,
+    private readonly scanService: ScanService,
   ) {}
+
+  @Get('scan/:username')
+  @Throttle({ short: { ttl: 60000, limit: 20 } })
+  async getScanOgImage(
+    @Param('username') username: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    try {
+      const result = await this.scanService.scanUsername(username);
+
+      const png = this.ogImageService.generateScanOgImage(result);
+
+      res
+        .set({
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+          'Content-Length': String(png.length),
+          'Access-Control-Allow-Origin': '*',
+        })
+        .send(png);
+    } catch (error) {
+      this.logger.warn(`Scan OG image error for ${username}: ${error}`);
+      const defaultPng = this.ogImageService.generateDefaultOgImage();
+      res
+        .status(500)
+        .set({
+          'Content-Type': 'image/png',
+          'Cache-Control': 'no-cache',
+        })
+        .send(defaultPng);
+    }
+  }
 
   @Get(':username/:slug.png')
   @Throttle({ short: { ttl: 60000, limit: 20 } })

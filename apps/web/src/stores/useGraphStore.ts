@@ -17,6 +17,7 @@ export interface GraphNode {
   parentIdeaId?: string | null;
   isUnlocked: boolean;
   customData?: Record<string, unknown>;
+  endorsementCount?: number;
 }
 
 export interface GraphEdge {
@@ -44,6 +45,7 @@ export interface SkillNodeData extends Record<string, unknown> {
   categoryId?: string;
   isUnlocked: boolean;
   categoryColor?: string;
+  endorsementCount?: number;
 }
 
 /* ── Converters: domain ↔ React Flow ─────── */
@@ -65,6 +67,7 @@ export function toRFNodes(nodes: GraphNode[], categories: Category[]): Node<Skil
         categoryId: n.categoryId,
         isUnlocked: n.isUnlocked,
         categoryColor: n.categoryId ? catMap.get(n.categoryId) : undefined,
+        endorsementCount: n.endorsementCount ?? 0,
         ...(isRepo
           ? {
               nodeType: 'repository' as const,

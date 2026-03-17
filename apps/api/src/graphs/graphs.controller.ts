@@ -19,10 +19,16 @@ export class GraphsController {
   }
 
   @Get('graphs/explore')
-  explore(@Query('limit') limit?: string, @Query('skip') skip?: string) {
+  explore(
+    @Query('limit') limit?: string,
+    @Query('skip') skip?: string,
+    @Query('sort') sort?: string,
+  ) {
+    const validSort = sort === 'endorsed' ? 'endorsed' : 'recent';
     return this.graphsService.findRecentPublic(
       limit ? parseInt(limit, 10) || 20 : 20,
       skip ? parseInt(skip, 10) || 0 : 0,
+      validSort,
     );
   }
 

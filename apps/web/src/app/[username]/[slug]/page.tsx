@@ -28,6 +28,7 @@ interface PublicGraph {
     categoryId?: string;
     isUnlocked: boolean;
     customData?: Record<string, unknown>;
+    endorsementCount?: number;
   }>;
   edges: Array<{
     id: string;

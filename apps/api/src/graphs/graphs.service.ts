@@ -18,14 +18,14 @@ export class GraphsService {
     });
   }
 
-  async findRecentPublic(limit = 20, skip = 0) {
+  async findRecentPublic(limit = 20, skip = 0, sort: 'recent' | 'endorsed' = 'recent') {
     return this.prisma.graph.findMany({
       where: { isPublic: true },
       include: {
         user: { select: { username: true, displayName: true, avatarUrl: true } },
         _count: { select: { nodes: true, edges: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: sort === 'endorsed' ? { endorsementCount: 'desc' } : { createdAt: 'desc' },
       take: Math.min(limit, 50),
       skip,
     });
@@ -195,10 +195,7 @@ export class GraphsService {
     const title = (dto.title?.trim() || `${sourceGraph.title} (fork)`).slice(0, 200);
     const includeEdges = dto.includeEdges !== false;
 
-    const slug = await this.ensureUniqueSlug(
-      userId,
-      slugify(title, { lower: true, strict: true }),
-    );
+    const slug = await this.ensureUniqueSlug(userId, slugify(title, { lower: true, strict: true }));
 
     const newGraph = await this.prisma.$transaction(async (tx) => {
       const created = await tx.graph.create({
@@ -230,9 +227,7 @@ export class GraphsService {
       // Copy nodes
       const nodeMap = new Map<string, string>();
       for (const node of sourceGraph.nodes) {
-        const newCatId = node.categoryId
-          ? (categoryMap.get(node.categoryId) ?? null)
-          : null;
+        const newCatId = node.categoryId ? (categoryMap.get(node.categoryId) ?? null) : null;
         const newNode = await tx.node.create({
           data: {
             graphId: created.id,
@@ -267,12 +262,12 @@ export class GraphsService {
             };
           })
           .filter(Boolean) as Array<{
-            graphId: string;
-            sourceNodeId: string;
-            targetNodeId: string;
-            label: string | null;
-            edgeType: string;
-          }>;
+          graphId: string;
+          sourceNodeId: string;
+          targetNodeId: string;
+          label: string | null;
+          edgeType: string;
+        }>;
 
         if (edgeData.length > 0) {
           await tx.edge.createMany({ data: edgeData });

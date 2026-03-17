@@ -50,11 +50,12 @@ model Graph {
   theme        String   @default("cyberpunk") @db.VarChar(50)
   customStyles Json     @default("{}") @map("custom_styles")
   viewport     Json     @default("{}") @map("viewport")
-  viewCount    Int      @default(0) @map("view_count")
-  forkedFromId String?  @map("forked_from_id") @db.Uuid
-  forkCount    Int      @default(0) @map("fork_count")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  viewCount         Int      @default(0) @map("view_count")
+  forkedFromId     String?  @map("forked_from_id") @db.Uuid
+  forkCount        Int      @default(0) @map("fork_count")
+  endorsementCount Int      @default(0) @map("endorsement_count")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   forkedFrom   Graph?        @relation("GraphForks", fields: [forkedFromId], references: [id], onDelete: SetNull)
@@ -63,6 +64,7 @@ model Graph {
   nodes        Node[]
   edges        Edge[]
   profileViews ProfileView[]
+  endorsements Endorsement[]
 
   @@unique([userId, slug])
   @@index([userId])
@@ -97,17 +99,19 @@ model Node {
   icon          String?  @db.VarChar(100)
   positionX     Float    @default(0) @map("position_x")
   positionY     Float    @default(0) @map("position_y")
-  customData    Json     @default("{}") @map("custom_data")
-  isUnlocked    Boolean  @default(true) @map("is_unlocked")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  customData        Json     @default("{}") @map("custom_data")
+  isUnlocked        Boolean  @default(true) @map("is_unlocked")
+  endorsementCount  Int      @default(0) @map("endorsement_count")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
-  graph         Graph     @relation(fields: [graphId], references: [id], onDelete: Cascade)
-  category      Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  parentIdea    Node?     @relation("IdeaEvolution", fields: [parentIdeaId], references: [id], onDelete: SetNull)
-  childIdeas    Node[]    @relation("IdeaEvolution")
-  sourceEdges   Edge[]    @relation("SourceNode")
-  targetEdges   Edge[]    @relation("TargetNode")
+  graph         Graph         @relation(fields: [graphId], references: [id], onDelete: Cascade)
+  category      Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  parentIdea    Node?         @relation("IdeaEvolution", fields: [parentIdeaId], references: [id], onDelete: SetNull)
+  childIdeas    Node[]        @relation("IdeaEvolution")
+  sourceEdges   Edge[]        @relation("SourceNode")
+  targetEdges   Edge[]        @relation("TargetNode")
+  endorsements  Endorsement[]
 
   @@index([graphId])
   @@index([categoryId])
@@ -176,4 +180,22 @@ model EmailVerificationToken {
   @@index([tokenHash])
   @@index([userId])
   @@map("email_verification_tokens")
+}
+
+model Endorsement {
+  id        String   @id @default(uuid()) @db.Uuid
+  nodeId    String   @map("node_id") @db.Uuid
+  graphId   String   @map("graph_id") @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  ipHash    String?  @map("ip_hash") @db.VarChar(64)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  node  Node  @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  graph Graph @relation(fields: [graphId], references: [id], onDelete: Cascade)
+
+  @@unique([nodeId, userId])
+  @@unique([nodeId, ipHash])
+  @@index([graphId])
+  @@index([nodeId])
+  @@map("endorsements")
 }

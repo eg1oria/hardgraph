@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import { ChevronsUp } from 'lucide-react';
+import { ChevronsUp, ThumbsUp } from 'lucide-react';
 import type { SkillNodeData } from '@/stores/useGraphStore';
 import { NODE_COLORS } from '@/lib/constants';
 import type { SkillLevel } from '@/lib/constants';
@@ -57,6 +57,12 @@ function SkillNodeComponent({ id, data, selected }: NodeProps) {
           style={{ backgroundColor: NODE_COLORS[d.level as SkillLevel] ?? '#6366F1' }}
         />
         <span className="text-[10px] text-muted capitalize">{d.level}</span>
+        {(d.endorsementCount ?? 0) > 0 && (
+          <span className="ml-auto flex items-center gap-0.5 text-[10px] text-emerald-400/70 tabular-nums">
+            <ThumbsUp className="w-2.5 h-2.5" />
+            {d.endorsementCount}
+          </span>
+        )}
       </div>
 
       <Handle

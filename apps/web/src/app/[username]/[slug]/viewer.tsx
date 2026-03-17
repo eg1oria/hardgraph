@@ -19,6 +19,7 @@ import {
 import { HardGraph } from '@/components/graph/HardGraph';
 import { HashtagText } from '@/components/graph/HashtagText';
 import { ForkModal } from '@/components/graph/ForkModal';
+import { EndorseButton } from '@/components/graph/EndorseButton';
 import { useGraphStore } from '@/stores/useGraphStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { NODE_COLORS, type SkillLevel } from '@/lib/constants';
@@ -50,6 +51,7 @@ interface GraphData {
     categoryId?: string;
     isUnlocked: boolean;
     customData?: Record<string, unknown>;
+    endorsementCount?: number;
   }>;
   edges: Array<{
     id: string;
@@ -140,6 +142,16 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
   const [displayViewCount, setDisplayViewCount] = useState(graph.viewCount);
   const [showForkModal, setShowForkModal] = useState(false);
   const viewTrackedRef = useRef(false);
+  const [myEndorsements, setMyEndorsements] = useState<Set<string>>(new Set());
+  const [endorsementCounts, setEndorsementCounts] = useState<Record<string, number>>(() => {
+    const map: Record<string, number> = {};
+    for (const n of graph.nodes) {
+      if (n.endorsementCount) map[n.id] = n.endorsementCount;
+    }
+    return map;
+  });
+
+  const isOwner = currentUser?.id === graph.user.id;
 
   // Find selected node from the store (populated in useEffect below)
   const selectedNode =
@@ -222,6 +234,28 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
       })
       .catch(() => {});
   }, [graph.id]);
+
+  // Fetch which nodes the current viewer has endorsed
+  useEffect(() => {
+    api
+      .get<string[]>(`/endorsements/graph/${graph.id}/mine`)
+      .then((nodeIds) => setMyEndorsements(new Set(nodeIds)))
+      .catch(() => {});
+  }, [graph.id]);
+
+  const handleEndorsed = (nodeId: string, newCount: number) => {
+    setEndorsementCounts((prev) => ({ ...prev, [nodeId]: newCount }));
+    setMyEndorsements((prev) => new Set(prev).add(nodeId));
+  };
+
+  const handleUnendorsed = (nodeId: string, newCount: number) => {
+    setEndorsementCounts((prev) => ({ ...prev, [nodeId]: newCount }));
+    setMyEndorsements((prev) => {
+      const next = new Set(prev);
+      next.delete(nodeId);
+      return next;
+    });
+  };
 
   const author = graph.user.displayName || graph.user.username;
 
@@ -455,6 +489,20 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
               )}
             </div>
 
+            {/* Endorse */}
+            <div className="px-5 pb-4">
+              <EndorseButton
+                nodeId={selectedNodeId!}
+                graphId={graph.id}
+                count={endorsementCounts[selectedNodeId!] ?? selectedNode.endorsementCount ?? 0}
+                isOwner={isOwner}
+                isEndorsed={myEndorsements.has(selectedNodeId!)}
+                isLoggedIn={!!currentUser}
+                onEndorsed={handleEndorsed}
+                onUnendorsed={handleUnendorsed}
+              />
+            </div>
+
             {/* Footer */}
             <div className="px-5 py-2.5 border-t border-border/40">
               <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground/50">
@@ -514,6 +562,18 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
                   Open on GitHub
                 </a>
               )}
+              <div className="mt-3">
+                <EndorseButton
+                  nodeId={selectedNodeId!}
+                  graphId={graph.id}
+                  count={endorsementCounts[selectedNodeId!] ?? selectedNode.endorsementCount ?? 0}
+                  isOwner={isOwner}
+                  isEndorsed={myEndorsements.has(selectedNodeId!)}
+                  isLoggedIn={!!currentUser}
+                  onEndorsed={handleEndorsed}
+                  onUnendorsed={handleUnendorsed}
+                />
+              </div>
             </div>
           </div>
         )}

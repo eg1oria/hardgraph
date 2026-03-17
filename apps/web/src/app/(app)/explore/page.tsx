@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Compass, Eye, GitFork, Search } from 'lucide-react';
+import { Compass, Eye, GitFork, Search, ThumbsUp } from 'lucide-react';
 
 import { api } from '@/lib/api';
 import { Avatar } from '@/components/ui/Avatar';
@@ -14,6 +14,7 @@ interface ExploreGraph {
   slug: string;
   description: string | null;
   viewCount: number;
+  endorsementCount: number;
   user: {
     username: string;
     displayName: string | null;
@@ -28,12 +29,13 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<'recent' | 'endorsed'>('recent');
 
-  const loadGraphs = () => {
+  const loadGraphs = (sortBy: 'recent' | 'endorsed' = sort) => {
     setLoading(true);
     setError(false);
     api
-      .get<ExploreGraph[]>('/graphs/explore')
+      .get<ExploreGraph[]>(`/graphs/explore?sort=${sortBy}`)
       .then((data) => {
         setGraphs(data);
       })
@@ -46,8 +48,8 @@ export default function ExplorePage() {
   };
 
   useEffect(() => {
-    loadGraphs();
-  }, []);
+    loadGraphs(sort);
+  }, [sort]);
 
   const filtered = graphs.filter(
     (g) =>
@@ -70,16 +72,41 @@ export default function ExplorePage() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-6 sm:mb-8 max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="Search skill trees..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="input-field pl-10 w-full"
-        />
+      {/* Search + Sort */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6 sm:mb-8">
+        <div className="relative max-w-md flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search skill trees..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input-field pl-10 w-full"
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setSort('recent')}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              sort === 'recent'
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
+            }`}
+          >
+            Recent
+          </button>
+          <button
+            onClick={() => setSort('endorsed')}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
+              sort === 'endorsed'
+                ? 'bg-emerald-500/10 text-emerald-400'
+                : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
+            }`}
+          >
+            <ThumbsUp className="w-3.5 h-3.5" />
+            Most endorsed
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -137,6 +164,12 @@ export default function ExplorePage() {
                     <Eye className="w-3.5 h-3.5" />
                     {graph.viewCount}
                   </span>
+                  {graph.endorsementCount > 0 && (
+                    <span className="flex items-center gap-1 text-emerald-400/70">
+                      <ThumbsUp className="w-3.5 h-3.5" />
+                      {graph.endorsementCount}
+                    </span>
+                  )}
                   {graph.forkCount > 0 && (
                     <span className="flex items-center gap-1">
                       <GitFork className="w-3.5 h-3.5" />

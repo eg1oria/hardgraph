@@ -106,4 +106,9 @@ export class AnalyticsService {
   }
 
   constructor(private readonly prisma: PrismaService) {}
+
+  /** Lightweight event logger — used by other modules to record discrete events */
+  trackEvent(event: string, meta: Record<string, unknown>) {
+    this.logger.log(`[event] ${event} ${JSON.stringify(meta)}`);
+  }
 }

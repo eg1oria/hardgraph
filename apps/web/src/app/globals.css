@@ -431,6 +431,27 @@
 
 /* Print styles for Resume/CV */
 @media print {
+  /* Reset CSS variables to light theme for print */
+  :root,
+  .dark {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --surface: 0 0% 100%;
+    --surface-light: 215 20% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 20% 95%;
+    --secondary-foreground: 222 47% 17%;
+    --muted: 215 16% 57%;
+    --muted-foreground: 215 20% 42%;
+    --border: 214 20% 88%;
+    --border-light: 214 18% 80%;
+  }
+
   body {
     background: white !important;
     color: black !important;

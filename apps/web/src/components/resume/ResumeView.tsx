@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Briefcase,
   Code2,
+  Layers,
   User as UserIcon,
   FileText,
 } from 'lucide-react';
@@ -46,10 +47,7 @@ export function ResumeView({ resume }: ResumeViewProps) {
             <ArrowLeft className="w-4 h-4" />
             Back to graph
           </Link>
-          <button
-            onClick={handlePrint}
-            className="btn-primary inline-flex items-center gap-2"
-          >
+          <button onClick={handlePrint} className="btn-primary inline-flex items-center gap-2">
             <Download className="w-4 h-4" />
             Download PDF
           </button>
@@ -149,6 +147,32 @@ export function ResumeView({ resume }: ResumeViewProps) {
             </section>
           )}
 
+          {/* Tech Stack grouped by level */}
+          {resume.techStack && resume.techStack.length > 0 && (
+            <section className="mb-8 print:mb-6">
+              <SectionHeader icon={Layers} title="Tech Stack" />
+              <div className="space-y-3">
+                {resume.techStack.map((group) => (
+                  <div key={group.level}>
+                    <h3 className="text-sm font-semibold text-foreground mb-1.5 print:text-black">
+                      {group.level}
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="text-xs px-2.5 py-1 rounded-md bg-surface-light text-muted-foreground border border-border print:bg-gray-50 print:text-gray-700 print:border-gray-200"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Projects */}
           {resume.projects.length > 0 && (
             <section className="mb-8 print:mb-6">
@@ -214,8 +238,8 @@ export function ResumeView({ resume }: ResumeViewProps) {
                   className="text-primary-400 hover:underline print:text-gray-600"
                 >
                   {resume.graphTitle}
-                </Link>
-                {' '}on HardGraph
+                </Link>{' '}
+                on HardGraph
               </span>
             </div>
           </footer>

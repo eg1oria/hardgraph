@@ -12,11 +12,17 @@ export interface ResumeContacts {
   twitter?: string;
 }
 
+export interface TechStackGroup {
+  level: string;
+  skills: string[];
+}
+
 export interface ResumeData {
   name: string;
   title: string;
   summary: string;
   skills: string[];
+  techStack: TechStackGroup[];
   projects: ResumeProject[];
   contacts: ResumeContacts;
   graphTitle: string;

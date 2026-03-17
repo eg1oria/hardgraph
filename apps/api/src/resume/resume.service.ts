@@ -60,6 +60,43 @@ export class ResumeService {
     // 2. Skill extraction
     const skills = this.skillExtraction.extract(nodes);
 
+    // 2b. Tech stack grouped by level
+    const levelOrder = ['expert', 'advanced', 'intermediate', 'beginner'];
+    const levelLabels: Record<string, string> = {
+      expert: 'Expert',
+      advanced: 'Advanced',
+      intermediate: 'Intermediate',
+      beginner: 'Beginner',
+    };
+    const skillNodes = nodes.filter((n) => n.nodeType === 'skill');
+    const grouped = new Map<string, string[]>();
+    for (const node of skillNodes) {
+      const level = node.level || 'beginner';
+      if (!grouped.has(level)) grouped.set(level, []);
+      grouped.get(level)!.push(node.name);
+    }
+    // Also extract unique languages from repository customData
+    const repoLanguages = new Set<string>();
+    for (const node of nodes) {
+      if (node.nodeType === 'repository' && node.customData) {
+        const lang = (node.customData as Record<string, unknown>).language;
+        if (typeof lang === 'string' && lang) {
+          repoLanguages.add(lang);
+        }
+      }
+    }
+    // Add repo languages that aren't already in skills
+    const allSkillNames = new Set(skillNodes.map((n) => n.name.toLowerCase()));
+    for (const lang of repoLanguages) {
+      if (!allSkillNames.has(lang.toLowerCase())) {
+        if (!grouped.has('beginner')) grouped.set('beginner', []);
+        grouped.get('beginner')!.push(lang);
+      }
+    }
+    const techStack = levelOrder
+      .filter((l) => grouped.has(l))
+      .map((l) => ({ level: levelLabels[l] || l, skills: grouped.get(l)! }));
+
     // 3. Project mapping
     const projects = this.projectMapping.map(nodes, edges);
 
@@ -90,6 +127,7 @@ export class ResumeService {
       title,
       summary,
       skills,
+      techStack,
       projects,
       contacts,
       graphTitle: graph.title,

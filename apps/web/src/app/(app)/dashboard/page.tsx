@@ -239,57 +239,58 @@ export default function DashboardPage() {
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 pointer-events-auto">
-                    {graph.isPublic && user && (
-                      <a
-                        href={`/${user.username}/${graph.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2.5 rounded-md hover:bg-surface-light active:bg-surface-light text-muted hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                        title="View public page"
-                        aria-label={`View ${graph.title} public page`}
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
-                    {graph.isPublic && user && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEmbedGraph(graph);
-                        }}
-                        className="p-2.5 rounded-md hover:bg-cyan-500/10 active:bg-cyan-500/10 text-muted hover:text-cyan-400 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                        title="Embed skill card"
-                        aria-label={`Embed ${graph.title}`}
-                      >
-                        <Code2 className="w-4 h-4" />
-                      </button>
-                    )}
-                    {graph.isPublic && user && (
-                      <a
-                        href={`/${user.username}/resume/${graph.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="p-2.5 rounded-md hover:bg-emerald-500/10 active:bg-emerald-500/10 text-muted hover:text-emerald-400 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                        title="Generate CV"
-                        aria-label={`Generate CV from ${graph.title}`}
-                      >
-                        <FileText className="w-4 h-4" />
-                      </a>
-                    )}
+                </div>
+
+                <div className="flex items-center justify-end gap-0.5 mt-2 pointer-events-auto">
+                  {graph.isPublic && user && (
+                    <a
+                      href={`/${user.username}/${graph.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-md hover:bg-surface-light active:bg-surface-light text-muted hover:text-foreground transition-colors flex items-center justify-center"
+                      title="View public page"
+                      aria-label={`View ${graph.title} public page`}
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  {graph.isPublic && user && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDelete(graph.id, graph.title);
+                        setEmbedGraph(graph);
                       }}
-                      className="p-2.5 rounded-md hover:bg-red-500/10 active:bg-red-500/10 text-muted hover:text-red-400 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                      title="Delete graph"
-                      aria-label={`Delete ${graph.title}`}
+                      className="p-2 rounded-md hover:bg-cyan-500/10 active:bg-cyan-500/10 text-muted hover:text-cyan-400 transition-colors flex items-center justify-center"
+                      title="Embed skill card"
+                      aria-label={`Embed ${graph.title}`}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Code2 className="w-3.5 h-3.5" />
                     </button>
-                  </div>
+                  )}
+                  {graph.isPublic && user && (
+                    <a
+                      href={`/${user.username}/resume/${graph.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-2 rounded-md hover:bg-emerald-500/10 active:bg-emerald-500/10 text-muted hover:text-emerald-400 transition-colors flex items-center justify-center"
+                      title="Generate CV"
+                      aria-label={`Generate CV from ${graph.title}`}
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(graph.id, graph.title);
+                    }}
+                    className="p-2 rounded-md hover:bg-red-500/10 active:bg-red-500/10 text-muted hover:text-red-400 transition-colors flex items-center justify-center"
+                    title="Delete graph"
+                    aria-label={`Delete ${graph.title}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-border text-xs text-muted">

@@ -51,10 +51,10 @@ const features = [
   },
   {
     number: '04',
-    tag: 'Profile',
-    title: 'Add your social links',
+    tag: 'Discovery',
+    title: 'Scan any GitHub profile',
     description:
-      'Twitter, LinkedIn, your personal site — pin them all to your profile. Your skill map becomes your living portfolio.',
+      'Type any username and instantly see their skill tree — languages, frameworks, categories, all extracted from real repos. No signup needed.',
     accent: '#fb923c',
     accentRgb: '251,146,60',
   },
@@ -345,81 +345,100 @@ function MockNodeGraph() {
   );
 }
 
-/** Mock 4 — Social links settings panel */
-function MockSocialLinks() {
+/** Mock 4 — GitHub Scan results panel */
+function MockGitHubScan() {
+  const categories = [
+    { name: 'Frontend', color: '#00d4ff', score: 82 },
+    { name: 'Backend', color: '#a855f7', score: 68 },
+    { name: 'DevOps', color: '#f97316', score: 45 },
+  ];
+  const topSkills = [
+    { name: 'TypeScript', level: 'expert' },
+    { name: 'React', level: 'advanced' },
+    { name: 'Next.js', level: 'advanced' },
+    { name: 'Node.js', level: 'intermediate' },
+    { name: 'Docker', level: 'beginner' },
+  ];
+  const levelColors: Record<string, string> = {
+    expert: '#eab308',
+    advanced: '#a855f7',
+    intermediate: '#3b82f6',
+    beginner: '#71717a',
+  };
   return (
     <div className="p-5 space-y-4 pointer-events-none select-none">
-      {/* Section header */}
+      {/* Search bar */}
       <div className="flex items-center gap-2">
-        <svg
-          className="w-3.5 h-3.5 text-orange-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 21a9 9 0 100-18 9 9 0 000 18z"
-          />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.6 9h16.8M3.6 15h16.8" />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 3a15.3 15.3 0 014 9 15.3 15.3 0 01-4 9 15.3 15.3 0 01-4-9 15.3 15.3 0 014-9z"
-          />
-        </svg>
-        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-          Social Links
-        </span>
-      </div>
-      <div className="rounded-xl bg-secondary/60 border border-border p-4 space-y-3.5">
-        {/* Website */}
-        <div>
-          <span className="block text-[10px] text-muted-foreground mb-1">Website</span>
-          <div className="h-8 rounded-lg bg-surface border border-border px-3 flex items-center text-[11px] text-orange-500 dark:text-orange-300">
-            https://johndoe.dev
-          </div>
-        </div>
-        {/* Twitter */}
-        <div>
-          <div className="flex items-center gap-1.5 mb-1">
-            <svg className="w-3 h-3 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
-            <span className="text-[10px] text-muted-foreground">Twitter Handle</span>
-          </div>
-          <div className="h-8 rounded-lg bg-surface border border-border px-3 flex items-center text-[11px] text-orange-500 dark:text-orange-300">
-            johndoe
-          </div>
-        </div>
-        {/* LinkedIn */}
-        <div>
-          <div className="flex items-center gap-1.5 mb-1">
-            <svg className="w-3 h-3 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-            </svg>
-            <span className="text-[10px] text-muted-foreground">LinkedIn URL</span>
-          </div>
-          <div className="h-8 rounded-lg bg-surface border border-border px-3 flex items-center text-[11px] text-orange-500 dark:text-orange-300">
-            https://linkedin.com/in/johndoe
-          </div>
-        </div>
-      </div>
-      {/* Save button */}
-      <div className="flex justify-end">
-        <div className="flex items-center gap-1.5 text-[10px] font-medium text-white px-3 py-1.5 rounded-lg bg-orange-500">
-          <svg
-            className="w-3 h-3"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        <div className="flex-1 h-8 rounded-lg bg-secondary border border-border px-3 flex items-center text-[11px] text-foreground">
+          <svg className="w-3 h-3 text-muted-foreground mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
           </svg>
-          Save Changes
+          torvalds
+        </div>
+        <div className="h-8 px-3 rounded-lg bg-orange-500 flex items-center text-[10px] font-medium text-white shrink-0">
+          Scan
+        </div>
+      </div>
+      {/* Profile mini */}
+      <div className="flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center text-[10px] font-bold text-muted-foreground">
+          LT
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold text-foreground">torvalds</p>
+          <p className="text-[9px] text-muted-foreground">42 repos · 8 languages · 14 skills</p>
+        </div>
+      </div>
+      {/* Top skills row */}
+      <div>
+        <span className="block text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+          Top Skills
+        </span>
+        <div className="flex flex-wrap gap-1">
+          {topSkills.map((s) => (
+            <span
+              key={s.name}
+              className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-medium"
+              style={{
+                borderColor: `${levelColors[s.level]}66`,
+                color: levelColors[s.level],
+                background: `${levelColors[s.level]}15`,
+              }}
+            >
+              {s.name}
+            </span>
+          ))}
+        </div>
+      </div>
+      {/* Category bars */}
+      <div className="space-y-2">
+        <span className="block text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">
+          Categories
+        </span>
+        {categories.map((c) => (
+          <div key={c.name} className="space-y-0.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full" style={{ background: c.color }} />
+                <span className="text-[10px] font-medium text-foreground">{c.name}</span>
+              </div>
+              <span className="text-[10px] font-bold" style={{ color: c.color }}>{c.score}%</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+              <div className="h-full rounded-full" style={{ width: `${c.score}%`, background: c.color }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* CTA */}
+      <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-2.5 text-center">
+        <p className="text-[10px] text-foreground font-medium mb-1.5">Want the full picture?</p>
+        <div className="inline-flex items-center gap-1 text-[10px] font-medium text-white px-3 py-1 rounded-lg bg-orange-500">
+          Create free account
+          <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
         </div>
       </div>
     </div>
@@ -431,7 +450,7 @@ const mockPanels: Record<number, React.FC> = {
   0: MockLogin,
   1: MockImportGithub,
   2: MockNodeGraph,
-  3: MockSocialLinks,
+  3: MockGitHubScan,
 };
 
 /* ── Feature row (text + mock) ── */

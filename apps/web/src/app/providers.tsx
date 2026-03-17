@@ -1,10 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { ThemeProvider } from 'next-themes';
 import { ToastProvider } from '@/components/ui/Toast';
-import { CommandPalette } from '@/components/ui/CommandPalette';
 import { useOnboardingStore } from '@/stores/useOnboardingStore';
+
+// Lazy-load CommandPalette — not needed for initial render (Lighthouse: reduce unused JS)
+const CommandPalette = lazy(() =>
+  import('@/components/ui/CommandPalette').then((m) => ({ default: m.CommandPalette })),
+);
 
 function HydrateStores() {
   useEffect(() => {
@@ -19,7 +23,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ToastProvider>
         <HydrateStores />
         {children}
-        <CommandPalette />
+        <Suspense fallback={null}>
+          <CommandPalette />
+        </Suspense>
       </ToastProvider>
     </ThemeProvider>
   );

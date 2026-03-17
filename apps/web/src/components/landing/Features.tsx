@@ -68,8 +68,8 @@ function FeatureCard({ feature, i }: { feature: (typeof features)[0]; i: number 
       }}
     >
       <div className="p-6 h-full">
-        <div className="w-8 h-8 rounded-lg bg-primary/[0.06] flex items-center justify-center mb-4">
-          <Icon className="w-4 h-4 text-primary/60" strokeWidth={1.5} />
+        <div className="w-8 h-8 rounded-lg bg-primary/[0.08] flex items-center justify-center mb-4">
+          <Icon className="w-4 h-4 text-primary" strokeWidth={1.5} />
         </div>
         <h3 className="text-[15px] font-semibold mb-1.5 leading-snug">{feature.title}</h3>
         <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
@@ -87,9 +87,7 @@ export function Features() {
       />
       <div className="max-w-4xl mx-auto">
         <div className="mb-12 sm:mb-16">
-          <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground/60 mb-3">
-            Features
-          </p>
+          <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">Features</p>
           <h2 className="text-2xl sm:text-3xl font-bold leading-tight max-w-md">
             Everything you need to <span className="text-gradient">stand out</span>
           </h2>

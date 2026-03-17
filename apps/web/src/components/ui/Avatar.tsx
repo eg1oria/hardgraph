@@ -15,11 +15,16 @@ export function Avatar({ src, alt, fallback, size = 'md', className }: AvatarPro
     lg: 'w-14 h-14 text-base',
   };
 
+  const sizePixels = { sm: 32, md: 40, lg: 56 };
+
   if (src) {
     return (
       <img
         src={src}
         alt={alt || 'Avatar'}
+        width={sizePixels[size]}
+        height={sizePixels[size]}
+        loading="lazy"
         className={cn('rounded-full object-cover', sizeClasses[size], className)}
       />
     );

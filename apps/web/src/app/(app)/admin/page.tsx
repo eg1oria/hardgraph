@@ -126,7 +126,7 @@ export default function AdminDashboardPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
-          <h3 className="text-sm font-medium mb-4">Views — Last 30 Days</h3>
+          <h2 className="text-sm font-medium mb-4">Views — Last 30 Days</h2>
           {loading ? (
             <Skeleton className="h-[300px] w-full" />
           ) : (
@@ -134,7 +134,7 @@ export default function AdminDashboardPage() {
           )}
         </Card>
         <Card>
-          <h3 className="text-sm font-medium mb-4">New Users — Last 30 Days</h3>
+          <h2 className="text-sm font-medium mb-4">New Users — Last 30 Days</h2>
           {loading ? (
             <Skeleton className="h-[300px] w-full" />
           ) : (

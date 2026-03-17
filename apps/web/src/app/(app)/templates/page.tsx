@@ -102,9 +102,9 @@ export default function TemplatesPage() {
                   </div>
                 </div>
 
-                <h3 className="text-lg font-semibold mb-1 group-hover:text-primary-400 transition-colors">
+                <h2 className="text-lg font-semibold mb-1 group-hover:text-primary-400 transition-colors">
                   {t.name}
-                </h3>
+                </h2>
                 {t.description && (
                   <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{t.description}</p>
                 )}

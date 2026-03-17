@@ -9,7 +9,10 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border/40">
+    <nav
+      aria-label="Main navigation"
+      className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border/40"
+    >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <Link href="/" className="text-lg font-semibold tracking-tight text-gradient">
           HardGraph

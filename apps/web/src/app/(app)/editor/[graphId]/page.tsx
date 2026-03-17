@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
   Save,
@@ -34,13 +34,25 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
 import { HardGraph } from '@/components/graph/HardGraph';
 import { NodeDetailPanel } from '@/components/graph/NodeDetailPanel';
-import { AddNodeModal } from '@/components/editor/AddNodeModal';
-import { CategoryManager } from '@/components/editor/CategoryManager';
-import { ImportGithubModal } from '@/components/ImportGithubModal';
-import { EmbedModal } from '@/components/embed/EmbedModal';
-import { ExportModal } from '@/components/export/ExportModal';
 import { NODE_COLORS } from '@/lib/constants';
 import type { SkillLevel } from '@/lib/constants';
+
+// Lazy-load modals — only needed when user opens them (Lighthouse: reduce unused JS)
+const AddNodeModal = lazy(() =>
+  import('@/components/editor/AddNodeModal').then((m) => ({ default: m.AddNodeModal })),
+);
+const CategoryManager = lazy(() =>
+  import('@/components/editor/CategoryManager').then((m) => ({ default: m.CategoryManager })),
+);
+const ImportGithubModal = lazy(() =>
+  import('@/components/ImportGithubModal').then((m) => ({ default: m.ImportGithubModal })),
+);
+const EmbedModal = lazy(() =>
+  import('@/components/embed/EmbedModal').then((m) => ({ default: m.EmbedModal })),
+);
+const ExportModal = lazy(() =>
+  import('@/components/export/ExportModal').then((m) => ({ default: m.ExportModal })),
+);
 
 export default function EditorPage() {
   const { graphId } = useParams<{ graphId: string }>();
@@ -547,7 +559,9 @@ export default function EditorPage() {
                   <Layers className="w-4 h-4 text-muted" />
                   Categories
                 </h3>
-                <CategoryManager />
+                <Suspense fallback={<div className="h-8" />}>
+                  <CategoryManager />
+                </Suspense>
               </div>
               <div className="p-4">
                 <h3 className="text-sm font-semibold mb-3">Nodes ({nodes.length})</h3>
@@ -626,7 +640,9 @@ export default function EditorPage() {
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                     Categories
                   </h4>
-                  <CategoryManager />
+                  <Suspense fallback={<div className="h-8" />}>
+                    <CategoryManager />
+                  </Suspense>
                 </div>
                 <div className="p-4">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
@@ -667,43 +683,45 @@ export default function EditorPage() {
         </div>
       </div>
 
-      <AddNodeModal
-        open={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onAdd={handleAddNode}
-      />
-
-      <ImportGithubModal
-        open={showImportGithub}
-        onClose={() => setShowImportGithub(false)}
-        onImport={handleImportRepos}
-      />
-
-      {user?.username && (
-        <EmbedModal
-          open={showEmbedModal}
-          onClose={() => setShowEmbedModal(false)}
-          username={user.username}
-          slug={slug}
-          title={title || 'Untitled Graph'}
-          isPublic={isPublic}
-          nodeCount={nodes.length}
-          updatedAt={updatedAt}
+      <Suspense fallback={null}>
+        <AddNodeModal
+          open={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddNode}
         />
-      )}
 
-      {user?.username && (
-        <ExportModal
-          open={showExportModal}
-          onClose={() => setShowExportModal(false)}
-          graphId={graphId}
-          username={user.username}
-          slug={slug}
-          title={title || 'Untitled Graph'}
-          isPublic={isPublic}
-          userPlan={user.plan || 'free'}
+        <ImportGithubModal
+          open={showImportGithub}
+          onClose={() => setShowImportGithub(false)}
+          onImport={handleImportRepos}
         />
-      )}
+
+        {user?.username && (
+          <EmbedModal
+            open={showEmbedModal}
+            onClose={() => setShowEmbedModal(false)}
+            username={user.username}
+            slug={slug}
+            title={title || 'Untitled Graph'}
+            isPublic={isPublic}
+            nodeCount={nodes.length}
+            updatedAt={updatedAt}
+          />
+        )}
+
+        {user?.username && (
+          <ExportModal
+            open={showExportModal}
+            onClose={() => setShowExportModal(false)}
+            graphId={graphId}
+            username={user.username}
+            slug={slug}
+            title={title || 'Untitled Graph'}
+            isPublic={isPublic}
+            userPlan={user.plan || 'free'}
+          />
+        )}
+      </Suspense>
     </ReactFlowProvider>
   );
 }

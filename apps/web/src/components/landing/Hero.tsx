@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 
 interface MousePosition {
   x: number;
@@ -10,26 +10,26 @@ interface MousePosition {
 
 export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [smoothMouse, setSmoothMouse] = useState<MousePosition>({ x: 0, y: 0 });
   const animationRef = useRef<number>();
   const mouseRef = useRef<MousePosition>({ x: 0, y: 0 });
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const smoothRef = useRef<MousePosition>({ x: 0, y: 0 });
 
-  useEffect(() => {
-    setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
+  // Refs to SVG groups — update transforms via DOM directly to avoid React re-renders
+  const layer0Ref = useRef<SVGGElement>(null);
+  const layer1Ref = useRef<SVGGElement>(null);
+  const layer2Ref = useRef<SVGGElement>(null);
+  const edgeLayer01Ref = useRef<SVGGElement>(null);
+  const edgeLayer12Ref = useRef<SVGGElement>(null);
+  const glowRef = useRef<SVGEllipseElement>(null);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    mouseRef.current = { x, y };
   }, []);
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (isTouchDevice) return;
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-      const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-      mouseRef.current = { x, y };
-    },
-    [isTouchDevice],
-  );
 
   const handleMouseLeave = useCallback(() => {
     mouseRef.current = { x: 0, y: 0 };
@@ -38,10 +38,34 @@ export function Hero() {
   useEffect(() => {
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
     const animate = () => {
-      setSmoothMouse((prev) => ({
-        x: lerp(prev.x, mouseRef.current.x, 0.08),
-        y: lerp(prev.y, mouseRef.current.y, 0.08),
-      }));
+      const prev = smoothRef.current;
+      const target = mouseRef.current;
+      const x = lerp(prev.x, target.x, 0.08);
+      const y = lerp(prev.y, target.y, 0.08);
+      smoothRef.current = { x, y };
+
+      // Update DOM directly — no React re-renders
+      const t0x = x * -2,
+        t0y = y * -2;
+      const t1x = x * 5,
+        t1y = y * 3;
+      const t2x = x * 10,
+        t2y = y * 7;
+
+      layer0Ref.current?.setAttribute('transform', `translate(${t0x},${t0y})`);
+      layer1Ref.current?.setAttribute('transform', `translate(${t1x},${t1y})`);
+      layer2Ref.current?.setAttribute('transform', `translate(${t2x},${t2y})`);
+      edgeLayer01Ref.current?.setAttribute(
+        'transform',
+        `translate(${(t0x + t1x) / 2},${(t0y + t1y) / 2})`,
+      );
+      edgeLayer12Ref.current?.setAttribute(
+        'transform',
+        `translate(${(t1x + t2x) / 2},${(t1y + t2y) / 2})`,
+      );
+      glowRef.current?.setAttribute('cx', String(480 + x * 300));
+      glowRef.current?.setAttribute('cy', String(270 + y * 200));
+
       animationRef.current = requestAnimationFrame(animate);
     };
     animationRef.current = requestAnimationFrame(animate);
@@ -49,12 +73,6 @@ export function Hero() {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
   }, []);
-
-  const t0 = { x: smoothMouse.x * -2, y: smoothMouse.y * -2 };
-  const t1 = { x: smoothMouse.x * 5, y: smoothMouse.y * 3 };
-  const t2 = { x: smoothMouse.x * 10, y: smoothMouse.y * 7 };
-  const glowX = 480 + smoothMouse.x * 300;
-  const glowY = 270 + smoothMouse.y * 200;
 
   return (
     <section className="relative pt-28 sm:pt-40 pb-20 sm:pb-28 px-4 sm:px-6 overflow-hidden">
@@ -68,7 +86,7 @@ export function Hero() {
       />
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[650px] h-[400px] bg-primary/[0.04] rounded-full blur-[120px] pointer-events-none" />
       <div className="relative max-w-3xl mx-auto text-center">
-        <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground/60 mb-6 animate-fade-in">
+        <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-6 animate-fade-in">
           Visual skill mapping
         </p>
 
@@ -132,10 +150,11 @@ export function Hero() {
 
               <rect width="960" height="540" fill="url(#dots)" className="text-foreground" />
 
-              <ellipse cx={glowX} cy={glowY} rx="200" ry="160" fill="url(#glow)" />
+              {/* Glow — позиция обновляется через ref */}
+              <ellipse ref={glowRef} cx="480" cy="270" rx="200" ry="160" fill="url(#glow)" />
 
-              {/* Edges */}
-              <g style={{ transform: `translate(${(t0.x + t1.x) / 2}px, ${(t0.y + t1.y) / 2}px)` }}>
+              {/* Edges: Core → Tier 1 */}
+              <g ref={edgeLayer01Ref}>
                 <path
                   d="M 240 270 C 320 270, 340 180, 420 180"
                   stroke="url(#edge1)"
@@ -180,7 +199,8 @@ export function Hero() {
                 </circle>
               </g>
 
-              <g style={{ transform: `translate(${(t1.x + t2.x) / 2}px, ${(t1.y + t2.y) / 2}px)` }}>
+              {/* Edges: Tier 1 → Tier 2 */}
+              <g ref={edgeLayer12Ref}>
                 <path
                   d="M 480 175 C 540 175, 560 135, 620 135"
                   stroke="url(#edge2)"
@@ -212,7 +232,7 @@ export function Hero() {
               </g>
 
               {/* Root node */}
-              <g style={{ transform: `translate(${t0.x}px, ${t0.y}px)` }}>
+              <g ref={layer0Ref}>
                 <rect
                   x="198"
                   y="239"
@@ -245,7 +265,7 @@ export function Hero() {
               </g>
 
               {/* Tier 1 */}
-              <g style={{ transform: `translate(${t1.x}px, ${t1.y}px)` }}>
+              <g ref={layer1Ref}>
                 <rect
                   x="411"
                   y="154"
@@ -299,7 +319,7 @@ export function Hero() {
               </g>
 
               {/* Tier 2 */}
-              <g style={{ transform: `translate(${t2.x}px, ${t2.y}px)` }}>
+              <g ref={layer2Ref}>
                 {[
                   { label: 'Next.js', y: 120 },
                   { label: 'Tailwind', y: 210 },

@@ -10,6 +10,15 @@ const nextConfig = {
         hostname: 'avatars.githubusercontent.com',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+  },
+  compiler: {
+    // Remove console.log in production for smaller bundles
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+  experimental: {
+    // Optimize package imports — tree-shake heavy libraries
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'recharts', '@xyflow/react'],
   },
   async headers() {
     return [

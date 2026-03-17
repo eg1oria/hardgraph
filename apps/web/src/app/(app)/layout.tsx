@@ -113,6 +113,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-dvh bg-background flex overflow-hidden">
+      {/* Skip to main content — accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-primary focus:text-white focus:text-sm"
+      >
+        Skip to content
+      </a>
       {/* Mobile overlay */}
       {mobileMenuOpen && (
         <div
@@ -160,7 +167,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
         </div>
 
-        <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
+        <nav aria-label="Main navigation" className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
             return (
@@ -221,6 +228,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   }}
                   className="p-1 rounded-lg hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors"
                   title="Create graph"
+                  aria-label="Create graph"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </Link>
@@ -262,7 +270,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     href="/dashboard"
                     className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
                   >
-                    Show all graphs
+                    View all graphs
                   </Link>
                 </div>
               )}
@@ -350,6 +358,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </header>
 
         <main
+          id="main-content"
           className={`flex-1 ${isEditorPage ? 'overflow-hidden' : 'overflow-auto pb-16 md:pb-0'}`}
         >
           {children}

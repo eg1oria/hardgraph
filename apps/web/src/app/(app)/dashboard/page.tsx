@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, lazy, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -22,8 +22,12 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { useToast } from '@/components/ui/Toast';
-import { EmbedModal } from '@/components/embed/EmbedModal';
 import { SkillStatsSection } from '@/components/profile/SkillStatsSection';
+
+// Lazy-load EmbedModal — only shown when user clicks embed button (Lighthouse: reduce unused JS)
+const EmbedModal = lazy(() =>
+  import('@/components/embed/EmbedModal').then((m) => ({ default: m.EmbedModal })),
+);
 
 interface Graph {
   id: string;
@@ -258,13 +262,17 @@ export default function DashboardPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {graphs.map((graph) => (
             <div key={graph.id} className="group card-hover relative flex flex-col">
-              <Link href={`/editor/${graph.id}`} className="absolute inset-0 z-0" />
+              <Link
+                href={`/editor/${graph.id}`}
+                className="absolute inset-0 z-0"
+                aria-label={`Open graph: ${graph.title}`}
+              />
 
               <div className="relative z-10 pointer-events-none flex flex-col flex-1">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-[15px] group-hover:text-primary-400 transition-colors truncate pr-2">
+                  <h2 className="font-semibold text-[15px] group-hover:text-primary-400 transition-colors truncate pr-2">
                     {graph.title}
-                  </h3>
+                  </h2>
                   <Badge variant={graph.isPublic ? 'primary' : 'muted'}>
                     {graph.isPublic ? 'Public' : 'Private'}
                   </Badge>
@@ -469,16 +477,18 @@ export default function DashboardPage() {
       </Modal>
 
       {embedGraph && user?.username && (
-        <EmbedModal
-          open={!!embedGraph}
-          onClose={() => setEmbedGraph(null)}
-          username={user.username}
-          slug={embedGraph.slug}
-          title={embedGraph.title}
-          isPublic={embedGraph.isPublic}
-          nodeCount={embedGraph._count.nodes}
-          updatedAt={embedGraph.updatedAt}
-        />
+        <Suspense fallback={null}>
+          <EmbedModal
+            open={!!embedGraph}
+            onClose={() => setEmbedGraph(null)}
+            username={user.username}
+            slug={embedGraph.slug}
+            title={embedGraph.title}
+            isPublic={embedGraph.isPublic}
+            nodeCount={embedGraph._count.nodes}
+            updatedAt={embedGraph.updatedAt}
+          />
+        </Suspense>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Delete, Param, Body, UseGuards, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { EdgesService } from './edges.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -13,7 +13,7 @@ export class EdgesController {
 
   @Post('graphs/:graphId/edges')
   create(
-    @Param('graphId') graphId: string,
+    @Param('graphId', ParseUUIDPipe) graphId: string,
     @CurrentUser('id') userId: string,
     @Body() dto: CreateEdgeDto,
   ) {
@@ -21,7 +21,7 @@ export class EdgesController {
   }
 
   @Delete('edges/:id')
-  remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') userId: string) {
     return this.edgesService.remove(id, userId);
   }
 }

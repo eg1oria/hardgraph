@@ -1,4 +1,16 @@
-import { Controller, Post, Get, Delete, Body, Param, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Body,
+  Param,
+  Req,
+  UseGuards,
+  ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
@@ -26,14 +38,14 @@ export class EndorsementsController {
   }
 
   @Get('graph/:graphId')
-  getCounts(@Param('graphId') graphId: string) {
+  getCounts(@Param('graphId', ParseUUIDPipe) graphId: string) {
     return this.endorsementsService.getCountsByGraph(graphId);
   }
 
   @Get('graph/:graphId/mine')
   @UseGuards(OptionalAuthGuard)
   getMyEndorsements(
-    @Param('graphId') graphId: string,
+    @Param('graphId', ParseUUIDPipe) graphId: string,
     @Req() req: Request,
     @CurrentUser('id') userId?: string,
   ) {
@@ -42,8 +54,9 @@ export class EndorsementsController {
   }
 
   @Delete(':nodeId')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  remove(@Param('nodeId') nodeId: string, @CurrentUser('id') userId: string) {
+  remove(@Param('nodeId', ParseUUIDPipe) nodeId: string, @CurrentUser('id') userId: string) {
     return this.endorsementsService.remove(nodeId, userId);
   }
 }

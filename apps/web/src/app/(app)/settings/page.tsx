@@ -91,6 +91,7 @@ export default function SettingsPage() {
                 placeholder="Your name"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
+                disabled={saving}
               />
             </div>
 
@@ -103,6 +104,7 @@ export default function SettingsPage() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 maxLength={500}
+                disabled={saving}
               />
               <p className="text-xs text-muted mt-1">{bio.length}/500</p>
             </div>
@@ -126,6 +128,7 @@ export default function SettingsPage() {
                 placeholder="https://yoursite.com"
                 value={websiteUrl}
                 onChange={(e) => setWebsiteUrl(e.target.value)}
+                disabled={saving}
               />
             </div>
             <div>
@@ -138,6 +141,7 @@ export default function SettingsPage() {
                 placeholder="username (without @)"
                 value={twitterHandle}
                 onChange={(e) => setTwitterHandle(e.target.value)}
+                disabled={saving}
               />
             </div>
             <div>
@@ -151,6 +155,7 @@ export default function SettingsPage() {
                 placeholder="https://linkedin.com/in/username"
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
+                disabled={saving}
               />
             </div>
             <div>
@@ -163,6 +168,7 @@ export default function SettingsPage() {
                 placeholder="username"
                 value={githubUsername}
                 onChange={(e) => setGithubUsername(e.target.value)}
+                disabled={saving}
               />
             </div>
           </div>

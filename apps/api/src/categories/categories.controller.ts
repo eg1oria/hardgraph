@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -12,14 +22,14 @@ export class CategoriesController {
 
   @Get('graphs/:graphId/categories')
   @UseGuards(JwtAuthGuard)
-  findAll(@Param('graphId') graphId: string, @CurrentUser('id') userId: string) {
+  findAll(@Param('graphId', ParseUUIDPipe) graphId: string, @CurrentUser('id') userId: string) {
     return this.categoriesService.findAllByGraph(graphId, userId);
   }
 
   @Post('graphs/:graphId/categories')
   @UseGuards(JwtAuthGuard)
   create(
-    @Param('graphId') graphId: string,
+    @Param('graphId', ParseUUIDPipe) graphId: string,
     @CurrentUser('id') userId: string,
     @Body() dto: CreateCategoryDto,
   ) {
@@ -29,7 +39,7 @@ export class CategoriesController {
   @Put('categories/:id')
   @UseGuards(JwtAuthGuard)
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser('id') userId: string,
     @Body() dto: Partial<CreateCategoryDto>,
   ) {
@@ -38,7 +48,7 @@ export class CategoriesController {
 
   @Delete('categories/:id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') userId: string) {
     return this.categoriesService.remove(id, userId);
   }
 }

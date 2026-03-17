@@ -59,13 +59,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [graphsLoaded, setGraphsLoaded] = useState(false);
 
   const fetchSidebarGraphs = useCallback(() => {
-    if (!user) return;
+    const currentUser = useAuthStore.getState().user;
+    if (!currentUser) return;
     api
       .get<{ id: string; title: string; isPublic: boolean; _count: { nodes: number } }[]>('/graphs')
       .then((data) => setSidebarGraphs(data.slice(0, 8)))
       .catch(() => {})
       .finally(() => setGraphsLoaded(true));
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (!loading && user) fetchSidebarGraphs();
@@ -126,7 +127,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         data-onboarding="sidebar"
         className={`border-r border-border flex flex-col transition-all duration-200 shrink-0 
         fixed md:relative z-50 h-full bg-surface
-        ${mobileMenuOpen ? 'translate-x-0 w-72 slide-in-left' : '-translate-x-full md:translate-x-0'}
+        ${mobileMenuOpen ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'}
         ${!mobileMenuOpen ? (sidebarOpen ? 'md:w-64' : 'md:w-16') : ''}`}
       >
         <div className="h-16 flex items-center justify-between px-4 border-b border-border">

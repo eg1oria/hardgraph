@@ -262,10 +262,24 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
   updateNode: (id, data) =>
     set((state) => {
       const nodes = state.nodes.map((n) => (n.id === id ? { ...n, ...data } : n));
+      // Only rebuild RF nodes when visual-affecting fields change (skip for description-only edits)
+      const visualKeys: Array<keyof GraphNode> = [
+        'name',
+        'level',
+        'icon',
+        'nodeType',
+        'categoryId',
+        'positionX',
+        'positionY',
+        'isUnlocked',
+        'customData',
+        'endorsementCount',
+      ];
+      const needsRebuild = Object.keys(data).some((k) => visualKeys.includes(k as keyof GraphNode));
       return {
         nodes,
         isDirty: true,
-        ...rebuildRFNodes(nodes, state.categories),
+        ...(needsRebuild ? rebuildRFNodes(nodes, state.categories) : {}),
       };
     }),
 
@@ -342,10 +356,12 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
   updateCategory: (id, data) =>
     set((state) => {
       const categories = state.categories.map((c) => (c.id === id ? { ...c, ...data } : c));
+      // Only rebuild RF nodes if any node uses this category
+      const hasAffected = state.nodes.some((n) => n.categoryId === id);
       return {
         categories,
         isDirty: true,
-        ...rebuildRFNodes(state.nodes, categories),
+        ...(hasAffected ? rebuildRFNodes(state.nodes, categories) : {}),
       };
     }),
 

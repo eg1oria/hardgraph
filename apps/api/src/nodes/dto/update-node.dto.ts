@@ -6,6 +6,9 @@ import {
   IsBoolean,
   IsUUID,
   IsObject,
+  IsIn,
+  Min,
+  Max,
 } from 'class-validator';
 
 export class UpdateNodeDto {
@@ -16,11 +19,12 @@ export class UpdateNodeDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(5000)
   description?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(20)
+  @IsIn(['beginner', 'intermediate', 'advanced', 'expert'])
   level?: string;
 
   @IsOptional()
@@ -30,10 +34,14 @@ export class UpdateNodeDto {
 
   @IsOptional()
   @IsNumber()
+  @Min(-50000)
+  @Max(50000)
   positionX?: number;
 
   @IsOptional()
   @IsNumber()
+  @Min(-50000)
+  @Max(50000)
   positionY?: number;
 
   @IsOptional()

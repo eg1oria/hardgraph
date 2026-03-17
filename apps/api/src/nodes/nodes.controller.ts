@@ -1,4 +1,14 @@
-import { Controller, Post, Put, Delete, Get, Param, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Put,
+  Delete,
+  Get,
+  Param,
+  Body,
+  UseGuards,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { NodesService } from './nodes.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -16,7 +26,7 @@ export class NodesController {
   @Post('graphs/:graphId/nodes')
   @UseGuards(JwtAuthGuard)
   create(
-    @Param('graphId') graphId: string,
+    @Param('graphId', ParseUUIDPipe) graphId: string,
     @CurrentUser('id') userId: string,
     @Body() dto: CreateNodeDto,
   ) {
@@ -34,25 +44,33 @@ export class NodesController {
 
   @Put('nodes/:id')
   @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: string, @CurrentUser('id') userId: string, @Body() dto: UpdateNodeDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateNodeDto,
+  ) {
     return this.nodesService.update(id, userId, dto);
   }
 
   @Delete('nodes/:id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') userId: string) {
     return this.nodesService.remove(id, userId);
   }
 
   @Post('nodes/:id/evolve')
   @UseGuards(JwtAuthGuard)
-  evolve(@Param('id') id: string, @CurrentUser('id') userId: string, @Body() dto: EvolveNodeDto) {
+  evolve(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: EvolveNodeDto,
+  ) {
     return this.nodesService.evolve(id, userId, dto);
   }
 
   @Get('nodes/:id/evolution-chain')
   @UseGuards(OptionalAuthGuard)
-  getEvolutionChain(@Param('id') id: string, @CurrentUser('id') userId?: string) {
+  getEvolutionChain(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') userId?: string) {
     return this.nodesService.getEvolutionChain(id, userId);
   }
 }

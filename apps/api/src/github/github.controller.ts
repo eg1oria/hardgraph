@@ -1,5 +1,6 @@
 import { Controller, Get, Param, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GithubService } from './github.service';
 
@@ -11,7 +12,7 @@ export class GithubController {
   @Get('repos')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  getRepos(@Req() req: { user: { id: string } }) {
+  getRepos(@Req() req: Request & { user: { id: string } }) {
     return this.githubService.getRepos(req.user.id);
   }
 

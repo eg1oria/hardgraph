@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, LayoutDashboard, Compass, BookTemplate, Settings, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,45 +12,48 @@ interface Command {
   action: () => void;
 }
 
-export function CommandPalette() {
+export const CommandPalette = memo(function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const commands: Command[] = [
-    {
-      id: 'dashboard',
-      label: 'Go to Dashboard',
-      icon: LayoutDashboard,
-      action: () => router.push('/dashboard'),
-    },
-    {
-      id: 'new-graph',
-      label: 'Create New Graph',
-      icon: Plus,
-      action: () => router.push('/editor/new'),
-    },
-    {
-      id: 'explore',
-      label: 'Explore Community',
-      icon: Compass,
-      action: () => router.push('/explore'),
-    },
-    {
-      id: 'templates',
-      label: 'Browse Templates',
-      icon: BookTemplate,
-      action: () => router.push('/templates'),
-    },
-    {
-      id: 'settings',
-      label: 'Open Settings',
-      icon: Settings,
-      action: () => router.push('/settings'),
-    },
-  ];
+  const commands: Command[] = useMemo(
+    () => [
+      {
+        id: 'dashboard',
+        label: 'Go to Dashboard',
+        icon: LayoutDashboard,
+        action: () => router.push('/dashboard'),
+      },
+      {
+        id: 'new-graph',
+        label: 'Create New Graph',
+        icon: Plus,
+        action: () => router.push('/editor/new'),
+      },
+      {
+        id: 'explore',
+        label: 'Explore Community',
+        icon: Compass,
+        action: () => router.push('/explore'),
+      },
+      {
+        id: 'templates',
+        label: 'Browse Templates',
+        icon: BookTemplate,
+        action: () => router.push('/templates'),
+      },
+      {
+        id: 'settings',
+        label: 'Open Settings',
+        icon: Settings,
+        action: () => router.push('/settings'),
+      },
+    ],
+    [router],
+  );
 
   const filtered = useMemo(
     () =>
@@ -157,4 +160,4 @@ export function CommandPalette() {
       </div>
     </div>
   );
-}
+});

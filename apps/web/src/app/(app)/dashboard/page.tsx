@@ -62,6 +62,7 @@ export default function DashboardPage() {
   const [creating, setCreating] = useState(false);
   const [repos, setRepos] = useState<GithubRepo[]>([]);
   const [reposLoading, setReposLoading] = useState(false);
+  const [reposError, setReposError] = useState(false);
   const [embedGraph, setEmbedGraph] = useState<Graph | null>(null);
 
   const fetchGraphs = useCallback(() => {
@@ -86,7 +87,7 @@ export default function DashboardPage() {
         .get<GithubRepo[]>('/github/repos')
         .then((data) => setRepos(data))
         .catch(() => {
-          // Keep repos empty; dashboard still functions without GitHub section.
+          setReposError(true);
         })
         .finally(() => setReposLoading(false));
     }
@@ -324,6 +325,8 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+          ) : reposError ? (
+            <p className="text-sm text-muted-foreground">Failed to load repositories.</p>
           ) : repos.length === 0 ? (
             <p className="text-sm text-muted-foreground">No public repositories found.</p>
           ) : (

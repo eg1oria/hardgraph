@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { GraphsService } from './graphs.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -40,25 +51,33 @@ export class GraphsController {
 
   @Post('graphs/:id/fork')
   @UseGuards(JwtAuthGuard)
-  fork(@Param('id') id: string, @CurrentUser('id') userId: string, @Body() dto: ForkGraphDto) {
+  fork(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: ForkGraphDto,
+  ) {
     return this.graphsService.forkGraph(id, userId, dto);
   }
 
   @Get('graphs/:id')
   @UseGuards(JwtAuthGuard)
-  findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') userId: string) {
     return this.graphsService.findById(id, userId);
   }
 
   @Put('graphs/:id')
   @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: string, @CurrentUser('id') userId: string, @Body() dto: UpdateGraphDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateGraphDto,
+  ) {
     return this.graphsService.update(id, userId, dto);
   }
 
   @Delete('graphs/:id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') userId: string) {
     return this.graphsService.remove(id, userId);
   }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Compass, Eye, GitFork, Search, ThumbsUp } from 'lucide-react';
 
@@ -29,7 +29,14 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sort, setSort] = useState<'recent' | 'endorsed'>('recent');
+
+  // Debounce search input to avoid filtering on every keystroke
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 200);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const loadGraphs = useCallback(() => {
     setLoading(true);
@@ -51,12 +58,16 @@ export default function ExplorePage() {
     loadGraphs();
   }, [loadGraphs]);
 
-  const filtered = graphs.filter(
-    (g) =>
-      g.title.toLowerCase().includes(search.toLowerCase()) ||
-      g.user.username.toLowerCase().includes(search.toLowerCase()) ||
-      (g.user.displayName?.toLowerCase().includes(search.toLowerCase()) ?? false),
-  );
+  const filtered = useMemo(() => {
+    const q = debouncedSearch.toLowerCase();
+    if (!q) return graphs;
+    return graphs.filter(
+      (g) =>
+        g.title.toLowerCase().includes(q) ||
+        g.user.username.toLowerCase().includes(q) ||
+        (g.user.displayName?.toLowerCase().includes(q) ?? false),
+    );
+  }, [graphs, debouncedSearch]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8">

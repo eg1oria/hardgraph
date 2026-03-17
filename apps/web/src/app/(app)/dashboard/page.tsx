@@ -91,13 +91,17 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    fetchGraphs();
+  const fetchStats = useCallback(() => {
     api
       .get<typeof skillStats>('/users/me/stats')
       .then(setSkillStats)
       .catch(() => {});
-  }, [fetchGraphs]);
+  }, []);
+
+  useEffect(() => {
+    fetchGraphs();
+    fetchStats();
+  }, [fetchGraphs, fetchStats]);
 
   useEffect(() => {
     if (user?.githubUsername) {
@@ -137,6 +141,7 @@ export default function DashboardPage() {
     try {
       await api.delete(`/graphs/${id}`);
       setGraphs((prev) => prev.filter((g) => g.id !== id));
+      fetchStats();
       toast('Graph deleted', 'success');
     } catch {
       toast('Failed to delete graph', 'error');

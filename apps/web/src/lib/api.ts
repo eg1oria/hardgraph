@@ -118,7 +118,16 @@ export async function fetchPublic<T>(path: string, revalidate = 60): Promise<T> 
   });
 
   if (!res.ok) {
-    throw new ApiError(res.status, 'Not found');
+    let message = 'Request failed';
+    try {
+      const body = await res.json();
+      if (body?.message) {
+        message = Array.isArray(body.message) ? body.message[0] : body.message;
+      }
+    } catch {
+      // body not JSON — keep default message
+    }
+    throw new ApiError(res.status, message);
   }
 
   const json = await res.json();

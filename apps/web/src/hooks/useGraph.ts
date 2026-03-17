@@ -27,7 +27,9 @@ export function useGraph(graphId: string | null) {
 
     if (!graphId || graphId === 'new') {
       setLoading(false);
-      return () => { controller.abort(); };
+      return () => {
+        controller.abort();
+      };
     }
 
     setLoading(true);

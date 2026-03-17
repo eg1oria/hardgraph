@@ -16,6 +16,18 @@ export class ScanService {
 
   constructor(private readonly githubService: GithubService) {}
 
+  private getGitHubHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'User-Agent': 'HardGraph-App',
+      Accept: 'application/vnd.github.v3+json',
+    };
+    const token = process.env.GITHUB_TOKEN;
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  }
+
   async scanUsername(username: string): Promise<ScanResult> {
     const cacheKey = username.toLowerCase();
     const cached = this.cache.get(cacheKey);
@@ -25,10 +37,7 @@ export class ScanService {
 
     // 1. Fetch user profile for avatar
     const profileRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
-      headers: {
-        'User-Agent': 'HardGraph-App',
-        Accept: 'application/vnd.github.v3+json',
-      },
+      headers: this.getGitHubHeaders(),
       signal: AbortSignal.timeout(10000),
     });
 
@@ -57,16 +66,10 @@ export class ScanService {
 
     const languagePromises = topRepos.map(async (repo) => {
       try {
-        const res = await fetch(
-          `https://api.github.com/repos/${encodeURIComponent(repo.full_name)}/languages`,
-          {
-            headers: {
-              'User-Agent': 'HardGraph-App',
-              Accept: 'application/vnd.github.v3+json',
-            },
-            signal: AbortSignal.timeout(10000),
-          },
-        );
+        const res = await fetch(`https://api.github.com/repos/${repo.full_name}/languages`, {
+          headers: this.getGitHubHeaders(),
+          signal: AbortSignal.timeout(10000),
+        });
         if (res.ok) {
           return (await res.json()) as Record<string, number>;
         }

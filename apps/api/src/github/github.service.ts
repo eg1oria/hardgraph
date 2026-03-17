@@ -92,6 +92,12 @@ export class GithubService {
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        throw new BadRequestException(`GitHub user not found`);
+      }
+      if (response.status === 403) {
+        throw new BadRequestException('GitHub API rate limit exceeded. Please try again later.');
+      }
       throw new BadRequestException('Failed to fetch GitHub repositories');
     }
 

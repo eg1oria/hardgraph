@@ -1,27 +1,8 @@
 import type { Metadata } from 'next';
-import { fetchPublic } from '@/lib/api';
+import { notFound } from 'next/navigation';
+import { fetchPublic, ApiError } from '@/lib/api';
 import { ScanResultView } from '@/components/scan/ScanResultView';
-
-interface ScanResult {
-  username: string;
-  avatarUrl: string;
-  totalRepos: number;
-  totalLanguages: number;
-  totalSkills: number;
-  categories: Array<{
-    name: string;
-    color: string;
-    skills: Array<{
-      name: string;
-      level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-      source: string;
-      weight: number;
-    }>;
-    score: number;
-  }>;
-  topSkills: string[];
-  scannedAt: string;
-}
+import type { ScanResult } from '@/types/scan';
 
 interface PageProps {
   params: { username: string };
@@ -48,6 +29,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ScanResultPage({ params }: PageProps) {
-  const result = await fetchPublic<ScanResult>(`/scan/${params.username}`, 3600);
+  let result: ScanResult;
+  try {
+    result = await fetchPublic<ScanResult>(`/scan/${params.username}`, 3600);
+  } catch (err) {
+    if (err instanceof ApiError && err.statusCode === 400) {
+      notFound();
+    }
+    throw err;
+  }
   return <ScanResultView result={result} />;
 }

@@ -3,6 +3,14 @@ const nextConfig = {
   reactStrictMode: true,
   output: process.env.STANDALONE === '1' ? 'standalone' : undefined,
   transpilePackages: ['@hardgraph/ui', '@hardgraph/types'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+    ],
+  },
   async headers() {
     return [
       {

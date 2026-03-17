@@ -8,31 +8,7 @@ import { cn } from '@/lib/utils';
 import { SkillRadarChart } from './SkillRadarChart';
 import { CategoryBar } from './CategoryBar';
 import { ShareButtons } from './ShareButtons';
-
-interface SkillNode {
-  name: string;
-  level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  source: string;
-  weight: number;
-}
-
-interface SkillCategory {
-  name: string;
-  color: string;
-  skills: SkillNode[];
-  score: number;
-}
-
-interface ScanResult {
-  username: string;
-  avatarUrl: string;
-  totalRepos: number;
-  totalLanguages: number;
-  totalSkills: number;
-  categories: SkillCategory[];
-  topSkills: string[];
-  scannedAt: string;
-}
+import type { ScanResult } from '@/types/scan';
 
 interface ScanResultViewProps {
   result: ScanResult;
@@ -157,7 +133,7 @@ export function ScanResultView({ result }: ScanResultViewProps) {
             Want more detail? Create your HardGraph account
           </p>
           <Link
-            href="/register"
+            href="/signup"
             className={cn(
               'inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3',
               'text-sm font-semibold text-white transition-all hover:bg-primary/90',

@@ -127,14 +127,45 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    // Aggregate skills from all public graphs into category-based stats
+    const skillStats = this.aggregateSkillStats(user.graphs);
+
+    // Strip nodes/categories from graphs to keep response lean
+    const graphs = user.graphs.map(({ categories: _c, nodes: _n, ...g }) => g);
+
+    return { ...user, graphs, skillStats };
+  }
+
+  async updateProfile(userId: string, dto: UpdateUserDto) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: dto,
+    });
+  }
+
+  async getMyStats(userId: string) {
+    const graphs = await this.prisma.graph.findMany({
+      where: { userId },
+      select: {
+        categories: { select: { id: true, name: true, color: true } },
+        nodes: { select: { name: true, level: true, categoryId: true } },
+      },
+    });
+
+    return this.aggregateSkillStats(graphs);
+  }
+
+  private aggregateSkillStats(
+    graphs: Array<{
+      categories: Array<{ id: string; name: string; color: string | null }>;
+      nodes: Array<{ name: string; level: string; categoryId: string | null }>;
+    }>,
+  ) {
     const categoryMap = new Map<
       string,
       { name: string; color: string; skills: Map<string, { name: string; level: string }> }
     >();
 
-    for (const graph of user.graphs) {
-      // Build categoryId → category lookup for this graph
+    for (const graph of graphs) {
       const catLookup = new Map<string, { name: string; color: string }>();
       for (const cat of graph.categories) {
         catLookup.set(cat.id, { name: cat.name, color: cat.color ?? '#6366f1' });
@@ -150,7 +181,6 @@ export class UsersService {
         }
         const entry = categoryMap.get(catName)!;
 
-        // Keep highest level per skill name
         const existing = entry.skills.get(node.name);
         if (!existing || levelRank(node.level) > levelRank(existing.level)) {
           entry.skills.set(node.name, { name: node.name, level: node.level });
@@ -165,7 +195,7 @@ export class UsersService {
       expert: 95,
     };
 
-    const skillStats = [...categoryMap.values()]
+    return [...categoryMap.values()]
       .map((cat) => {
         const skills = [...cat.skills.values()].map((s) => ({
           name: s.name,
@@ -179,17 +209,5 @@ export class UsersService {
         return { name: cat.name, color: cat.color, skills, score };
       })
       .sort((a, b) => b.score - a.score);
-
-    // Strip nodes/categories from graphs to keep response lean
-    const graphs = user.graphs.map(({ categories: _c, nodes: _n, ...g }) => g);
-
-    return { ...user, graphs, skillStats };
-  }
-
-  async updateProfile(userId: string, dto: UpdateUserDto) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: dto,
-    });
   }
 }

@@ -23,6 +23,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { useToast } from '@/components/ui/Toast';
 import { EmbedModal } from '@/components/embed/EmbedModal';
+import { SkillStatsSection } from '@/components/profile/SkillStatsSection';
 
 interface Graph {
   id: string;
@@ -66,6 +67,18 @@ export default function DashboardPage() {
   const [reposError, setReposError] = useState(false);
   const [embedGraph, setEmbedGraph] = useState<Graph | null>(null);
   const [scanCreating, setScanCreating] = useState(false);
+  const [skillStats, setSkillStats] = useState<
+    Array<{
+      name: string;
+      color: string;
+      score: number;
+      skills: Array<{
+        name: string;
+        level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+        weight: number;
+      }>;
+    }>
+  >([]);
 
   const fetchGraphs = useCallback(() => {
     api
@@ -80,6 +93,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchGraphs();
+    api
+      .get<typeof skillStats>('/users/me/stats')
+      .then(setSkillStats)
+      .catch(() => {});
   }, [fetchGraphs]);
 
   useEffect(() => {
@@ -336,6 +353,9 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+
+      {/* My Skill Stats */}
+      {skillStats.length > 0 && <SkillStatsSection skillStats={skillStats} />}
 
       {/* GitHub Repos Section */}
       {user?.githubUsername && (

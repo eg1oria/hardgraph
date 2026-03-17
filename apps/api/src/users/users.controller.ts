@@ -16,6 +16,12 @@ export class UsersController {
     return this.usersService.findById(userId);
   }
 
+  @Get('me/stats')
+  @UseGuards(JwtAuthGuard)
+  getMyStats(@CurrentUser('id') userId: string) {
+    return this.usersService.getMyStats(userId);
+  }
+
   @Get(':username')
   getPublicProfile(@Param('username') username: string) {
     return this.usersService.getPublicProfile(username);

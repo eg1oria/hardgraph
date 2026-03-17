@@ -7,7 +7,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { GitHubReposSection } from '@/components/profile/GitHubReposSection';
-import { GitHubStatsSection } from '@/components/profile/GitHubStatsSection';
+import { SkillStatsSection } from '@/components/profile/SkillStatsSection';
 
 interface PublicProfile {
   id: string;
@@ -29,6 +29,16 @@ interface PublicProfile {
     viewCount: number;
     isPrimary: boolean;
     createdAt: string;
+  }>;
+  skillStats: Array<{
+    name: string;
+    color: string;
+    score: number;
+    skills: Array<{
+      name: string;
+      level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+      weight: number;
+    }>;
   }>;
 }
 
@@ -201,8 +211,8 @@ export default async function PublicProfilePage({ params }: Props) {
           </div>
         )}
 
-        {/* GitHub Skill Stats */}
-        {profile.githubUsername && <GitHubStatsSection githubUsername={profile.githubUsername} />}
+        {/* Skill Stats (aggregated from all graphs) */}
+        <SkillStatsSection skillStats={profile.skillStats} />
 
         {/* GitHub Repositories */}
         {profile.githubUsername && <GitHubReposSection username={profile.githubUsername} />}

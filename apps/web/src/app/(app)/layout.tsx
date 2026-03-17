@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   LayoutDashboard,
   Compass,
@@ -14,7 +14,12 @@ import {
   Search,
   Shield,
   X,
+  Network,
+  Plus,
+  Lock,
+  Globe,
 } from 'lucide-react';
+import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useUIStore } from '@/stores/useUIStore';
@@ -48,6 +53,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const sidebarOpen = useUIStore((s) => s.sidebarOpen);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarGraphs, setSidebarGraphs] = useState<
+    { id: string; title: string; isPublic: boolean; _count: { nodes: number } }[]
+  >([]);
+  const [graphsLoaded, setGraphsLoaded] = useState(false);
+
+  const fetchSidebarGraphs = useCallback(() => {
+    if (!user) return;
+    api
+      .get<{ id: string; title: string; isPublic: boolean; _count: { nodes: number } }[]>('/graphs')
+      .then((data) => setSidebarGraphs(data.slice(0, 8)))
+      .catch(() => {})
+      .finally(() => setGraphsLoaded(true));
+  }, [user]);
+
+  useEffect(() => {
+    if (!loading && user) fetchSidebarGraphs();
+  }, [loading, user, fetchSidebarGraphs]);
 
   // Hide bottom nav on editor pages (full-screen experience)
   const isEditorPage = pathname.startsWith('/editor');
@@ -183,6 +205,79 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </Link>
               );
             })()}
+
+          {/* Graphs section — like GitHub repos in sidebar */}
+          {sidebarOpen || mobileMenuOpen ? (
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="flex items-center justify-between px-3 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Your Graphs
+                </span>
+                <Link
+                  href="/dashboard"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="p-1 rounded-md hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors"
+                  title="Create graph"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+              {!graphsLoaded ? (
+                <div className="space-y-1 px-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-8 rounded-md bg-surface-light/50 animate-pulse" />
+                  ))}
+                </div>
+              ) : sidebarGraphs.length === 0 ? (
+                <p className="text-xs text-muted px-3 py-2">No graphs yet</p>
+              ) : (
+                <div className="space-y-0.5 px-1">
+                  {sidebarGraphs.map((graph) => {
+                    const isActive = pathname === `/editor/${graph.id}`;
+                    return (
+                      <Link
+                        key={graph.id}
+                        href={`/editor/${graph.id}`}
+                        className={`group flex items-center gap-2.5 px-2 py-1.5 rounded-md text-[13px] transition-colors ${
+                          isActive
+                            ? 'bg-primary/10 text-primary-400'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-surface-light'
+                        }`}
+                        title={graph.title}
+                      >
+                        <Network className="w-4 h-4 shrink-0 opacity-60" />
+                        <span className="truncate flex-1">{graph.title}</span>
+                        {graph.isPublic ? (
+                          <Globe className="w-3 h-3 shrink-0 opacity-40" />
+                        ) : (
+                          <Lock className="w-3 h-3 shrink-0 opacity-40" />
+                        )}
+                      </Link>
+                    );
+                  })}
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Show all graphs
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="mt-4 pt-4 border-t border-border px-2">
+              <Link
+                href="/dashboard"
+                title="Your Graphs"
+                aria-label="Your Graphs"
+                className="flex items-center justify-center p-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-light transition-colors min-h-[44px]"
+              >
+                <Network className="w-5 h-5" />
+              </Link>
+            </div>
+          )}
         </nav>
 
         {/* User section */}

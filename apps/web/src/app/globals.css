@@ -427,6 +427,12 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* ── Mobile performance: skip rendering off-screen sections ── */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 400px;
+  }
 }
 
 /* Print styles for Resume/CV */

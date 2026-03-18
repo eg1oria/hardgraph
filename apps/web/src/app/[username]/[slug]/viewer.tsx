@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ReactFlowProvider } from '@xyflow/react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -17,7 +17,6 @@ import {
   FileText,
 } from 'lucide-react';
 
-import { HardGraph } from '@/components/graph/HardGraph';
 import { HashtagText } from '@/components/graph/HashtagText';
 import { ForkModal } from '@/components/graph/ForkModal';
 import { EndorseButton } from '@/components/graph/EndorseButton';
@@ -26,6 +25,19 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { NODE_COLORS, type SkillLevel } from '@/lib/constants';
 import { hasHashtags } from '@/lib/hashtag-parser';
 import { api } from '@/lib/api';
+import { Spinner } from '@/components/ui/Spinner';
+
+const HardGraph = dynamic(
+  () => import('@/components/graph/HardGraph').then((m) => ({ default: m.HardGraph })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 flex items-center justify-center h-full">
+        <Spinner size="lg" className="text-primary" />
+      </div>
+    ),
+  },
+);
 
 interface GraphData {
   id: string;
@@ -375,9 +387,7 @@ export function PublicGraphViewer({ graph }: { graph: GraphData }) {
       <div className="flex-1 flex min-h-0 relative">
         {/* Canvas */}
         <div className="flex-1 relative">
-          <ReactFlowProvider>
-            <HardGraph readonly />
-          </ReactFlowProvider>
+          <HardGraph readonly />
         </div>
 
         {/* Node Detail Side Panel — Desktop */}

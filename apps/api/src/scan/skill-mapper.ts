@@ -9,6 +9,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   Mobile: '#ec4899',
   'Data Science': '#eab308',
   Systems: '#ef4444',
+  'AI / ML': '#06b6d4',
+  'Game Dev': '#f43f5e',
+  Blockchain: '#f59e0b',
+  QA: '#14b8a6',
 };
 
 const LANGUAGE_MAP: Record<string, { category: string; skills: string[]; weight: number }> = {
@@ -45,6 +49,10 @@ const LANGUAGE_MAP: Record<string, { category: string; skills: string[]; weight:
   SCSS: { category: 'Frontend', skills: ['Sass/SCSS'], weight: 50 },
   Vue: { category: 'Frontend', skills: ['Vue.js'], weight: 80 },
   Svelte: { category: 'Frontend', skills: ['Svelte'], weight: 80 },
+  GDScript: { category: 'Game Dev', skills: ['Godot'], weight: 80 },
+  GLSL: { category: 'Game Dev', skills: ['Shader Programming'], weight: 75 },
+  HLSL: { category: 'Game Dev', skills: ['Shader Programming'], weight: 75 },
+  Solidity: { category: 'Blockchain', skills: ['Solidity'], weight: 85 },
 };
 
 const TOPIC_MAP: Record<string, { category: string; skill: string; weight: number }> = {
@@ -83,6 +91,38 @@ const TOPIC_MAP: Record<string, { category: string; skill: string; weight: numbe
   'deep-learning': { category: 'Data Science', skill: 'Deep Learning', weight: 85 },
   tensorflow: { category: 'Data Science', skill: 'TensorFlow', weight: 80 },
   pytorch: { category: 'Data Science', skill: 'PyTorch', weight: 80 },
+  // AI / ML
+  'artificial-intelligence': { category: 'AI / ML', skill: 'AI', weight: 85 },
+  llm: { category: 'AI / ML', skill: 'LLMs', weight: 85 },
+  'large-language-model': { category: 'AI / ML', skill: 'LLMs', weight: 85 },
+  'computer-vision': { category: 'AI / ML', skill: 'Computer Vision', weight: 80 },
+  nlp: { category: 'AI / ML', skill: 'NLP', weight: 80 },
+  'natural-language-processing': { category: 'AI / ML', skill: 'NLP', weight: 80 },
+  transformers: { category: 'AI / ML', skill: 'Transformers', weight: 80 },
+  'stable-diffusion': { category: 'AI / ML', skill: 'Generative AI', weight: 75 },
+  langchain: { category: 'AI / ML', skill: 'LangChain', weight: 80 },
+  openai: { category: 'AI / ML', skill: 'OpenAI API', weight: 75 },
+  mlops: { category: 'AI / ML', skill: 'MLOps', weight: 75 },
+  // Game Dev
+  unity: { category: 'Game Dev', skill: 'Unity', weight: 85 },
+  'unreal-engine': { category: 'Game Dev', skill: 'Unreal Engine', weight: 85 },
+  godot: { category: 'Game Dev', skill: 'Godot', weight: 80 },
+  gamedev: { category: 'Game Dev', skill: 'Game Development', weight: 75 },
+  'game-development': { category: 'Game Dev', skill: 'Game Development', weight: 75 },
+  'game-engine': { category: 'Game Dev', skill: 'Game Engine', weight: 75 },
+  // Blockchain
+  blockchain: { category: 'Blockchain', skill: 'Blockchain', weight: 80 },
+  ethereum: { category: 'Blockchain', skill: 'Ethereum', weight: 80 },
+  solidity: { category: 'Blockchain', skill: 'Solidity', weight: 85 },
+  web3: { category: 'Blockchain', skill: 'Web3', weight: 80 },
+  defi: { category: 'Blockchain', skill: 'DeFi', weight: 75 },
+  'smart-contracts': { category: 'Blockchain', skill: 'Smart Contracts', weight: 80 },
+  // QA / Testing
+  testing: { category: 'QA', skill: 'Testing', weight: 70 },
+  selenium: { category: 'QA', skill: 'Selenium', weight: 75 },
+  cypress: { category: 'QA', skill: 'Cypress', weight: 75 },
+  playwright: { category: 'QA', skill: 'Playwright', weight: 75 },
+  jest: { category: 'QA', skill: 'Jest', weight: 70 },
 };
 
 interface LanguageInfo {

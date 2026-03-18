@@ -59,25 +59,27 @@ const nextConfig = {
         ...config.optimization.splitChunks,
         cacheGroups: {
           ...config.optimization.splitChunks?.cacheGroups,
-          // Separate heavy chart library (recharts) into its own chunk
+          // Separate heavy chart library (recharts) — async-only so it's not
+          // eagerly preloaded on pages that don't use charts
           recharts: {
             test: /[\\/]node_modules[\\/](recharts|d3-.*)[\\/]/,
             name: 'recharts',
-            chunks: 'all',
+            chunks: 'async',
             priority: 30,
           },
-          // Separate React Flow into its own chunk (only loaded on editor pages)
+          // Separate React Flow — async-only so editor-specific code doesn't
+          // block non-editor pages
           xyflow: {
             test: /[\\/]node_modules[\\/]@xyflow[\\/]/,
             name: 'xyflow',
-            chunks: 'all',
+            chunks: 'async',
             priority: 30,
           },
-          // Separate framer-motion
+          // Separate framer-motion — async-only, used only on scan/onboarding/admin
           framerMotion: {
             test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
             name: 'framer-motion',
-            chunks: 'all',
+            chunks: 'async',
             priority: 30,
           },
           // Core framework chunk

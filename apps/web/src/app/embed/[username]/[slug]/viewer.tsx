@@ -1,11 +1,23 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ReactFlowProvider } from '@xyflow/react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
-import { HardGraph } from '@/components/graph/HardGraph';
 import { useGraphStore } from '@/stores/useGraphStore';
+import { Spinner } from '@/components/ui/Spinner';
+
+const HardGraph = dynamic(
+  () => import('@/components/graph/HardGraph').then((m) => ({ default: m.HardGraph })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 flex items-center justify-center h-full">
+        <Spinner size="lg" className="text-primary" />
+      </div>
+    ),
+  },
+);
 
 interface GraphData {
   id: string;
@@ -67,18 +79,28 @@ export function EmbedViewer({ graph }: { graph: GraphData }) {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-background">
-      <ReactFlowProvider>
-        <div className="flex-1 relative">
-          <HardGraph readonly />
-        </div>
-      </ReactFlowProvider>
+      <div className="flex-1 relative">
+        <HardGraph readonly />
+      </div>
 
       {/* CTA Footer — minimal, elegant */}
       <div className="h-11 border-t border-border bg-surface/80 backdrop-blur-sm flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Logo mark */}
-          <svg width="16" height="18" viewBox="0 0 16 18" fill="none" className="shrink-0 opacity-50">
-            <polygon points="8,1 14.93,5 14.93,13 8,17 1.07,13 1.07,5" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-indigo-400" />
+          <svg
+            width="16"
+            height="18"
+            viewBox="0 0 16 18"
+            fill="none"
+            className="shrink-0 opacity-50"
+          >
+            <polygon
+              points="8,1 14.93,5 14.93,13 8,17 1.07,13 1.07,5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="text-indigo-400"
+            />
           </svg>
           <Link
             href={graphUrl}

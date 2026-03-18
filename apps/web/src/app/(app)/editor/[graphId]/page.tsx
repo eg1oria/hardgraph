@@ -21,7 +21,7 @@ import {
   Download,
 } from 'lucide-react';
 import Link from 'next/link';
-import { ReactFlowProvider } from '@xyflow/react';
+import dynamic from 'next/dynamic';
 
 import { useGraphStore, type GraphNode } from '@/stores/useGraphStore';
 import { useGraph } from '@/hooks/useGraph';
@@ -32,10 +32,26 @@ import { api } from '@/lib/api';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
-import { HardGraph } from '@/components/graph/HardGraph';
-import { NodeDetailPanel } from '@/components/graph/NodeDetailPanel';
 import { NODE_COLORS } from '@/lib/constants';
 import type { SkillLevel } from '@/lib/constants';
+
+// Dynamic import: defer xyflow + ReactFlow until the graph canvas is needed (reduces TBT on mobile)
+const HardGraph = dynamic(
+  () => import('@/components/graph/HardGraph').then((m) => ({ default: m.HardGraph })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 flex items-center justify-center h-full">
+        <Spinner size="lg" className="text-primary" />
+      </div>
+    ),
+  },
+);
+
+// Lazy-load NodeDetailPanel — secondary UI, not needed for initial render
+const NodeDetailPanel = lazy(() =>
+  import('@/components/graph/NodeDetailPanel').then((m) => ({ default: m.NodeDetailPanel })),
+);
 
 // Lazy-load modals — only needed when user opens them (Lighthouse: reduce unused JS)
 const AddNodeModal = lazy(() =>
@@ -257,7 +273,7 @@ export default function EditorPage() {
   }
 
   return (
-    <ReactFlowProvider>
+    <>
       <div className="h-[calc(100dvh-3.5rem)] flex flex-col">
         {/* Editor Toolbar */}
         <div className="h-12 border-b border-border flex items-center px-2 sm:px-3 gap-1 bg-surface shrink-0">
@@ -548,11 +564,13 @@ export default function EditorPage() {
                     Properties
                   </h3>
                 </div>
-                <NodeDetailPanel
-                  onUpdate={handleUpdateNode}
-                  onDelete={handleDeleteNode}
-                  onEvolve={handleEvolveNode}
-                />
+                <Suspense fallback={<div className="h-24" />}>
+                  <NodeDetailPanel
+                    onUpdate={handleUpdateNode}
+                    onDelete={handleDeleteNode}
+                    onEvolve={handleEvolveNode}
+                  />
+                </Suspense>
               </div>
               <div className="p-4 border-b border-border">
                 <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
@@ -609,12 +627,14 @@ export default function EditorPage() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <NodeDetailPanel
-                onUpdate={handleUpdateNode}
-                onDelete={handleDeleteNode}
-                onEvolve={handleEvolveNode}
-                hideClose
-              />
+              <Suspense fallback={<div className="h-24" />}>
+                <NodeDetailPanel
+                  onUpdate={handleUpdateNode}
+                  onDelete={handleDeleteNode}
+                  onEvolve={handleEvolveNode}
+                  hideClose
+                />
+              </Suspense>
             </div>
           )}
 
@@ -722,6 +742,6 @@ export default function EditorPage() {
           />
         )}
       </Suspense>
-    </ReactFlowProvider>
+    </>
   );
 }

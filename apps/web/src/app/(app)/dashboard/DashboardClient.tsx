@@ -340,10 +340,14 @@ export default function DashboardClient() {
         )}
 
         {/* Skill Stats — lazy-loaded with recharts (below the fold) */}
-        <LazySkillStats skillStats={skillStats} />
+        <div className="cv-auto">
+          <LazySkillStats skillStats={skillStats} />
+        </div>
 
         {/* GitHub Repos — lazy-loaded via IntersectionObserver (below the fold) */}
-        <LazyGithubRepos githubUsername={user?.githubUsername} />
+        <div className="cv-auto">
+          <LazyGithubRepos githubUsername={user?.githubUsername} />
+        </div>
       </div>
 
       {/* Create Graph Modal */}

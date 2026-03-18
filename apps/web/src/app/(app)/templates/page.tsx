@@ -43,6 +43,10 @@ const FIELD_GROUPS = [
       { key: 'mobile', label: 'Mobile' },
       { key: 'fullstack', label: 'Fullstack' },
       { key: 'cybersecurity', label: 'Cybersecurity' },
+      { key: 'qa', label: 'QA' },
+      { key: 'gamedev', label: 'Game Dev' },
+      { key: 'ai', label: 'AI / ML' },
+      { key: 'blockchain', label: 'Blockchain' },
     ],
   },
   {
@@ -51,6 +55,8 @@ const FIELD_GROUPS = [
     fields: [
       { key: 'uiux', label: 'UI/UX Design' },
       { key: 'graphic', label: 'Graphic Design' },
+      { key: '3d', label: '3D / Motion' },
+      { key: 'interior', label: 'Interior Design' },
     ],
   },
   {
@@ -61,6 +67,9 @@ const FIELD_GROUPS = [
       { key: 'product', label: 'Product Management' },
       { key: 'project', label: 'Project Management' },
       { key: 'finance', label: 'Finance' },
+      { key: 'hr', label: 'HR' },
+      { key: 'sales', label: 'Sales' },
+      { key: 'ba', label: 'Business Analysis' },
     ],
   },
   {
@@ -70,6 +79,8 @@ const FIELD_GROUPS = [
       { key: 'music', label: 'Music' },
       { key: 'video', label: 'Video Production' },
       { key: 'photography', label: 'Photography' },
+      { key: 'writing', label: 'Writing' },
+      { key: 'animation', label: 'Animation' },
     ],
   },
   {
@@ -80,6 +91,11 @@ const FIELD_GROUPS = [
       { key: 'education', label: 'Education' },
       { key: 'legal', label: 'Legal' },
       { key: 'engineering', label: 'Engineering' },
+      { key: 'architecture', label: 'Architecture' },
+      { key: 'psychology', label: 'Psychology' },
+      { key: 'culinary', label: 'Culinary Arts' },
+      { key: 'electrical', label: 'Electrician' },
+      { key: 'accounting', label: 'Accounting' },
     ],
   },
 ];

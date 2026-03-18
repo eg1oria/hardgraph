@@ -174,6 +174,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={false}
                 title={!sidebarOpen && !mobileMenuOpen ? item.label : undefined}
                 aria-label={!sidebarOpen && !mobileMenuOpen ? item.label : undefined}
                 data-onboarding={
@@ -200,6 +201,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               return (
                 <Link
                   href={adminNavItem.href}
+                  prefetch={false}
                   title={!sidebarOpen && !mobileMenuOpen ? adminNavItem.label : undefined}
                   aria-label={!sidebarOpen && !mobileMenuOpen ? adminNavItem.label : undefined}
                   className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
@@ -380,6 +382,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={false}
                   className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] transition-colors ${
                     isActive ? 'text-primary' : 'text-muted-foreground active:text-foreground'
                   }`}

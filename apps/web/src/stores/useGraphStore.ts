@@ -1,6 +1,20 @@
 import { create } from 'zustand';
 import type { Node, Edge, Connection, NodeChange, EdgeChange } from '@xyflow/react';
-import { applyNodeChanges, applyEdgeChanges } from '@xyflow/react';
+
+/* ── Lazy xyflow bridge ──────────────────── */
+// Runtime helpers are injected by HardGraph when xyflow loads.
+// This avoids pulling the full @xyflow/react bundle into every page
+// that reads graph state (toolbar, sidebar, dashboard, etc.).
+let _applyNodeChanges: ((changes: NodeChange[], nodes: Node[]) => Node[]) | null = null;
+let _applyEdgeChanges: ((changes: EdgeChange[], edges: Edge[]) => Edge[]) | null = null;
+
+export function injectXyflowHelpers(
+  applyNC: (changes: NodeChange[], nodes: Node[]) => Node[],
+  applyEC: (changes: EdgeChange[], edges: Edge[]) => Edge[],
+) {
+  _applyNodeChanges = applyNC;
+  _applyEdgeChanges = applyEC;
+}
 
 /* ── Domain types ────────────────────────── */
 
@@ -212,7 +226,8 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
 
   onNodesChange: (changes) =>
     set((state) => {
-      const rfNodes = applyNodeChanges(changes, state.rfNodes) as Node<SkillNodeData>[];
+      if (!_applyNodeChanges) return state;
+      const rfNodes = _applyNodeChanges(changes, state.rfNodes) as Node<SkillNodeData>[];
       // Sync positions back to domain nodes
       const posChanges = changes.filter(
         (
@@ -237,9 +252,10 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
     }),
 
   onEdgesChange: (changes) =>
-    set((state) => ({
-      rfEdges: applyEdgeChanges(changes, state.rfEdges),
-    })),
+    set((state) => {
+      if (!_applyEdgeChanges) return state;
+      return { rfEdges: _applyEdgeChanges(changes, state.rfEdges) };
+    }),
 
   onConnect: (connection) => {
     // Store pending connection — actual edge is created via API hook

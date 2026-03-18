@@ -148,202 +148,203 @@ export default function DashboardClient() {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-7xl px-2 sm:px-6 lg:px-8">
-        {' '}
-        <div>
-          <h1 className="text-2xl font-bold">
-            {user?.displayName ? `Welcome, ${user.displayName}` : 'Your Skill Graphs'}
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Create and manage your interactive skill trees
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {user?.githubUsername && (
-            <button
-              onClick={handleCreateFromScan}
-              disabled={scanCreating}
-              className="btn-secondary flex items-center gap-2"
-            >
-              {scanCreating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Github className="w-4 h-4" />
-              )}
-              {scanCreating ? 'Scanning...' : 'From GitHub'}
-            </button>
-          )}
-          <button
-            data-onboarding="create-graph"
-            onClick={() => setShowCreate(true)}
-            className="btn-primary"
-          >
-            <Plus className="w-4 h-4" />
-            New Graph
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="card space-y-3">
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-1/2" />
-              <div className="flex gap-3 pt-2">
-                <Skeleton className="h-3 w-16" />
-                <Skeleton className="h-3 w-16" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : error ? (
-        <EmptyState
-          icon={<GitFork className="w-12 h-12" />}
-          title="Failed to load graphs"
-          description="Something went wrong while loading your skill trees. Please try again."
-          action={
-            <button
-              onClick={() => {
-                setError(false);
-                setLoading(true);
-                fetchGraphs();
-              }}
-              className="btn-secondary"
-            >
-              Retry
-            </button>
-          }
-          className="rounded-xl border border-dashed border-border"
-        />
-      ) : graphs.length === 0 ? (
-        <EmptyState
-          icon={<GitFork className="w-12 h-12" />}
-          title="No graphs yet"
-          description="Create your first skill tree to showcase your expertise and share it with the world."
-          action={
-            <button onClick={() => setShowCreate(true)} className="btn-primary">
-              <Plus className="w-4 h-4" />
-              Create your first graph
-            </button>
-          }
-          className="rounded-xl border border-dashed border-border"
-        />
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {graphs.map((graph) => (
-            <div key={graph.id} className="group card-hover relative flex flex-col">
-              <Link
-                href={`/editor/${graph.id}`}
-                className="absolute inset-0 z-0"
-                aria-label={`Open graph: ${graph.title}`}
-              />
-
-              <div className="relative z-10 pointer-events-none flex flex-col flex-1">
-                <div className="flex items-start justify-between mb-2">
-                  <h2 className="font-semibold text-[15px] group-hover:text-primary-400 transition-colors truncate pr-2">
-                    {graph.title}
-                  </h2>
-                  <Badge variant={graph.isPublic ? 'primary' : 'muted'}>
-                    {graph.isPublic ? 'Public' : 'Private'}
-                  </Badge>
-                </div>
-
-                {graph.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                    {graph.description}
-                  </p>
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">
+              {user?.displayName ? `Welcome, ${user.displayName}` : 'Your Skill Graphs'}
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Create and manage your interactive skill trees
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {user?.githubUsername && (
+              <button
+                onClick={handleCreateFromScan}
+                disabled={scanCreating}
+                className="btn-secondary flex items-center gap-2"
+              >
+                {scanCreating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Github className="w-4 h-4" />
                 )}
+                {scanCreating ? 'Scanning...' : 'From GitHub'}
+              </button>
+            )}
+            <button
+              data-onboarding="create-graph"
+              onClick={() => setShowCreate(true)}
+              className="btn-primary"
+            >
+              <Plus className="w-4 h-4" />
+              New Graph
+            </button>
+          </div>
+        </div>
 
-                <div className="mt-auto">
-                  <div className="flex items-center gap-3 text-xs text-muted">
-                    <span className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary/60" />
-                      {graph._count.nodes} nodes
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-accent/60" />
-                      {graph._count.edges} edges
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      {graph.viewCount}
-                    </span>
-                    {graph.forkCount > 0 && (
-                      <span className="flex items-center gap-1">
-                        <GitFork className="w-3 h-3" />
-                        {graph.forkCount}
-                      </span>
-                    )}
+        {loading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="card space-y-3">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-1/2" />
+                <div className="flex gap-3 pt-2">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <EmptyState
+            icon={<GitFork className="w-12 h-12" />}
+            title="Failed to load graphs"
+            description="Something went wrong while loading your skill trees. Please try again."
+            action={
+              <button
+                onClick={() => {
+                  setError(false);
+                  setLoading(true);
+                  fetchGraphs();
+                }}
+                className="btn-secondary"
+              >
+                Retry
+              </button>
+            }
+            className="rounded-xl border border-dashed border-border"
+          />
+        ) : graphs.length === 0 ? (
+          <EmptyState
+            icon={<GitFork className="w-12 h-12" />}
+            title="No graphs yet"
+            description="Create your first skill tree to showcase your expertise and share it with the world."
+            action={
+              <button onClick={() => setShowCreate(true)} className="btn-primary">
+                <Plus className="w-4 h-4" />
+                Create your first graph
+              </button>
+            }
+            className="rounded-xl border border-dashed border-border"
+          />
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {graphs.map((graph) => (
+              <div key={graph.id} className="group card-hover relative flex flex-col">
+                <Link
+                  href={`/editor/${graph.id}`}
+                  className="absolute inset-0 z-0"
+                  aria-label={`Open graph: ${graph.title}`}
+                />
+
+                <div className="relative z-10 pointer-events-none flex flex-col flex-1">
+                  <div className="flex items-start justify-between mb-2">
+                    <h2 className="font-semibold text-[15px] group-hover:text-primary-400 transition-colors truncate pr-2">
+                      {graph.title}
+                    </h2>
+                    <Badge variant={graph.isPublic ? 'primary' : 'muted'}>
+                      {graph.isPublic ? 'Public' : 'Private'}
+                    </Badge>
                   </div>
 
-                  <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
-                    <span className="text-xs text-muted">{formatDate(graph.createdAt)}</span>
-                    <div className="flex items-center gap-0.5 pointer-events-auto">
-                      {graph.isPublic && user && (
-                        <a
-                          href={`/${user.username}/${graph.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 rounded-md hover:bg-surface-light text-muted hover:text-foreground transition-colors"
-                          title="View public page"
-                          aria-label={`View ${graph.title} public page`}
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
+                  {graph.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                      {graph.description}
+                    </p>
+                  )}
+
+                  <div className="mt-auto">
+                    <div className="flex items-center gap-3 text-xs text-muted">
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+                        {graph._count.nodes} nodes
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent/60" />
+                        {graph._count.edges} edges
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        {graph.viewCount}
+                      </span>
+                      {graph.forkCount > 0 && (
+                        <span className="flex items-center gap-1">
+                          <GitFork className="w-3 h-3" />
+                          {graph.forkCount}
+                        </span>
                       )}
-                      {graph.isPublic && user && (
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+                      <span className="text-xs text-muted">{formatDate(graph.createdAt)}</span>
+                      <div className="flex items-center gap-0.5 pointer-events-auto">
+                        {graph.isPublic && user && (
+                          <a
+                            href={`/${user.username}/${graph.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 rounded-md hover:bg-surface-light text-muted hover:text-foreground transition-colors"
+                            title="View public page"
+                            aria-label={`View ${graph.title} public page`}
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        {graph.isPublic && user && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEmbedGraph(graph);
+                            }}
+                            className="p-1.5 rounded-md hover:bg-cyan-500/10 text-muted hover:text-cyan-400 transition-colors"
+                            title="Embed skill card"
+                            aria-label={`Embed ${graph.title}`}
+                          >
+                            <Code2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        {graph.isPublic && user && (
+                          <a
+                            href={`/${user.username}/resume/${graph.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-md hover:bg-emerald-500/10 text-muted hover:text-emerald-400 transition-colors"
+                            title="Generate CV"
+                            aria-label={`Generate CV from ${graph.title}`}
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                          </a>
+                        )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setEmbedGraph(graph);
+                            handleDelete(graph.id, graph.title);
                           }}
-                          className="p-1.5 rounded-md hover:bg-cyan-500/10 text-muted hover:text-cyan-400 transition-colors"
-                          title="Embed skill card"
-                          aria-label={`Embed ${graph.title}`}
+                          className="p-1.5 rounded-md hover:bg-red-500/10 text-muted hover:text-red-400 transition-colors"
+                          title="Delete graph"
+                          aria-label={`Delete ${graph.title}`}
                         >
-                          <Code2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      )}
-                      {graph.isPublic && user && (
-                        <a
-                          href={`/${user.username}/resume/${graph.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="p-1.5 rounded-md hover:bg-emerald-500/10 text-muted hover:text-emerald-400 transition-colors"
-                          title="Generate CV"
-                          aria-label={`Generate CV from ${graph.title}`}
-                        >
-                          <FileText className="w-3.5 h-3.5" />
-                        </a>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(graph.id, graph.title);
-                        }}
-                        className="p-1.5 rounded-md hover:bg-red-500/10 text-muted hover:text-red-400 transition-colors"
-                        title="Delete graph"
-                        aria-label={`Delete ${graph.title}`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      {/* Skill Stats — lazy-loaded with recharts (below the fold) */}
-      <LazySkillStats skillStats={skillStats} />
+        {/* Skill Stats — lazy-loaded with recharts (below the fold) */}
+        <LazySkillStats skillStats={skillStats} />
 
-      {/* GitHub Repos — lazy-loaded via IntersectionObserver (below the fold) */}
-      <LazyGithubRepos githubUsername={user?.githubUsername} />
+        {/* GitHub Repos — lazy-loaded via IntersectionObserver (below the fold) */}
+        <LazyGithubRepos githubUsername={user?.githubUsername} />
+      </div>
 
       {/* Create Graph Modal */}
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Create New Graph">

@@ -88,21 +88,21 @@ pnpm dev               # Starts both frontend (3000) + backend (4000)
 
 All variables are defined in `.env.example`. Copy to `.env` and configure:
 
-| Variable               | Required | Default                                                            | Description                           |
-| ---------------------- | -------- | ------------------------------------------------------------------ | ------------------------------------- |
+| Variable               | Required | Default                                                         | Description                           |
+| ---------------------- | -------- | --------------------------------------------------------------- | ------------------------------------- |
 | `DATABASE_URL`         | ✅       | `postgresql://hardgraph:hardgraph_dev@localhost:5432/hardgraph` | PostgreSQL connection string          |
-| `POSTGRES_USER`        | ✅       | `hardgraph`                                                       | Docker PostgreSQL user                |
-| `POSTGRES_PASSWORD`    | ✅       | `hardgraph_dev`                                                   | Docker PostgreSQL password            |
-| `POSTGRES_DB`          | ✅       | `hardgraph`                                                       | Docker PostgreSQL database name       |
-| `JWT_SECRET`           | ✅       | (dev value)                                                        | Secret for JWT signing (min 32 chars) |
-| `JWT_EXPIRES_IN`       |          | `7d`                                                               | JWT token expiration                  |
-| `API_PORT`             |          | `4000`                                                             | NestJS server port                    |
-| `API_URL`              |          | `http://localhost:4000`                                            | Backend URL (used internally)         |
-| `NEXT_PUBLIC_API_URL`  | ✅       | `http://localhost:4000`                                            | Backend URL (used by frontend)        |
-| `NEXT_PUBLIC_APP_URL`  |          | `http://localhost:3000`                                            | Frontend URL (for OG images)          |
-| `GITHUB_CLIENT_ID`     |          |                                                                    | GitHub OAuth client ID (optional)     |
-| `GITHUB_CLIENT_SECRET` |          |                                                                    | GitHub OAuth client secret (optional) |
-| `GITHUB_CALLBACK_URL`  |          |                                                                    | GitHub OAuth callback URL (optional)  |
+| `POSTGRES_USER`        | ✅       | `hardgraph`                                                     | Docker PostgreSQL user                |
+| `POSTGRES_PASSWORD`    | ✅       | `hardgraph_dev`                                                 | Docker PostgreSQL password            |
+| `POSTGRES_DB`          | ✅       | `hardgraph`                                                     | Docker PostgreSQL database name       |
+| `JWT_SECRET`           | ✅       | (dev value)                                                     | Secret for JWT signing (min 32 chars) |
+| `JWT_EXPIRES_IN`       |          | `7d`                                                            | JWT token expiration                  |
+| `API_PORT`             |          | `4000`                                                          | NestJS server port                    |
+| `API_URL`              |          | `http://localhost:4000`                                         | Backend URL (used internally)         |
+| `NEXT_PUBLIC_API_URL`  | ✅       | `http://localhost:4000`                                         | Backend URL (used by frontend)        |
+| `NEXT_PUBLIC_APP_URL`  |          | `http://localhost:3000`                                         | Frontend URL (for OG images)          |
+| `GITHUB_CLIENT_ID`     |          |                                                                 | GitHub OAuth client ID (optional)     |
+| `GITHUB_CLIENT_SECRET` |          |                                                                 | GitHub OAuth client secret (optional) |
+| `GITHUB_CALLBACK_URL`  |          |                                                                 | GitHub OAuth callback URL (optional)  |
 
 ### Available Scripts
 

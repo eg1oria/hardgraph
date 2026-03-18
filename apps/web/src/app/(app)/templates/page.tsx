@@ -2,7 +2,16 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, ArrowRight, Eye, Code2, Palette, Briefcase, Music, GraduationCap } from 'lucide-react';
+import {
+  Sparkles,
+  ArrowRight,
+  Eye,
+  Code2,
+  Palette,
+  Briefcase,
+  Music,
+  GraduationCap,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -79,7 +88,10 @@ const FIELD_LABELS: Record<string, string> = Object.fromEntries(
   FIELD_GROUPS.flatMap((g) => g.fields.map((f) => [f.key, f.label])),
 );
 
-const TAB_OPTIONS = [{ key: 'all', label: 'All' }, ...FIELD_GROUPS.map((g) => ({ key: g.group, label: g.group }))];
+const TAB_OPTIONS = [
+  { key: 'all', label: 'All' },
+  ...FIELD_GROUPS.map((g) => ({ key: g.group, label: g.group })),
+];
 
 function getGroupForField(field: string | null): string | null {
   if (!field) return null;

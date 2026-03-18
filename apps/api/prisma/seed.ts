@@ -4,6 +4,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const templates = [
+  /* ═══════════════════════════════════════════════
+     TECHNOLOGY
+     ═══════════════════════════════════════════════ */
   {
     name: 'Frontend Developer',
     description:
@@ -374,6 +377,590 @@ const templates = [
         { source: 'NumPy', target: 'TensorFlow' },
         { source: 'Scikit-learn', target: 'Data Visualization' },
         { source: 'SQL', target: 'Pandas' },
+      ],
+    },
+  },
+  {
+    name: 'Mobile Developer',
+    description:
+      'Cross-platform and native mobile development — React Native, Flutter, Swift, Kotlin, and more.',
+    field: 'mobile',
+    isFeatured: true,
+    graphData: {
+      categories: [
+        { id: 'cat-core', name: 'Core', color: '#22D3EE', sortOrder: 0 },
+        { id: 'cat-cross', name: 'Cross-Platform', color: '#6366F1', sortOrder: 1 },
+        { id: 'cat-native', name: 'Native', color: '#F59E0B', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'JavaScript', level: 'intermediate', icon: 'zap', positionX: 300, positionY: 0, categoryId: 'cat-core' },
+        { name: 'TypeScript', level: 'intermediate', icon: 'file-code', positionX: 300, positionY: 150, categoryId: 'cat-core' },
+        { name: 'React Native', level: 'advanced', icon: 'smartphone', positionX: 150, positionY: 300, categoryId: 'cat-cross' },
+        { name: 'Flutter', level: 'intermediate', icon: 'layout', positionX: 450, positionY: 300, categoryId: 'cat-cross' },
+        { name: 'Expo', level: 'intermediate', icon: 'box', positionX: 150, positionY: 450, categoryId: 'cat-cross' },
+        { name: 'Swift', level: 'intermediate', icon: 'apple', positionX: 50, positionY: 600, categoryId: 'cat-native' },
+        { name: 'Kotlin', level: 'intermediate', icon: 'hexagon', positionX: 300, positionY: 600, categoryId: 'cat-native' },
+        { name: 'App Store / Play Store', level: 'beginner', icon: 'store', positionX: 500, positionY: 450, categoryId: 'cat-core' },
+        { name: 'Firebase', level: 'intermediate', icon: 'flame', positionX: 500, positionY: 600, categoryId: 'cat-core' },
+      ],
+      edges: [
+        { source: 'JavaScript', target: 'TypeScript' },
+        { source: 'TypeScript', target: 'React Native' },
+        { source: 'TypeScript', target: 'Flutter' },
+        { source: 'React Native', target: 'Expo' },
+        { source: 'Expo', target: 'Swift' },
+        { source: 'Expo', target: 'Kotlin' },
+        { source: 'Flutter', target: 'App Store / Play Store' },
+        { source: 'App Store / Play Store', target: 'Firebase' },
+      ],
+    },
+  },
+  {
+    name: 'Fullstack Developer',
+    description:
+      'End-to-end web development — frontend frameworks, backend APIs, databases, and deployment.',
+    field: 'fullstack',
+    isFeatured: true,
+    graphData: {
+      categories: [
+        { id: 'cat-front', name: 'Frontend', color: '#22D3EE', sortOrder: 0 },
+        { id: 'cat-back', name: 'Backend', color: '#6366F1', sortOrder: 1 },
+        { id: 'cat-devops', name: 'DevOps', color: '#10B981', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'HTML / CSS', level: 'beginner', icon: 'globe', positionX: 100, positionY: 0, categoryId: 'cat-front' },
+        { name: 'JavaScript', level: 'intermediate', icon: 'zap', positionX: 300, positionY: 0, categoryId: 'cat-front' },
+        { name: 'React', level: 'advanced', icon: 'atom', positionX: 100, positionY: 150, categoryId: 'cat-front' },
+        { name: 'Next.js', level: 'advanced', icon: 'triangle', positionX: 100, positionY: 300, categoryId: 'cat-front' },
+        { name: 'Node.js', level: 'intermediate', icon: 'circle', positionX: 500, positionY: 0, categoryId: 'cat-back' },
+        { name: 'Express / NestJS', level: 'intermediate', icon: 'rocket', positionX: 500, positionY: 150, categoryId: 'cat-back' },
+        { name: 'PostgreSQL', level: 'intermediate', icon: 'database', positionX: 500, positionY: 300, categoryId: 'cat-back' },
+        { name: 'REST / GraphQL', level: 'intermediate', icon: 'link', positionX: 300, positionY: 150, categoryId: 'cat-back' },
+        { name: 'Docker', level: 'intermediate', icon: 'container', positionX: 300, positionY: 450, categoryId: 'cat-devops' },
+        { name: 'CI/CD', level: 'advanced', icon: 'refresh-cw', positionX: 500, positionY: 450, categoryId: 'cat-devops' },
+      ],
+      edges: [
+        { source: 'HTML / CSS', target: 'JavaScript' },
+        { source: 'JavaScript', target: 'React' },
+        { source: 'React', target: 'Next.js' },
+        { source: 'JavaScript', target: 'Node.js' },
+        { source: 'Node.js', target: 'Express / NestJS' },
+        { source: 'Express / NestJS', target: 'PostgreSQL' },
+        { source: 'JavaScript', target: 'REST / GraphQL' },
+        { source: 'Next.js', target: 'Docker' },
+        { source: 'PostgreSQL', target: 'Docker' },
+        { source: 'Docker', target: 'CI/CD' },
+      ],
+    },
+  },
+  {
+    name: 'Cybersecurity Specialist',
+    description:
+      'Information security, penetration testing, network defense, and compliance skills.',
+    field: 'cybersecurity',
+    isFeatured: false,
+    graphData: {
+      categories: [
+        { id: 'cat-fundamentals', name: 'Fundamentals', color: '#EF4444', sortOrder: 0 },
+        { id: 'cat-offense', name: 'Offensive', color: '#F59E0B', sortOrder: 1 },
+        { id: 'cat-defense', name: 'Defensive', color: '#3B82F6', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Networking', level: 'intermediate', icon: 'wifi', positionX: 300, positionY: 0, categoryId: 'cat-fundamentals' },
+        { name: 'Linux Administration', level: 'intermediate', icon: 'terminal', positionX: 100, positionY: 0, categoryId: 'cat-fundamentals' },
+        { name: 'Cryptography', level: 'intermediate', icon: 'lock', positionX: 500, positionY: 0, categoryId: 'cat-fundamentals' },
+        { name: 'Penetration Testing', level: 'advanced', icon: 'target', positionX: 150, positionY: 200, categoryId: 'cat-offense' },
+        { name: 'Web App Security', level: 'advanced', icon: 'shield', positionX: 450, positionY: 200, categoryId: 'cat-offense' },
+        { name: 'SIEM & Monitoring', level: 'intermediate', icon: 'bar-chart-3', positionX: 100, positionY: 400, categoryId: 'cat-defense' },
+        { name: 'Incident Response', level: 'advanced', icon: 'alert-triangle', positionX: 300, positionY: 400, categoryId: 'cat-defense' },
+        { name: 'Compliance (SOC2, ISO)', level: 'intermediate', icon: 'file-check', positionX: 500, positionY: 400, categoryId: 'cat-defense' },
+      ],
+      edges: [
+        { source: 'Networking', target: 'Penetration Testing' },
+        { source: 'Networking', target: 'Web App Security' },
+        { source: 'Linux Administration', target: 'Penetration Testing' },
+        { source: 'Cryptography', target: 'Web App Security' },
+        { source: 'Penetration Testing', target: 'SIEM & Monitoring' },
+        { source: 'Web App Security', target: 'Incident Response' },
+        { source: 'Incident Response', target: 'Compliance (SOC2, ISO)' },
+      ],
+    },
+  },
+
+  /* ═══════════════════════════════════════════════
+     DESIGN
+     ═══════════════════════════════════════════════ */
+  {
+    name: 'UI/UX Designer',
+    description:
+      'User interface and experience design — research, wireframing, prototyping, design systems, and accessibility.',
+    field: 'uiux',
+    isFeatured: true,
+    graphData: {
+      categories: [
+        { id: 'cat-research', name: 'Research', color: '#6366F1', sortOrder: 0 },
+        { id: 'cat-design', name: 'Design', color: '#EC4899', sortOrder: 1 },
+        { id: 'cat-tools', name: 'Tools', color: '#F59E0B', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'User Research', level: 'intermediate', icon: 'search', positionX: 300, positionY: 0, categoryId: 'cat-research' },
+        { name: 'Wireframing', level: 'beginner', icon: 'layout', positionX: 150, positionY: 150, categoryId: 'cat-design' },
+        { name: 'Prototyping', level: 'intermediate', icon: 'pen-tool', positionX: 450, positionY: 150, categoryId: 'cat-design' },
+        { name: 'Figma', level: 'advanced', icon: 'figma', positionX: 300, positionY: 300, categoryId: 'cat-tools' },
+        { name: 'Design Systems', level: 'advanced', icon: 'layers', positionX: 100, positionY: 300, categoryId: 'cat-design' },
+        { name: 'Typography', level: 'intermediate', icon: 'type', positionX: 500, positionY: 300, categoryId: 'cat-design' },
+        { name: 'Color Theory', level: 'intermediate', icon: 'palette', positionX: 150, positionY: 450, categoryId: 'cat-design' },
+        { name: 'Usability Testing', level: 'intermediate', icon: 'check-circle', positionX: 450, positionY: 450, categoryId: 'cat-research' },
+        { name: 'Accessibility', level: 'intermediate', icon: 'eye', positionX: 300, positionY: 450, categoryId: 'cat-design' },
+        { name: 'Motion Design', level: 'advanced', icon: 'play', positionX: 300, positionY: 600, categoryId: 'cat-design' },
+      ],
+      edges: [
+        { source: 'User Research', target: 'Wireframing' },
+        { source: 'User Research', target: 'Prototyping' },
+        { source: 'Wireframing', target: 'Figma' },
+        { source: 'Prototyping', target: 'Figma' },
+        { source: 'Figma', target: 'Design Systems' },
+        { source: 'Figma', target: 'Typography' },
+        { source: 'Design Systems', target: 'Color Theory' },
+        { source: 'Typography', target: 'Accessibility' },
+        { source: 'Usability Testing', target: 'Accessibility' },
+        { source: 'Accessibility', target: 'Motion Design' },
+      ],
+    },
+  },
+  {
+    name: 'Graphic Designer',
+    description:
+      'Visual design skills — Photoshop, Illustrator, branding, print design, and layout.',
+    field: 'graphic',
+    isFeatured: false,
+    graphData: {
+      categories: [
+        { id: 'cat-tools', name: 'Tools', color: '#3B82F6', sortOrder: 0 },
+        { id: 'cat-principles', name: 'Principles', color: '#EC4899', sortOrder: 1 },
+        { id: 'cat-output', name: 'Output', color: '#10B981', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Photoshop', level: 'intermediate', icon: 'image', positionX: 100, positionY: 0, categoryId: 'cat-tools' },
+        { name: 'Illustrator', level: 'intermediate', icon: 'pen-tool', positionX: 300, positionY: 0, categoryId: 'cat-tools' },
+        { name: 'InDesign', level: 'intermediate', icon: 'book-open', positionX: 500, positionY: 0, categoryId: 'cat-tools' },
+        { name: 'Typography', level: 'intermediate', icon: 'type', positionX: 200, positionY: 150, categoryId: 'cat-principles' },
+        { name: 'Color Theory', level: 'intermediate', icon: 'palette', positionX: 400, positionY: 150, categoryId: 'cat-principles' },
+        { name: 'Branding', level: 'advanced', icon: 'star', positionX: 100, positionY: 300, categoryId: 'cat-output' },
+        { name: 'Print Design', level: 'intermediate', icon: 'printer', positionX: 300, positionY: 300, categoryId: 'cat-output' },
+        { name: 'Layout', level: 'intermediate', icon: 'layout', positionX: 500, positionY: 300, categoryId: 'cat-output' },
+        { name: 'Vector Art', level: 'advanced', icon: 'pencil', positionX: 200, positionY: 450, categoryId: 'cat-output' },
+        { name: 'Photo Editing', level: 'intermediate', icon: 'camera', positionX: 400, positionY: 450, categoryId: 'cat-output' },
+      ],
+      edges: [
+        { source: 'Photoshop', target: 'Typography' },
+        { source: 'Illustrator', target: 'Typography' },
+        { source: 'Illustrator', target: 'Color Theory' },
+        { source: 'InDesign', target: 'Layout' },
+        { source: 'Typography', target: 'Branding' },
+        { source: 'Color Theory', target: 'Branding' },
+        { source: 'Typography', target: 'Print Design' },
+        { source: 'Illustrator', target: 'Vector Art' },
+        { source: 'Photoshop', target: 'Photo Editing' },
+      ],
+    },
+  },
+
+  /* ═══════════════════════════════════════════════
+     BUSINESS
+     ═══════════════════════════════════════════════ */
+  {
+    name: 'Digital Marketer',
+    description:
+      'Digital marketing skills — SEO, paid ads, content strategy, analytics, and social media.',
+    field: 'marketing',
+    isFeatured: true,
+    graphData: {
+      categories: [
+        { id: 'cat-acquisition', name: 'Acquisition', color: '#F59E0B', sortOrder: 0 },
+        { id: 'cat-content', name: 'Content', color: '#6366F1', sortOrder: 1 },
+        { id: 'cat-analytics', name: 'Analytics', color: '#10B981', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'SEO', level: 'intermediate', icon: 'search', positionX: 100, positionY: 0, categoryId: 'cat-acquisition' },
+        { name: 'SEM / PPC', level: 'intermediate', icon: 'dollar-sign', positionX: 300, positionY: 0, categoryId: 'cat-acquisition' },
+        { name: 'Social Media', level: 'beginner', icon: 'share-2', positionX: 500, positionY: 0, categoryId: 'cat-acquisition' },
+        { name: 'Content Marketing', level: 'intermediate', icon: 'file-text', positionX: 100, positionY: 200, categoryId: 'cat-content' },
+        { name: 'Copywriting', level: 'intermediate', icon: 'pen-tool', positionX: 300, positionY: 200, categoryId: 'cat-content' },
+        { name: 'Email Marketing', level: 'intermediate', icon: 'mail', positionX: 500, positionY: 200, categoryId: 'cat-content' },
+        { name: 'Google Analytics', level: 'intermediate', icon: 'bar-chart-3', positionX: 200, positionY: 400, categoryId: 'cat-analytics' },
+        { name: 'A/B Testing', level: 'advanced', icon: 'split', positionX: 400, positionY: 400, categoryId: 'cat-analytics' },
+        { name: 'CRM', level: 'intermediate', icon: 'users', positionX: 300, positionY: 550, categoryId: 'cat-analytics' },
+      ],
+      edges: [
+        { source: 'SEO', target: 'Content Marketing' },
+        { source: 'SEM / PPC', target: 'Copywriting' },
+        { source: 'Social Media', target: 'Email Marketing' },
+        { source: 'Content Marketing', target: 'Google Analytics' },
+        { source: 'Copywriting', target: 'A/B Testing' },
+        { source: 'Email Marketing', target: 'A/B Testing' },
+        { source: 'Google Analytics', target: 'CRM' },
+        { source: 'A/B Testing', target: 'CRM' },
+      ],
+    },
+  },
+  {
+    name: 'Product Manager',
+    description:
+      'Product management skills — roadmapping, user stories, metrics, agile, and stakeholder management.',
+    field: 'product',
+    isFeatured: true,
+    graphData: {
+      categories: [
+        { id: 'cat-strategy', name: 'Strategy', color: '#6366F1', sortOrder: 0 },
+        { id: 'cat-execution', name: 'Execution', color: '#10B981', sortOrder: 1 },
+        { id: 'cat-discovery', name: 'Discovery', color: '#F59E0B', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Market Research', level: 'intermediate', icon: 'search', positionX: 300, positionY: 0, categoryId: 'cat-discovery' },
+        { name: 'User Stories', level: 'intermediate', icon: 'file-text', positionX: 100, positionY: 150, categoryId: 'cat-execution' },
+        { name: 'Roadmapping', level: 'advanced', icon: 'map', positionX: 500, positionY: 150, categoryId: 'cat-strategy' },
+        { name: 'Prioritization', level: 'intermediate', icon: 'list', positionX: 300, positionY: 150, categoryId: 'cat-strategy' },
+        { name: 'Agile / Scrum', level: 'intermediate', icon: 'refresh-cw', positionX: 100, positionY: 300, categoryId: 'cat-execution' },
+        { name: 'Metrics & KPIs', level: 'advanced', icon: 'bar-chart-3', positionX: 300, positionY: 300, categoryId: 'cat-strategy' },
+        { name: 'A/B Testing', level: 'intermediate', icon: 'split', positionX: 500, positionY: 300, categoryId: 'cat-discovery' },
+        { name: 'Stakeholder Management', level: 'advanced', icon: 'users', positionX: 300, positionY: 450, categoryId: 'cat-execution' },
+      ],
+      edges: [
+        { source: 'Market Research', target: 'User Stories' },
+        { source: 'Market Research', target: 'Roadmapping' },
+        { source: 'Market Research', target: 'Prioritization' },
+        { source: 'User Stories', target: 'Agile / Scrum' },
+        { source: 'Prioritization', target: 'Metrics & KPIs' },
+        { source: 'Roadmapping', target: 'A/B Testing' },
+        { source: 'Agile / Scrum', target: 'Stakeholder Management' },
+        { source: 'Metrics & KPIs', target: 'Stakeholder Management' },
+      ],
+    },
+  },
+  {
+    name: 'Project Manager',
+    description:
+      'Project management skills — Agile, Scrum, risk management, budgeting, and stakeholder communication.',
+    field: 'project',
+    isFeatured: false,
+    graphData: {
+      categories: [
+        { id: 'cat-methods', name: 'Methodologies', color: '#3B82F6', sortOrder: 0 },
+        { id: 'cat-planning', name: 'Planning', color: '#F59E0B', sortOrder: 1 },
+        { id: 'cat-soft', name: 'Soft Skills', color: '#EC4899', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Agile', level: 'intermediate', icon: 'refresh-cw', positionX: 100, positionY: 0, categoryId: 'cat-methods' },
+        { name: 'Scrum', level: 'intermediate', icon: 'users', positionX: 300, positionY: 0, categoryId: 'cat-methods' },
+        { name: 'Kanban', level: 'beginner', icon: 'columns', positionX: 500, positionY: 0, categoryId: 'cat-methods' },
+        { name: 'Risk Management', level: 'advanced', icon: 'alert-triangle', positionX: 100, positionY: 200, categoryId: 'cat-planning' },
+        { name: 'Budgeting', level: 'intermediate', icon: 'dollar-sign', positionX: 300, positionY: 200, categoryId: 'cat-planning' },
+        { name: 'Gantt Charts', level: 'intermediate', icon: 'bar-chart-3', positionX: 500, positionY: 200, categoryId: 'cat-planning' },
+        { name: 'Resource Planning', level: 'intermediate', icon: 'calendar', positionX: 200, positionY: 400, categoryId: 'cat-planning' },
+        { name: 'Stakeholder Communication', level: 'advanced', icon: 'message-circle', positionX: 400, positionY: 400, categoryId: 'cat-soft' },
+      ],
+      edges: [
+        { source: 'Agile', target: 'Risk Management' },
+        { source: 'Scrum', target: 'Budgeting' },
+        { source: 'Kanban', target: 'Gantt Charts' },
+        { source: 'Risk Management', target: 'Resource Planning' },
+        { source: 'Budgeting', target: 'Stakeholder Communication' },
+        { source: 'Gantt Charts', target: 'Stakeholder Communication' },
+      ],
+    },
+  },
+  {
+    name: 'Financial Analyst',
+    description:
+      'Financial analysis skills — modeling, valuation, accounting, risk analysis, and data tools.',
+    field: 'finance',
+    isFeatured: false,
+    graphData: {
+      categories: [
+        { id: 'cat-core', name: 'Core Finance', color: '#10B981', sortOrder: 0 },
+        { id: 'cat-tools', name: 'Tools', color: '#3B82F6', sortOrder: 1 },
+        { id: 'cat-analysis', name: 'Analysis', color: '#F59E0B', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Accounting', level: 'intermediate', icon: 'book-open', positionX: 300, positionY: 0, categoryId: 'cat-core' },
+        { name: 'Financial Modeling', level: 'advanced', icon: 'trending-up', positionX: 100, positionY: 150, categoryId: 'cat-core' },
+        { name: 'Valuation', level: 'advanced', icon: 'dollar-sign', positionX: 500, positionY: 150, categoryId: 'cat-core' },
+        { name: 'Excel / VBA', level: 'intermediate', icon: 'table', positionX: 100, positionY: 300, categoryId: 'cat-tools' },
+        { name: 'SQL', level: 'intermediate', icon: 'database', positionX: 300, positionY: 300, categoryId: 'cat-tools' },
+        { name: 'Bloomberg Terminal', level: 'intermediate', icon: 'monitor', positionX: 500, positionY: 300, categoryId: 'cat-tools' },
+        { name: 'Risk Analysis', level: 'advanced', icon: 'alert-triangle', positionX: 200, positionY: 450, categoryId: 'cat-analysis' },
+        { name: 'Forecasting', level: 'intermediate', icon: 'line-chart', positionX: 400, positionY: 450, categoryId: 'cat-analysis' },
+        { name: 'Data Visualization', level: 'intermediate', icon: 'bar-chart-3', positionX: 300, positionY: 600, categoryId: 'cat-analysis' },
+      ],
+      edges: [
+        { source: 'Accounting', target: 'Financial Modeling' },
+        { source: 'Accounting', target: 'Valuation' },
+        { source: 'Financial Modeling', target: 'Excel / VBA' },
+        { source: 'Valuation', target: 'Bloomberg Terminal' },
+        { source: 'Financial Modeling', target: 'SQL' },
+        { source: 'Excel / VBA', target: 'Risk Analysis' },
+        { source: 'Bloomberg Terminal', target: 'Forecasting' },
+        { source: 'Risk Analysis', target: 'Data Visualization' },
+        { source: 'Forecasting', target: 'Data Visualization' },
+      ],
+    },
+  },
+
+  /* ═══════════════════════════════════════════════
+     CREATIVE
+     ═══════════════════════════════════════════════ */
+  {
+    name: 'Musician / Music Producer',
+    description:
+      'Music production skills — theory, DAWs, mixing, mastering, composition, and sound design.',
+    field: 'music',
+    isFeatured: true,
+    graphData: {
+      categories: [
+        { id: 'cat-theory', name: 'Theory', color: '#A855F7', sortOrder: 0 },
+        { id: 'cat-production', name: 'Production', color: '#22D3EE', sortOrder: 1 },
+        { id: 'cat-performance', name: 'Performance', color: '#F59E0B', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Music Theory', level: 'intermediate', icon: 'music', positionX: 300, positionY: 0, categoryId: 'cat-theory' },
+        { name: 'Composition', level: 'intermediate', icon: 'pen-tool', positionX: 100, positionY: 150, categoryId: 'cat-theory' },
+        { name: 'DAW (Ableton / Logic)', level: 'intermediate', icon: 'sliders', positionX: 500, positionY: 150, categoryId: 'cat-production' },
+        { name: 'Sound Design', level: 'advanced', icon: 'audio-waveform', positionX: 300, positionY: 150, categoryId: 'cat-production' },
+        { name: 'MIDI', level: 'beginner', icon: 'keyboard', positionX: 500, positionY: 300, categoryId: 'cat-production' },
+        { name: 'Mixing', level: 'advanced', icon: 'sliders', positionX: 200, positionY: 300, categoryId: 'cat-production' },
+        { name: 'Mastering', level: 'expert', icon: 'headphones', positionX: 200, positionY: 450, categoryId: 'cat-production' },
+        { name: 'Sampling', level: 'intermediate', icon: 'scissors', positionX: 400, positionY: 450, categoryId: 'cat-production' },
+        { name: 'Live Performance', level: 'intermediate', icon: 'mic', positionX: 100, positionY: 450, categoryId: 'cat-performance' },
+        { name: 'Audio Engineering', level: 'advanced', icon: 'settings', positionX: 300, positionY: 600, categoryId: 'cat-production' },
+      ],
+      edges: [
+        { source: 'Music Theory', target: 'Composition' },
+        { source: 'Music Theory', target: 'Sound Design' },
+        { source: 'Music Theory', target: 'DAW (Ableton / Logic)' },
+        { source: 'DAW (Ableton / Logic)', target: 'MIDI' },
+        { source: 'Sound Design', target: 'Mixing' },
+        { source: 'Mixing', target: 'Mastering' },
+        { source: 'MIDI', target: 'Sampling' },
+        { source: 'Composition', target: 'Live Performance' },
+        { source: 'Mastering', target: 'Audio Engineering' },
+        { source: 'Sampling', target: 'Audio Engineering' },
+      ],
+    },
+  },
+  {
+    name: 'Video Producer / Filmmaker',
+    description:
+      'Video production skills — cinematography, editing, color grading, VFX, and storytelling.',
+    field: 'video',
+    isFeatured: false,
+    graphData: {
+      categories: [
+        { id: 'cat-pre', name: 'Pre-Production', color: '#F59E0B', sortOrder: 0 },
+        { id: 'cat-production', name: 'Production', color: '#6366F1', sortOrder: 1 },
+        { id: 'cat-post', name: 'Post-Production', color: '#22D3EE', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Scriptwriting', level: 'intermediate', icon: 'file-text', positionX: 100, positionY: 0, categoryId: 'cat-pre' },
+        { name: 'Storyboarding', level: 'beginner', icon: 'layout', positionX: 350, positionY: 0, categoryId: 'cat-pre' },
+        { name: 'Directing', level: 'advanced', icon: 'megaphone', positionX: 550, positionY: 0, categoryId: 'cat-pre' },
+        { name: 'Cinematography', level: 'intermediate', icon: 'camera', positionX: 100, positionY: 200, categoryId: 'cat-production' },
+        { name: 'Lighting', level: 'intermediate', icon: 'sun', positionX: 350, positionY: 200, categoryId: 'cat-production' },
+        { name: 'Sound Design', level: 'intermediate', icon: 'headphones', positionX: 550, positionY: 200, categoryId: 'cat-production' },
+        { name: 'Editing', level: 'intermediate', icon: 'scissors', positionX: 100, positionY: 400, categoryId: 'cat-post' },
+        { name: 'Color Grading', level: 'advanced', icon: 'palette', positionX: 300, positionY: 400, categoryId: 'cat-post' },
+        { name: 'Motion Graphics', level: 'advanced', icon: 'play', positionX: 500, positionY: 400, categoryId: 'cat-post' },
+        { name: 'VFX', level: 'expert', icon: 'sparkles', positionX: 300, positionY: 550, categoryId: 'cat-post' },
+      ],
+      edges: [
+        { source: 'Scriptwriting', target: 'Storyboarding' },
+        { source: 'Storyboarding', target: 'Directing' },
+        { source: 'Directing', target: 'Cinematography' },
+        { source: 'Directing', target: 'Lighting' },
+        { source: 'Directing', target: 'Sound Design' },
+        { source: 'Cinematography', target: 'Editing' },
+        { source: 'Lighting', target: 'Color Grading' },
+        { source: 'Sound Design', target: 'Motion Graphics' },
+        { source: 'Color Grading', target: 'VFX' },
+        { source: 'Motion Graphics', target: 'VFX' },
+      ],
+    },
+  },
+  {
+    name: 'Photographer',
+    description:
+      'Photography skills — composition, lighting, post-processing, portraits, and studio work.',
+    field: 'photography',
+    isFeatured: false,
+    graphData: {
+      categories: [
+        { id: 'cat-fundamentals', name: 'Fundamentals', color: '#22D3EE', sortOrder: 0 },
+        { id: 'cat-genres', name: 'Genres', color: '#A855F7', sortOrder: 1 },
+        { id: 'cat-post', name: 'Post-Processing', color: '#10B981', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Composition', level: 'intermediate', icon: 'grid', positionX: 300, positionY: 0, categoryId: 'cat-fundamentals' },
+        { name: 'Lighting', level: 'intermediate', icon: 'sun', positionX: 100, positionY: 0, categoryId: 'cat-fundamentals' },
+        { name: 'Equipment Knowledge', level: 'beginner', icon: 'camera', positionX: 500, positionY: 0, categoryId: 'cat-fundamentals' },
+        { name: 'Portrait', level: 'intermediate', icon: 'user', positionX: 100, positionY: 200, categoryId: 'cat-genres' },
+        { name: 'Landscape', level: 'intermediate', icon: 'mountain', positionX: 300, positionY: 200, categoryId: 'cat-genres' },
+        { name: 'Studio Work', level: 'advanced', icon: 'box', positionX: 500, positionY: 200, categoryId: 'cat-genres' },
+        { name: 'Color Theory', level: 'intermediate', icon: 'palette', positionX: 200, positionY: 400, categoryId: 'cat-fundamentals' },
+        { name: 'Post-Processing', level: 'intermediate', icon: 'sliders', positionX: 400, positionY: 400, categoryId: 'cat-post' },
+        { name: 'Retouching', level: 'advanced', icon: 'wand', positionX: 300, positionY: 550, categoryId: 'cat-post' },
+      ],
+      edges: [
+        { source: 'Composition', target: 'Portrait' },
+        { source: 'Composition', target: 'Landscape' },
+        { source: 'Lighting', target: 'Portrait' },
+        { source: 'Lighting', target: 'Studio Work' },
+        { source: 'Equipment Knowledge', target: 'Studio Work' },
+        { source: 'Portrait', target: 'Color Theory' },
+        { source: 'Studio Work', target: 'Post-Processing' },
+        { source: 'Color Theory', target: 'Retouching' },
+        { source: 'Post-Processing', target: 'Retouching' },
+      ],
+    },
+  },
+
+  /* ═══════════════════════════════════════════════
+     PROFESSIONAL
+     ═══════════════════════════════════════════════ */
+  {
+    name: 'Medical Professional',
+    description:
+      'Medical skills — anatomy, pharmacology, diagnostics, patient care, and clinical research.',
+    field: 'medical',
+    isFeatured: true,
+    graphData: {
+      categories: [
+        { id: 'cat-foundation', name: 'Foundation', color: '#EF4444', sortOrder: 0 },
+        { id: 'cat-clinical', name: 'Clinical', color: '#3B82F6', sortOrder: 1 },
+        { id: 'cat-advanced', name: 'Advanced', color: '#10B981', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Anatomy', level: 'intermediate', icon: 'heart', positionX: 100, positionY: 0, categoryId: 'cat-foundation' },
+        { name: 'Pharmacology', level: 'intermediate', icon: 'pill', positionX: 300, positionY: 0, categoryId: 'cat-foundation' },
+        { name: 'Medical Ethics', level: 'beginner', icon: 'shield', positionX: 500, positionY: 0, categoryId: 'cat-foundation' },
+        { name: 'Diagnostics', level: 'advanced', icon: 'stethoscope', positionX: 100, positionY: 200, categoryId: 'cat-clinical' },
+        { name: 'Patient Care', level: 'intermediate', icon: 'hand-heart', positionX: 300, positionY: 200, categoryId: 'cat-clinical' },
+        { name: 'Emergency Medicine', level: 'advanced', icon: 'siren', positionX: 500, positionY: 200, categoryId: 'cat-clinical' },
+        { name: 'Surgery Basics', level: 'advanced', icon: 'scissors', positionX: 100, positionY: 400, categoryId: 'cat-advanced' },
+        { name: 'Radiology', level: 'intermediate', icon: 'scan', positionX: 300, positionY: 400, categoryId: 'cat-advanced' },
+        { name: 'Lab Interpretation', level: 'intermediate', icon: 'flask-conical', positionX: 500, positionY: 400, categoryId: 'cat-advanced' },
+        { name: 'Clinical Research', level: 'advanced', icon: 'microscope', positionX: 300, positionY: 550, categoryId: 'cat-advanced' },
+      ],
+      edges: [
+        { source: 'Anatomy', target: 'Diagnostics' },
+        { source: 'Pharmacology', target: 'Patient Care' },
+        { source: 'Medical Ethics', target: 'Emergency Medicine' },
+        { source: 'Diagnostics', target: 'Surgery Basics' },
+        { source: 'Patient Care', target: 'Radiology' },
+        { source: 'Emergency Medicine', target: 'Lab Interpretation' },
+        { source: 'Surgery Basics', target: 'Clinical Research' },
+        { source: 'Radiology', target: 'Clinical Research' },
+      ],
+    },
+  },
+  {
+    name: 'Teacher / Educator',
+    description:
+      'Education skills — lesson planning, classroom management, assessment design, and EdTech tools.',
+    field: 'education',
+    isFeatured: false,
+    graphData: {
+      categories: [
+        { id: 'cat-pedagogy', name: 'Pedagogy', color: '#6366F1', sortOrder: 0 },
+        { id: 'cat-practice', name: 'Practice', color: '#F59E0B', sortOrder: 1 },
+        { id: 'cat-tech', name: 'Technology', color: '#22D3EE', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Educational Psychology', level: 'intermediate', icon: 'brain', positionX: 300, positionY: 0, categoryId: 'cat-pedagogy' },
+        { name: 'Lesson Planning', level: 'intermediate', icon: 'clipboard', positionX: 100, positionY: 150, categoryId: 'cat-practice' },
+        { name: 'Classroom Management', level: 'intermediate', icon: 'users', positionX: 500, positionY: 150, categoryId: 'cat-practice' },
+        { name: 'Assessment Design', level: 'intermediate', icon: 'check-square', positionX: 100, positionY: 300, categoryId: 'cat-practice' },
+        { name: 'Differentiated Instruction', level: 'advanced', icon: 'git-branch', positionX: 300, positionY: 300, categoryId: 'cat-pedagogy' },
+        { name: 'Curriculum Development', level: 'advanced', icon: 'book-open', positionX: 500, positionY: 300, categoryId: 'cat-pedagogy' },
+        { name: 'EdTech Tools', level: 'intermediate', icon: 'monitor', positionX: 200, positionY: 450, categoryId: 'cat-tech' },
+        { name: 'Student Engagement', level: 'intermediate', icon: 'star', positionX: 400, positionY: 450, categoryId: 'cat-practice' },
+      ],
+      edges: [
+        { source: 'Educational Psychology', target: 'Lesson Planning' },
+        { source: 'Educational Psychology', target: 'Classroom Management' },
+        { source: 'Lesson Planning', target: 'Assessment Design' },
+        { source: 'Classroom Management', target: 'Curriculum Development' },
+        { source: 'Educational Psychology', target: 'Differentiated Instruction' },
+        { source: 'Assessment Design', target: 'EdTech Tools' },
+        { source: 'Differentiated Instruction', target: 'Student Engagement' },
+        { source: 'Curriculum Development', target: 'Student Engagement' },
+      ],
+    },
+  },
+  {
+    name: 'Lawyer / Legal Professional',
+    description:
+      'Legal skills — contract law, litigation, legal research, negotiation, and compliance.',
+    field: 'legal',
+    isFeatured: false,
+    graphData: {
+      categories: [
+        { id: 'cat-core', name: 'Core Law', color: '#6366F1', sortOrder: 0 },
+        { id: 'cat-practice', name: 'Practice Areas', color: '#F59E0B', sortOrder: 1 },
+        { id: 'cat-skills', name: 'Skills', color: '#10B981', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Constitutional Law', level: 'intermediate', icon: 'landmark', positionX: 300, positionY: 0, categoryId: 'cat-core' },
+        { name: 'Contract Law', level: 'intermediate', icon: 'file-text', positionX: 100, positionY: 0, categoryId: 'cat-core' },
+        { name: 'Criminal Law', level: 'intermediate', icon: 'gavel', positionX: 500, positionY: 0, categoryId: 'cat-core' },
+        { name: 'Legal Research', level: 'intermediate', icon: 'search', positionX: 100, positionY: 200, categoryId: 'cat-skills' },
+        { name: 'Litigation', level: 'advanced', icon: 'scale', positionX: 300, positionY: 200, categoryId: 'cat-practice' },
+        { name: 'Negotiation', level: 'intermediate', icon: 'handshake', positionX: 500, positionY: 200, categoryId: 'cat-skills' },
+        { name: 'Intellectual Property', level: 'advanced', icon: 'lightbulb', positionX: 150, positionY: 400, categoryId: 'cat-practice' },
+        { name: 'Compliance', level: 'intermediate', icon: 'check-circle', positionX: 350, positionY: 400, categoryId: 'cat-practice' },
+        { name: 'Client Management', level: 'intermediate', icon: 'users', positionX: 550, positionY: 400, categoryId: 'cat-skills' },
+      ],
+      edges: [
+        { source: 'Constitutional Law', target: 'Litigation' },
+        { source: 'Contract Law', target: 'Legal Research' },
+        { source: 'Criminal Law', target: 'Negotiation' },
+        { source: 'Legal Research', target: 'Intellectual Property' },
+        { source: 'Litigation', target: 'Compliance' },
+        { source: 'Negotiation', target: 'Client Management' },
+        { source: 'Compliance', target: 'Client Management' },
+      ],
+    },
+  },
+  {
+    name: 'Mechanical Engineer',
+    description:
+      'Mechanical engineering skills — CAD, FEA, thermodynamics, material science, and manufacturing.',
+    field: 'engineering',
+    isFeatured: false,
+    graphData: {
+      categories: [
+        { id: 'cat-fundamentals', name: 'Fundamentals', color: '#3B82F6', sortOrder: 0 },
+        { id: 'cat-tools', name: 'Tools', color: '#10B981', sortOrder: 1 },
+        { id: 'cat-applied', name: 'Applied', color: '#F59E0B', sortOrder: 2 },
+      ],
+      nodes: [
+        { name: 'Thermodynamics', level: 'intermediate', icon: 'thermometer', positionX: 100, positionY: 0, categoryId: 'cat-fundamentals' },
+        { name: 'Material Science', level: 'intermediate', icon: 'atom', positionX: 300, positionY: 0, categoryId: 'cat-fundamentals' },
+        { name: 'Fluid Mechanics', level: 'intermediate', icon: 'droplets', positionX: 500, positionY: 0, categoryId: 'cat-fundamentals' },
+        { name: 'CAD (SolidWorks)', level: 'intermediate', icon: 'pen-tool', positionX: 100, positionY: 200, categoryId: 'cat-tools' },
+        { name: 'FEA', level: 'advanced', icon: 'cpu', positionX: 300, positionY: 200, categoryId: 'cat-tools' },
+        { name: 'GD&T', level: 'intermediate', icon: 'ruler', positionX: 500, positionY: 200, categoryId: 'cat-tools' },
+        { name: 'Manufacturing', level: 'intermediate', icon: 'settings', positionX: 100, positionY: 400, categoryId: 'cat-applied' },
+        { name: '3D Printing', level: 'beginner', icon: 'printer', positionX: 300, positionY: 400, categoryId: 'cat-applied' },
+        { name: 'Robotics', level: 'advanced', icon: 'bot', positionX: 500, positionY: 400, categoryId: 'cat-applied' },
+      ],
+      edges: [
+        { source: 'Thermodynamics', target: 'CAD (SolidWorks)' },
+        { source: 'Material Science', target: 'FEA' },
+        { source: 'Fluid Mechanics', target: 'GD&T' },
+        { source: 'CAD (SolidWorks)', target: 'Manufacturing' },
+        { source: 'FEA', target: '3D Printing' },
+        { source: 'GD&T', target: 'Robotics' },
+        { source: 'Manufacturing', target: '3D Printing' },
       ],
     },
   },

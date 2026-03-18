@@ -44,7 +44,7 @@ export function AddNodeModal({ open, onClose, onAdd }: AddNodeModalProps) {
             className="input-field"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. React, TypeScript"
+            placeholder="e.g. React, Figma, SEO, Photography"
             autoFocus
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           />

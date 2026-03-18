@@ -1,16 +1,16 @@
 # HardGraph
 
-Interactive skill tree builder. Create beautiful visual graphs of your skills, publish them, and share with the world.
+Interactive skill tree builder for any profession. Create beautiful visual graphs of your skills — whether you're a developer, designer, marketer, musician, doctor, or engineer — publish them, and share with the world.
 
 ## Features
 
 - **Visual Skill Tree Editor** — drag & drop nodes, connect edges, organize by categories
-- **Starter Templates** — Frontend, Backend, DevOps, Data Science templates to kickstart
+- **Starter Templates** — 20+ templates across Technology, Design, Business, Creative, and Professional fields
 - **Public Profiles** — shareable profile page at `hardgraph.io/username`
 - **Public Graphs** — shareable graph page at `hardgraph.io/username/graph-slug`
 - **SSR + OG Tags** — server-rendered public pages with full Open Graph metadata
 - **Analytics** — view tracking on public graphs
-- **Onboarding Flow** — 3-step wizard for new users (profile → template → launch)
+- **Onboarding Flow** — 4-step wizard for new users (profile → field → template → launch)
 - **Dark Premium UI** — fully dark theme with indigo/cyan accents
 
 ## Tech Stack
@@ -274,5 +274,6 @@ All services include Docker healthchecks in `docker-compose.prod.yml`.
 ## License
 
 Private — All rights reserved.
-#   h a r d g r a p h  
+#   h a r d g r a p h 
+ 
  

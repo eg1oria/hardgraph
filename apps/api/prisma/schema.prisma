@@ -45,6 +45,7 @@ model Graph {
   title        String   @db.VarChar(200)
   slug         String   @db.VarChar(200)
   description  String?
+  field        String?  @db.VarChar(100)
   isPublic     Boolean  @default(true) @map("is_public")
   isPrimary    Boolean  @default(false) @map("is_primary")
   theme        String   @default("cyberpunk") @db.VarChar(50)

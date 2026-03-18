@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, ArrowRight, Eye } from 'lucide-react';
+import { Sparkles, ArrowRight, Eye, Code2, Palette, Briefcase, Music, GraduationCap } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -22,12 +22,72 @@ interface Template {
   };
 }
 
-const FIELD_LABELS: Record<string, string> = {
-  frontend: 'Frontend',
-  backend: 'Backend',
-  devops: 'DevOps',
-  data: 'Data Science',
-};
+const FIELD_GROUPS = [
+  {
+    group: 'Technology',
+    icon: Code2,
+    fields: [
+      { key: 'frontend', label: 'Frontend' },
+      { key: 'backend', label: 'Backend' },
+      { key: 'devops', label: 'DevOps' },
+      { key: 'data', label: 'Data Science' },
+      { key: 'mobile', label: 'Mobile' },
+      { key: 'fullstack', label: 'Fullstack' },
+      { key: 'cybersecurity', label: 'Cybersecurity' },
+    ],
+  },
+  {
+    group: 'Design',
+    icon: Palette,
+    fields: [
+      { key: 'uiux', label: 'UI/UX Design' },
+      { key: 'graphic', label: 'Graphic Design' },
+    ],
+  },
+  {
+    group: 'Business',
+    icon: Briefcase,
+    fields: [
+      { key: 'marketing', label: 'Marketing' },
+      { key: 'product', label: 'Product Management' },
+      { key: 'project', label: 'Project Management' },
+      { key: 'finance', label: 'Finance' },
+    ],
+  },
+  {
+    group: 'Creative',
+    icon: Music,
+    fields: [
+      { key: 'music', label: 'Music' },
+      { key: 'video', label: 'Video Production' },
+      { key: 'photography', label: 'Photography' },
+    ],
+  },
+  {
+    group: 'Professional',
+    icon: GraduationCap,
+    fields: [
+      { key: 'medical', label: 'Medicine' },
+      { key: 'education', label: 'Education' },
+      { key: 'legal', label: 'Legal' },
+      { key: 'engineering', label: 'Engineering' },
+    ],
+  },
+];
+
+const FIELD_LABELS: Record<string, string> = Object.fromEntries(
+  FIELD_GROUPS.flatMap((g) => g.fields.map((f) => [f.key, f.label])),
+);
+
+const TAB_OPTIONS = [{ key: 'all', label: 'All' }, ...FIELD_GROUPS.map((g) => ({ key: g.group, label: g.group }))];
+
+function getGroupForField(field: string | null): string | null {
+  if (!field) return null;
+  for (const g of FIELD_GROUPS) {
+    if (g.fields.some((f) => f.key === field)) return g.group;
+  }
+  return null;
+}
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -35,6 +95,7 @@ export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [usingId, setUsingId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     api
@@ -60,18 +121,50 @@ export default function TemplatesPage() {
     [router, toast],
   );
 
+  const filtered =
+    activeTab === 'all'
+      ? templates
+      : templates.filter((t) => getGroupForField(t.field) === activeTab);
+
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-1">Templates</h1>
         <p className="text-muted-foreground text-sm">
-          Choose a starter template and customize it to showcase your skills
+          Choose a starter template for any profession and customize it to showcase your skills
         </p>
+      </div>
+
+      {/* Category tabs */}
+      <div className="mb-6 flex flex-wrap gap-1.5">
+        {TAB_OPTIONS.map((tab) => {
+          const group = FIELD_GROUPS.find((g) => g.group === tab.key);
+          const Icon = group?.icon;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                activeTab === tab.key
+                  ? 'bg-primary/10 text-primary border border-primary/30'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-surface-light border border-transparent'
+              }`}
+            >
+              {Icon && <Icon className="w-3.5 h-3.5" />}
+              {tab.label}
+              {tab.key !== 'all' && (
+                <span className="text-[10px] opacity-60">
+                  {templates.filter((t) => getGroupForField(t.field) === tab.key).length}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {loading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="card space-y-3">
               <Skeleton className="h-10 w-10 rounded-xl" />
               <Skeleton className="h-5 w-3/4" />
@@ -80,9 +173,13 @@ export default function TemplatesPage() {
             </div>
           ))}
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground text-sm">
+          No templates in this category yet.
+        </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {templates.map((t) => {
+          {filtered.map((t) => {
             const nodeCount = t.graphData?.nodes?.length ?? 0;
             const catCount = t.graphData?.categories?.length ?? 0;
             return (

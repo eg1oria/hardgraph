@@ -22,12 +22,12 @@ const features = [
   {
     icon: Zap,
     title: 'Instant Templates',
-    description: 'Start from templates for Frontend, Backend, DevOps, and more.',
+    description: 'Start from 20+ templates for any profession — tech, design, business, and more.',
   },
   {
     icon: Globe,
     title: 'Community Explore',
-    description: 'Discover skill trees from developers around the world.',
+    description: 'Discover skill trees from professionals around the world.',
   },
   {
     icon: Lock,

@@ -22,45 +22,45 @@ export const onboardingSteps: OnboardingStep[] = [
   {
     id: 'sidebar',
     target: '[data-onboarding="sidebar"]',
-    title: 'Навигация',
+    title: 'Navigation',
     description:
-      'Здесь находится главное меню. Переключайтесь между дашбордом, шаблонами, исследованием и настройками. Sidebar можно свернуть для экономии места.',
+      'This is the main menu. Switch between dashboard, templates, explore, and settings. You can collapse the sidebar to save space.',
     placement: 'right',
     icon: PanelLeft,
   },
   {
     id: 'explore',
     target: '[data-onboarding="explore"]',
-    title: 'Explore — исследуйте',
+    title: 'Explore',
     description:
-      'Откройте для себя скилл-деревья других пользователей. Вдохновляйтесь, учитесь и находите интересные структуры навыков.',
+      'Discover skill trees from other professionals. Get inspired, learn, and find interesting skill structures.',
     placement: 'right',
     icon: Compass,
   },
   {
     id: 'search',
     target: '[data-onboarding="search"]',
-    title: 'Быстрый поиск',
+    title: 'Quick Search',
     description:
-      'Используйте Ctrl+K (⌘K на Mac) для вызова командной палитры. Быстро находите графы, переходите между разделами и выполняйте действия.',
+      'Use Ctrl+K (⌘K on Mac) to open the command palette. Quickly find graphs, navigate between sections, and perform actions.',
     placement: 'bottom',
     icon: Search,
   },
   {
     id: 'create-graph',
     target: '[data-onboarding="create-graph"]',
-    title: 'Создайте свой первый граф',
+    title: 'Create Your First Graph',
     description:
-      'Нажмите эту кнопку, чтобы создать новое скилл-дерево. Добавляйте навыки как ноды и связывайте их между собой.',
+      'Click this button to create a new skill tree. Add skills as nodes and connect them together.',
     placement: 'bottom',
     icon: Plus,
   },
   {
     id: 'templates',
     target: '[data-onboarding="templates"]',
-    title: 'Шаблоны',
+    title: 'Templates',
     description:
-      'Используйте готовые шаблоны скилл-деревьев, чтобы быстро начать. Импортируйте структуру и настройте под себя.',
+      'Use ready-made skill tree templates to get started quickly. Import the structure and customize it to your needs.',
     placement: 'right',
     icon: BookTemplate,
   },

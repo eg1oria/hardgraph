@@ -235,9 +235,9 @@ const DEMO_NODES: GraphNode[] = [
     isUnlocked: true,
   },
   {
-    id: 'd-next',
-    name: 'Next.js',
-    description: 'Full-stack framework',
+    id: 'd-figma',
+    name: 'Figma',
+    description: 'Design tool',
     level: 'intermediate',
     nodeType: 'skill',
     positionX: 380,
@@ -245,9 +245,9 @@ const DEMO_NODES: GraphNode[] = [
     isUnlocked: true,
   },
   {
-    id: 'd-ts',
-    name: 'TypeScript',
-    description: 'Type-safe JS',
+    id: 'd-seo',
+    name: 'SEO',
+    description: 'Search optimization',
     level: 'advanced',
     nodeType: 'skill',
     positionX: 200,
@@ -272,8 +272,8 @@ const DEMO_NODES: GraphNode[] = [
     },
   },
   {
-    id: 'd-node',
-    name: 'Node.js',
+    id: 'd-photo',
+    name: 'Photography',
     description: 'Connect me! →',
     level: 'beginner',
     nodeType: 'skill',
@@ -284,10 +284,10 @@ const DEMO_NODES: GraphNode[] = [
 ];
 
 const DEMO_EDGES: GraphEdge[] = [
-  { id: 'de-1', sourceNodeId: 'd-react', targetNodeId: 'd-next', edgeType: 'skill' },
+  { id: 'de-1', sourceNodeId: 'd-react', targetNodeId: 'd-figma', edgeType: 'skill' },
   { id: 'de-2', sourceNodeId: 'd-react', targetNodeId: 'd-repo', edgeType: 'skill' },
-  { id: 'de-3', sourceNodeId: 'd-next', targetNodeId: 'd-ts', edgeType: 'skill' },
-  { id: 'de-4', sourceNodeId: 'd-repo', targetNodeId: 'd-ts', edgeType: 'skill' },
+  { id: 'de-3', sourceNodeId: 'd-figma', targetNodeId: 'd-seo', edgeType: 'skill' },
+  { id: 'de-4', sourceNodeId: 'd-repo', targetNodeId: 'd-seo', edgeType: 'skill' },
 ];
 
 const demoNodeTypes: NodeTypes = { skill: SkillNode, repository: RepoNode };

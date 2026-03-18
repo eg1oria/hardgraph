@@ -24,7 +24,7 @@ export function Navbar() {
             href="/scan"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
           >
-            Skill Scan
+            GitHub Scan
           </Link>
           <ThemeToggle />
           <Link
@@ -62,7 +62,7 @@ export function Navbar() {
             onClick={() => setOpen(false)}
             className="block text-sm text-muted-foreground hover:text-foreground transition-colors py-3 px-3 rounded-lg active:bg-surface-light min-h-[44px] flex items-center"
           >
-            Skill Scan
+            GitHub Scan
           </Link>
           <Link
             href="/login"

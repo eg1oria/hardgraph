@@ -11,6 +11,13 @@ import {
   Rocket,
   X,
   Check,
+  Code2,
+  Palette,
+  Briefcase,
+  Music,
+  GraduationCap,
+  Compass,
+  Github,
 } from 'lucide-react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { api } from '@/lib/api';
@@ -31,15 +38,65 @@ interface Template {
 
 /* ─── Constants ─── */
 
+const FIELD_GROUPS = [
+  {
+    group: 'Technology',
+    icon: Code2,
+    description: 'Software, data, DevOps, and cybersecurity',
+    fields: ['frontend', 'backend', 'devops', 'data', 'mobile', 'fullstack', 'cybersecurity'],
+  },
+  {
+    group: 'Design',
+    icon: Palette,
+    description: 'UI/UX, graphic design, and visual arts',
+    fields: ['uiux', 'graphic'],
+  },
+  {
+    group: 'Business',
+    icon: Briefcase,
+    description: 'Marketing, product, project management, finance',
+    fields: ['marketing', 'product', 'project', 'finance'],
+  },
+  {
+    group: 'Creative',
+    icon: Music,
+    description: 'Music, video production, and photography',
+    fields: ['music', 'video', 'photography'],
+  },
+  {
+    group: 'Professional',
+    icon: GraduationCap,
+    description: 'Medicine, education, law, and engineering',
+    fields: ['medical', 'education', 'legal', 'engineering'],
+  },
+];
+
 const FIELD_LABELS: Record<string, string> = {
   frontend: 'Frontend',
   backend: 'Backend',
   devops: 'DevOps',
   data: 'Data Science',
+  mobile: 'Mobile',
+  fullstack: 'Fullstack',
+  cybersecurity: 'Cybersecurity',
+  uiux: 'UI/UX Design',
+  graphic: 'Graphic Design',
+  marketing: 'Marketing',
+  product: 'Product Management',
+  project: 'Project Management',
+  finance: 'Finance',
+  music: 'Music',
+  video: 'Video Production',
+  photography: 'Photography',
+  medical: 'Medicine',
+  education: 'Education',
+  legal: 'Legal',
+  engineering: 'Engineering',
 };
 
 const STEP_META = [
   { id: 'profile', label: 'Profile', icon: User },
+  { id: 'field', label: 'Field', icon: Compass },
   { id: 'template', label: 'Template', icon: BookTemplate },
   { id: 'launch', label: 'Launch', icon: Rocket },
 ] as const;
@@ -130,6 +187,7 @@ export default function OnboardingPage() {
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [selectedField, setSelectedField] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingTemplates, setLoadingTemplates] = useState(true);
@@ -431,7 +489,7 @@ export default function OnboardingPage() {
                         id="onboarding-bio"
                         className="input-field resize-none"
                         rows={3}
-                        placeholder="Full-stack developer passionate about..."
+                        placeholder="Passionate about design and technology..."
                         value={bio}
                         onChange={(e) => setBio(e.target.value)}
                       />
@@ -440,8 +498,96 @@ export default function OnboardingPage() {
                 </motion.div>
               )}
 
-              {/* ── Step 1: Choose Template ── */}
+              {/* ── Step 1: Choose Your Field ── */}
               {step === 1 && (
+                <motion.div
+                  variants={fadeUp}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: 0.1, duration: 0.35 }}
+                >
+                  <div className="flex justify-center mb-4 sm:mb-6">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-primary/20 border border-cyan-500/10 flex items-center justify-center shadow-lg shadow-cyan-500/5">
+                      <Compass className="w-10 h-10 text-cyan-500" />
+                    </div>
+                  </div>
+
+                  <div className="text-center mb-5 sm:mb-8">
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-tight">
+                      Choose your field
+                    </h2>
+                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-sm mx-auto">
+                      Select your professional area to see relevant templates.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[45vh] overflow-y-auto -mx-1 px-1 pb-1">
+                    {FIELD_GROUPS.map((g) => {
+                      const Icon = g.icon;
+                      return (
+                        <button
+                          key={g.group}
+                          onClick={() => setSelectedField(selectedField === g.group ? null : g.group)}
+                          className={`text-left p-4 rounded-xl border-2 transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                            selectedField === g.group
+                              ? 'border-primary bg-primary/5 ring-1 ring-primary/30 shadow-md shadow-primary/5'
+                              : 'border-border hover:border-primary/30 bg-surface/80 dark:bg-surface/60 backdrop-blur-sm hover:shadow-sm'
+                          }`}
+                          aria-pressed={selectedField === g.group}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                              <Icon className="w-5 h-5 text-primary" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-sm mb-0.5 flex items-center gap-2">
+                                {g.group}
+                                {selectedField === g.group && (
+                                  <Check className="w-4 h-4 text-primary shrink-0" />
+                                )}
+                              </h3>
+                              <p className="text-xs text-muted-foreground line-clamp-2">
+                                {g.description}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+
+                    {/* Custom / blank option */}
+                    <button
+                      onClick={() => setSelectedField(selectedField === 'custom' ? null : 'custom')}
+                      className={`text-left p-4 rounded-xl border-2 transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                        selectedField === 'custom'
+                          ? 'border-primary bg-primary/5 ring-1 ring-primary/30 shadow-md shadow-primary/5'
+                          : 'border-border hover:border-primary/30 bg-surface/80 dark:bg-surface/60 backdrop-blur-sm hover:shadow-sm'
+                      }`}
+                      aria-pressed={selectedField === 'custom'}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center shrink-0">
+                          <Sparkles className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm mb-0.5 flex items-center gap-2">
+                            Other / Custom
+                            {selectedField === 'custom' && (
+                              <Check className="w-4 h-4 text-primary shrink-0" />
+                            )}
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            Start with a blank canvas
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ── Step 2: Choose Template ── */}
+              {step === 2 && (
                 <motion.div
                   variants={fadeUp}
                   initial="hidden"
@@ -476,8 +622,19 @@ export default function OnboardingPage() {
                       <p className="mt-1">You can create your skill tree from scratch!</p>
                     </div>
                   ) : (
+                    (() => {
+                      const selectedGroup = FIELD_GROUPS.find((g) => g.group === selectedField);
+                      const filteredTemplates = selectedField && selectedField !== 'custom' && selectedGroup
+                        ? templates.filter((t) => t.field && selectedGroup.fields.includes(t.field))
+                        : templates;
+                      return filteredTemplates.length === 0 ? (
+                        <div className="text-center py-12 text-muted-foreground text-sm">
+                          <p>No templates for this field yet.</p>
+                          <p className="mt-1">You can create your skill tree from scratch!</p>
+                        </div>
+                      ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto -mx-1 px-1 pb-1">
-                      {templates.map((t) => (
+                      {filteredTemplates.map((t) => (
                         <button
                           key={t.id}
                           onClick={() =>
@@ -516,7 +673,8 @@ export default function OnboardingPage() {
                         </button>
                       ))}
                     </div>
-                  )}
+                      );
+                    })()}
 
                   {/* Skip template link */}
                   <p className="text-center mt-5 text-xs text-muted-foreground">
@@ -533,8 +691,8 @@ export default function OnboardingPage() {
                 </motion.div>
               )}
 
-              {/* ── Step 2: Launch ── */}
-              {step === 2 && (
+              {/* ── Step 3: Launch ── */}
+              {step === 3 && (
                 <motion.div
                   variants={fadeUp}
                   initial="hidden"
@@ -612,7 +770,7 @@ export default function OnboardingPage() {
       {/* ─── Footer: buttons + dots ─── */}
       <footer className="relative z-10 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 border-t border-border/50">
         {/* Global error banner (covers Skip/Finish failures on any step) */}
-        {error && step !== 2 && (
+        {error && step !== 3 && (
           <div className="max-w-lg mx-auto mb-4">
             <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-sm flex items-center gap-2">
               <span className="shrink-0" aria-hidden="true">

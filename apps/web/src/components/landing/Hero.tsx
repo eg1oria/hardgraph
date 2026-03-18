@@ -289,7 +289,7 @@ export function Hero() {
                   opacity="0.82"
                   className="text-foreground"
                 >
-                  React
+                  Design
                 </text>
                 <rect
                   x="411"
@@ -314,17 +314,17 @@ export function Hero() {
                   opacity="0.82"
                   className="text-foreground"
                 >
-                  Python
+                  Business
                 </text>
               </g>
 
               {/* Tier 2 */}
               <g ref={layer2Ref}>
                 {[
-                  { label: 'Next.js', y: 120 },
-                  { label: 'Tailwind', y: 210 },
-                  { label: 'Django', y: 300 },
-                  { label: 'FastAPI', y: 390 },
+                  { label: 'React', y: 120 },
+                  { label: 'Figma', y: 210 },
+                  { label: 'SEO', y: 300 },
+                  { label: 'Finance', y: 390 },
                 ].map((n) => (
                   <g key={n.label}>
                     <rect

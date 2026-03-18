@@ -148,7 +148,8 @@ export default function DashboardClient() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-8">
+      <div className="mx-auto w-full max-w-7xl px-2 sm:px-6 lg:px-8">
+        {' '}
         <div>
           <h1 className="text-2xl font-bold">
             {user?.displayName ? `Welcome, ${user.displayName}` : 'Your Skill Graphs'}

@@ -72,7 +72,7 @@ services:
     stop_grace_period: 15s
 
   nginx:
-    image: nginx:1.27-alpine
+    image: fholzer/nginx-brotli:v1.27.3
     container_name: skillgraph-nginx
     restart: always
     ports:

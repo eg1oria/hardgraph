@@ -36,8 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to API server and GitHub avatars for faster resource loading */}
-        <link rel="preconnect" href="https://avatars.githubusercontent.com" />
+        {/* dns-prefetch is non-blocking — helps pages that load GitHub avatars */}
         <link rel="dns-prefetch" href="https://avatars.githubusercontent.com" />
       </head>
       <body className={`${inter.variable} font-sans`}>

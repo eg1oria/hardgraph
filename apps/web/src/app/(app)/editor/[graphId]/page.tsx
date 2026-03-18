@@ -580,7 +580,7 @@ export default function EditorPage() {
                         }`}
                       >
                         <div
-                          className="w-2 h-2 rounded-full shrink-0"
+                          className="w-1 h-1 rounded-full shrink-0"
                           style={{
                             backgroundColor: NODE_COLORS[node.level as SkillLevel] ?? '#6366F1',
                           }}

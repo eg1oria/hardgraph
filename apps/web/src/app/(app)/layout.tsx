@@ -268,7 +268,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   })}
                   <Link
                     href="/dashboard"
-                    className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                    className="text-center px-2 py-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                    title="View all graphs"
+                    aria-label="View all graphs"
                   >
                     View all graphs
                   </Link>

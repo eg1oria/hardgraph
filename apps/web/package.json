@@ -2,6 +2,15 @@
   "name": "@hardgraph/web",
   "version": "0.1.0",
   "private": true,
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions",
+    "not dead",
+    "not ie 11",
+    "not op_mini all"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -20,6 +29,7 @@
     "react-dom": "^18.3.0",
     "recharts": "^3.8.0",
     "tailwind-merge": "^2.5.0",
+    "web-vitals": "^4.2.0",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
@@ -27,6 +37,7 @@
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
+    "critters": "^0.0.25",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.0",
     "postcss": "^8.4.47",

@@ -61,7 +61,7 @@ export function CategoryManager() {
           className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs hover:bg-surface-light transition-colors group"
         >
           <div
-            className="w-3 h-3 rounded-full shrink-0 border border-border"
+            className="w-1.5 h-1.5 rounded-full shrink-0 border border-border"
             style={{ backgroundColor: cat.color ?? '#6366F1' }}
           />
           <span className="flex-1 truncate text-muted-foreground">{cat.name}</span>

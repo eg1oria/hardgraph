@@ -527,7 +527,9 @@ export default function OnboardingPage() {
                       return (
                         <button
                           key={g.group}
-                          onClick={() => setSelectedField(selectedField === g.group ? null : g.group)}
+                          onClick={() =>
+                            setSelectedField(selectedField === g.group ? null : g.group)
+                          }
                           className={`text-left p-4 rounded-xl border-2 transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
                             selectedField === g.group
                               ? 'border-primary bg-primary/5 ring-1 ring-primary/30 shadow-md shadow-primary/5'
@@ -576,9 +578,7 @@ export default function OnboardingPage() {
                               <Check className="w-4 h-4 text-primary shrink-0" />
                             )}
                           </h3>
-                          <p className="text-xs text-muted-foreground">
-                            Start with a blank canvas
-                          </p>
+                          <p className="text-xs text-muted-foreground">Start with a blank canvas</p>
                         </div>
                       </div>
                     </button>
@@ -624,57 +624,61 @@ export default function OnboardingPage() {
                   ) : (
                     (() => {
                       const selectedGroup = FIELD_GROUPS.find((g) => g.group === selectedField);
-                      const filteredTemplates = selectedField && selectedField !== 'custom' && selectedGroup
-                        ? templates.filter((t) => t.field && selectedGroup.fields.includes(t.field))
-                        : templates;
+                      const filteredTemplates =
+                        selectedField && selectedField !== 'custom' && selectedGroup
+                          ? templates.filter(
+                              (t) => t.field && selectedGroup.fields.includes(t.field),
+                            )
+                          : templates;
                       return filteredTemplates.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground text-sm">
                           <p>No templates for this field yet.</p>
                           <p className="mt-1">You can create your skill tree from scratch!</p>
                         </div>
                       ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto -mx-1 px-1 pb-1">
-                      {filteredTemplates.map((t) => (
-                        <button
-                          key={t.id}
-                          onClick={() =>
-                            setSelectedTemplate(selectedTemplate === t.id ? null : t.id)
-                          }
-                          className={`text-left p-4 rounded-xl border-2 transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
-                            selectedTemplate === t.id
-                              ? 'border-primary bg-primary/5 ring-1 ring-primary/30 shadow-md shadow-primary/5'
-                              : 'border-border hover:border-primary/30 bg-surface/80 dark:bg-surface/60 backdrop-blur-sm hover:shadow-sm'
-                          }`}
-                          aria-pressed={selectedTemplate === t.id}
-                          aria-label={`Template: ${t.name}`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide shrink-0 mt-1">
-                              {FIELD_LABELS[t.field ?? ''] ?? 'General'}
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-sm mb-1 flex items-center gap-2">
-                                {t.name}
-                                {selectedTemplate === t.id && (
-                                  <Check className="w-4 h-4 text-primary shrink-0" />
-                                )}
-                              </h3>
-                              <p className="text-xs text-muted-foreground line-clamp-2">
-                                {t.description}
-                              </p>
-                            </div>
-                          </div>
-                          {t.isFeatured && (
-                            <div className="mt-2 flex items-center gap-1 text-[10px] text-amber-400">
-                              <Sparkles className="w-3 h-3" />
-                              Featured
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto -mx-1 px-1 pb-1">
+                          {filteredTemplates.map((t) => (
+                            <button
+                              key={t.id}
+                              onClick={() =>
+                                setSelectedTemplate(selectedTemplate === t.id ? null : t.id)
+                              }
+                              className={`text-left p-4 rounded-xl border-2 transition-all min-h-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+                                selectedTemplate === t.id
+                                  ? 'border-primary bg-primary/5 ring-1 ring-primary/30 shadow-md shadow-primary/5'
+                                  : 'border-border hover:border-primary/30 bg-surface/80 dark:bg-surface/60 backdrop-blur-sm hover:shadow-sm'
+                              }`}
+                              aria-pressed={selectedTemplate === t.id}
+                              aria-label={`Template: ${t.name}`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide shrink-0 mt-1">
+                                  {FIELD_LABELS[t.field ?? ''] ?? 'General'}
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-semibold text-sm mb-1 flex items-center gap-2">
+                                    {t.name}
+                                    {selectedTemplate === t.id && (
+                                      <Check className="w-4 h-4 text-primary shrink-0" />
+                                    )}
+                                  </h3>
+                                  <p className="text-xs text-muted-foreground line-clamp-2">
+                                    {t.description}
+                                  </p>
+                                </div>
+                              </div>
+                              {t.isFeatured && (
+                                <div className="mt-2 flex items-center gap-1 text-[10px] text-amber-400">
+                                  <Sparkles className="w-3 h-3" />
+                                  Featured
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
                       );
-                    })()}
+                    })()
+                  )}
 
                   {/* Skip template link */}
                   <p className="text-center mt-5 text-xs text-muted-foreground">

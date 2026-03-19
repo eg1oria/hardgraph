@@ -10,17 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
 import { QueryApplicationsDto } from './dto/query-applications.dto';
-
-const LEVEL_WEIGHT: Record<string, number> = {
-  beginner: 1,
-  intermediate: 2,
-  advanced: 3,
-  expert: 4,
-};
-
-function isValidLevel(level: string): boolean {
-  return level in LEVEL_WEIGHT;
-}
+import { computeMatchScore } from '../common/utils/skill-matcher';
 
 @Injectable()
 export class VacancyApplicationsService {
@@ -47,36 +37,9 @@ export class VacancyApplicationsService {
     if (graph.userId !== applicantId)
       throw new ForbiddenException('You can only apply with your own graph');
 
-    // Compute match score directly (avoids isPublic check in compareWithGraph)
+    // Compute match score via shared utility
     const vacancySkills = (vacancy.skills as unknown as { name: string; level: string }[]) ?? [];
-    const candidateMap = new Map<string, string>();
-    for (const node of graph.nodes) {
-      candidateMap.set(node.name.toLowerCase(), node.level);
-    }
-
-    let totalScore = 0;
-    let maxPossibleScore = 0;
-    let matchedCount = 0;
-    const totalRequired = vacancySkills.length;
-
-    for (const reqSkill of vacancySkills) {
-      const reqLevel = isValidLevel(reqSkill.level) ? reqSkill.level : 'beginner';
-      const weight = LEVEL_WEIGHT[reqLevel] ?? 1;
-      maxPossibleScore += weight;
-
-      const candLevel = candidateMap.get(reqSkill.name.toLowerCase());
-      if (candLevel && isValidLevel(candLevel)) {
-        const candWeight = LEVEL_WEIGHT[candLevel] ?? 1;
-        if (candWeight >= weight) {
-          totalScore += weight;
-          matchedCount++;
-        } else {
-          totalScore += candWeight * 0.5;
-        }
-      }
-    }
-
-    const matchScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+    const match = computeMatchScore(vacancySkills, graph.nodes);
 
     try {
       return await this.prisma.vacancyApplication.create({
@@ -85,9 +48,9 @@ export class VacancyApplicationsService {
           applicantId,
           graphId: dto.graphId,
           coverLetter: dto.coverLetter,
-          matchScore,
-          matchedSkills: matchedCount,
-          totalRequired,
+          matchScore: match.matchScore,
+          matchedSkills: match.matchedCount,
+          totalRequired: match.totalRequired,
         },
         include: {
           vacancy: { select: { id: true, title: true, company: true } },

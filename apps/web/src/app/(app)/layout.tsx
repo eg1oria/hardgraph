@@ -203,7 +203,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             );
           })}
           {/* Vacancy sub-links */}
-          {(sidebarOpen || mobileMenuOpen) && pathname.startsWith('/vacancies') && (
+          {(sidebarOpen || mobileMenuOpen) && (
             <div className="ml-8 space-y-0.5">
               <Link
                 href="/applications"

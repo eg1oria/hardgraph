@@ -34,7 +34,12 @@ export class VacanciesController {
   @Get()
   @Throttle({ short: { ttl: 60_000, limit: 30 } })
   findAll(@Query() query: VacancyQueryDto) {
-    return this.vacanciesService.findAll(query.field, query.search);
+    return this.vacanciesService.findAll(
+      query.field,
+      query.search,
+      query.page ?? 1,
+      query.limit ?? 20,
+    );
   }
 
   @Get('mine')

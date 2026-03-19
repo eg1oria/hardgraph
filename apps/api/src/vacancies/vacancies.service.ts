@@ -3,28 +3,13 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVacancyDto } from './dto/create-vacancy.dto';
 import { UpdateVacancyDto } from './dto/update-vacancy.dto';
-
-type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
-
-const LEVEL_WEIGHT: Record<SkillLevel, number> = {
-  beginner: 1,
-  intermediate: 2,
-  advanced: 3,
-  expert: 4,
-};
-
-const LEVEL_ORDER: SkillLevel[] = ['beginner', 'intermediate', 'advanced', 'expert'];
-
-function isValidLevel(level: string): level is SkillLevel {
-  return LEVEL_ORDER.includes(level as SkillLevel);
-}
-
-interface VacancySkill {
-  name: string;
-  level: string;
-  category?: string;
-  categoryColor?: string;
-}
+import {
+  SkillLevel,
+  LEVEL_WEIGHT,
+  isValidLevel,
+  computeMatchScore,
+  VacancySkill,
+} from '../common/utils/skill-matcher';
 
 @Injectable()
 export class VacanciesService {
@@ -48,7 +33,7 @@ export class VacanciesService {
     });
   }
 
-  async findAll(field?: string, search?: string) {
+  async findAll(field?: string, search?: string, page = 1, limit = 20) {
     const where: Prisma.VacancyWhereInput = { isActive: true };
     if (field) {
       where.field = { equals: field, mode: 'insensitive' };
@@ -59,11 +44,73 @@ export class VacanciesService {
         { company: { contains: search, mode: 'insensitive' } },
       ];
     }
+
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.vacancy.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          company: true,
+          description: true,
+          field: true,
+          location: true,
+          salaryRange: true,
+          skills: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              displayName: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      }),
+      this.prisma.vacancy.count({ where }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findMine(userId: string) {
     return this.prisma.vacancy.findMany({
-      where,
+      where: { authorId: userId },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
+        title: true,
+        company: true,
+        field: true,
+        location: true,
+        salaryRange: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: { select: { applications: true } },
+      },
+    });
+  }
+
+  async findOne(id: string) {
+    const vacancy = await this.prisma.vacancy.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        authorId: true,
         title: true,
         company: true,
         description: true,
@@ -73,29 +120,7 @@ export class VacanciesService {
         skills: true,
         isActive: true,
         createdAt: true,
-        author: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatarUrl: true,
-          },
-        },
-      },
-    });
-  }
-
-  async findMine(userId: string) {
-    return this.prisma.vacancy.findMany({
-      where: { authorId: userId },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  async findOne(id: string) {
-    const vacancy = await this.prisma.vacancy.findUnique({
-      where: { id },
-      include: {
+        updatedAt: true,
         author: {
           select: {
             id: true,
@@ -176,7 +201,7 @@ export class VacanciesService {
 
     const vacancySkills = (vacancy.skills as unknown as VacancySkill[]) ?? [];
 
-    // Build candidate skill map: lowercase name → { level, category }
+    // Build candidate node map for enrichment (category from graph)
     const candidateMap = new Map<
       string,
       { level: string; icon?: string; category?: string; categoryColor?: string }
@@ -190,21 +215,18 @@ export class VacanciesService {
       });
     }
 
-    // Perform matching
-    const skills: Array<{
-      name: string;
-      category?: string;
-      categoryColor?: string;
-      candidateLevel: string | null;
-      requiredLevel: string;
-      status: 'matched' | 'upgrade' | 'missing';
-    }> = [];
+    // Core matching via shared utility
+    const match = computeMatchScore(vacancySkills, graph.nodes);
 
-    let totalScore = 0;
-    let maxPossibleScore = 0;
-    let matchedCount = 0;
-    let upgradeCount = 0;
-    let missingCount = 0;
+    // Enrich details with candidate's category info from graph nodes
+    const skills = match.details.map((d) => {
+      const cand = candidateMap.get(d.name.toLowerCase());
+      return {
+        ...d,
+        category: d.category ?? cand?.category,
+        categoryColor: d.categoryColor ?? cand?.categoryColor,
+      };
+    });
 
     // Category breakdown tracking
     const categoryStats = new Map<
@@ -215,7 +237,6 @@ export class VacanciesService {
     for (const reqSkill of vacancySkills) {
       const reqLevel: SkillLevel = isValidLevel(reqSkill.level) ? reqSkill.level : 'beginner';
       const weight = LEVEL_WEIGHT[reqLevel];
-      maxPossibleScore += weight;
 
       const catKey = reqSkill.category ?? 'General';
       const catColor = reqSkill.categoryColor ?? '#6B7280';
@@ -227,49 +248,16 @@ export class VacanciesService {
       catStat.maxScore += weight;
 
       const candidateSkill = candidateMap.get(reqSkill.name.toLowerCase());
-
       if (candidateSkill) {
         const candLevel: SkillLevel = isValidLevel(candidateSkill.level)
           ? candidateSkill.level
           : 'beginner';
-
         if (LEVEL_WEIGHT[candLevel] >= LEVEL_WEIGHT[reqLevel]) {
-          totalScore += weight;
           catStat.score += weight;
           catStat.matched++;
-          matchedCount++;
-          skills.push({
-            name: reqSkill.name,
-            category: reqSkill.category ?? candidateSkill.category,
-            categoryColor: reqSkill.categoryColor ?? candidateSkill.categoryColor,
-            candidateLevel: candLevel,
-            requiredLevel: reqLevel,
-            status: 'matched',
-          });
         } else {
-          const partialScore = LEVEL_WEIGHT[candLevel] * 0.5;
-          totalScore += partialScore;
-          catStat.score += partialScore;
-          upgradeCount++;
-          skills.push({
-            name: reqSkill.name,
-            category: reqSkill.category ?? candidateSkill.category,
-            categoryColor: reqSkill.categoryColor ?? candidateSkill.categoryColor,
-            candidateLevel: candLevel,
-            requiredLevel: reqLevel,
-            status: 'upgrade',
-          });
+          catStat.score += LEVEL_WEIGHT[candLevel] * 0.5;
         }
-      } else {
-        missingCount++;
-        skills.push({
-          name: reqSkill.name,
-          category: reqSkill.category,
-          categoryColor: reqSkill.categoryColor,
-          candidateLevel: null,
-          requiredLevel: reqLevel,
-          status: 'missing',
-        });
       }
     }
 
@@ -292,8 +280,6 @@ export class VacanciesService {
       total: stat.total,
     }));
 
-    const matchScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
-
     return {
       vacancyId: vacancy.id,
       vacancyTitle: vacancy.title,
@@ -302,11 +288,11 @@ export class VacanciesService {
       candidateUsername: graph.user.username,
       candidateDisplayName: graph.user.displayName,
       candidateAvatarUrl: graph.user.avatarUrl,
-      matchScore,
-      totalRequired: vacancySkills.length,
-      matchedCount,
-      upgradeCount,
-      missingCount,
+      matchScore: match.matchScore,
+      totalRequired: match.totalRequired,
+      matchedCount: match.matchedCount,
+      upgradeCount: match.upgradeCount,
+      missingCount: match.missingCount,
       bonusCount: bonusSkills.length,
       skills,
       bonusSkills,

@@ -33,6 +33,7 @@ model User {
   updatedAt            DateTime @updatedAt @map("updated_at")
 
   graphs                 Graph[]
+  stories                Story[]
   emailVerificationTokens EmailVerificationToken[]
 
   @@index([username])
@@ -66,6 +67,7 @@ model Graph {
   edges        Edge[]
   profileViews ProfileView[]
   endorsements Endorsement[]
+  stories      Story[]
 
   @@unique([userId, slug])
   @@index([userId])
@@ -199,4 +201,71 @@ model Endorsement {
   @@index([graphId])
   @@index([nodeId])
   @@map("endorsements")
+}
+
+model Story {
+  id           String    @id @default(uuid()) @db.Uuid
+  authorId     String    @map("author_id") @db.Uuid
+  title        String    @db.VarChar(300)
+  slug         String    @db.VarChar(300)
+  content      String
+  excerpt      String?   @db.VarChar(500)
+  coverUrl     String?   @map("cover_url") @db.VarChar(500)
+  category     String    @db.VarChar(50)
+  tags         String[]  @default([])
+  field        String?   @db.VarChar(100)
+  isPublished  Boolean   @default(false) @map("is_published")
+  viewCount    Int       @default(0) @map("view_count")
+  likeCount    Int       @default(0) @map("like_count")
+  commentCount Int       @default(0) @map("comment_count")
+  readTime     Int       @default(0) @map("read_time")
+  graphId      String?   @map("graph_id") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  publishedAt  DateTime? @map("published_at")
+
+  author   User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  graph    Graph?         @relation(fields: [graphId], references: [id], onDelete: SetNull)
+  likes    StoryLike[]
+  comments StoryComment[]
+
+  @@unique([authorId, slug])
+  @@index([authorId])
+  @@index([isPublished, publishedAt])
+  @@index([category])
+  @@index([field])
+  @@map("stories")
+}
+
+model StoryLike {
+  id        String   @id @default(uuid()) @db.Uuid
+  storyId   String   @map("story_id") @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  ipHash    String?  @map("ip_hash") @db.VarChar(64)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  story Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, userId])
+  @@unique([storyId, ipHash])
+  @@index([storyId])
+  @@map("story_likes")
+}
+
+model StoryComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  storyId   String   @map("story_id") @db.Uuid
+  authorId  String   @map("author_id") @db.Uuid
+  parentId  String?  @map("parent_id") @db.Uuid
+  content   String   @db.VarChar(2000)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  story   Story          @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  parent  StoryComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies StoryComment[] @relation("CommentReplies")
+
+  @@index([storyId])
+  @@index([parentId])
+  @@map("story_comments")
 }

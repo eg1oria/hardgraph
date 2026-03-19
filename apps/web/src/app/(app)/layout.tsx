@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   LayoutDashboard,
   Compass,
+  BookOpen,
   BookTemplate,
   Settings,
   LogOut,
@@ -31,6 +32,7 @@ import { OnboardingProvider } from '@/components/onboarding';
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/explore', label: 'Explore', icon: Compass },
+  { href: '/stories', label: 'Stories', icon: BookOpen },
   { href: '/templates', label: 'Templates', icon: BookTemplate },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
@@ -41,6 +43,7 @@ const adminNavItem = { href: '/admin', label: 'Admin', icon: Shield };
 const bottomNavItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { href: '/explore', label: 'Explore', icon: Compass },
+  { href: '/stories', label: 'Stories', icon: BookOpen },
   { href: '/templates', label: 'Templates', icon: BookTemplate },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];

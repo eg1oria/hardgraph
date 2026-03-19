@@ -13,6 +13,9 @@ import {
   Code2,
   FileText,
   Loader2,
+  BookOpen,
+  Edit3,
+  Send,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -68,6 +71,19 @@ export default function DashboardClient() {
     }>
   >([]);
 
+  const [myStories, setMyStories] = useState<
+    Array<{
+      id: string;
+      title: string;
+      category: string;
+      isPublished: boolean;
+      readTime: number;
+      likeCount: number;
+      commentCount: number;
+      createdAt: string;
+    }>
+  >([]);
+
   const fetchGraphs = useCallback(() => {
     api
       .get<Graph[]>('/graphs')
@@ -86,10 +102,18 @@ export default function DashboardClient() {
       .catch(() => {});
   }, []);
 
+  const fetchMyStories = useCallback(() => {
+    api
+      .get<typeof myStories>('/stories/my')
+      .then(setMyStories)
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     fetchGraphs();
     fetchStats();
-  }, [fetchGraphs, fetchStats]);
+    fetchMyStories();
+  }, [fetchGraphs, fetchStats, fetchMyStories]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -342,6 +366,95 @@ export default function DashboardClient() {
         {/* Skill Stats — lazy-loaded with recharts (below the fold) */}
         <div className="cv-auto">
           <LazySkillStats skillStats={skillStats} />
+        </div>
+
+        {/* My Stories */}
+        <div className="mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-primary" /> My Stories
+            </h2>
+            <Link href="/stories/new" className="btn-secondary text-sm">
+              <Edit3 className="w-3.5 h-3.5" /> Write a story
+            </Link>
+          </div>
+          {myStories.length === 0 ? (
+            <div className="card text-center py-8">
+              <BookOpen className="w-10 h-10 mx-auto mb-3 text-muted opacity-40" />
+              <p className="text-sm text-muted-foreground mb-3">
+                No stories yet. Share your career experience!
+              </p>
+              <Link href="/stories/new" className="btn-primary text-sm">
+                <Edit3 className="w-3.5 h-3.5" /> Write your first story
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {myStories.map((story) => (
+                <div key={story.id} className="card-hover flex items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-sm font-medium truncate">{story.title}</h3>
+                      <Badge variant={story.isPublished ? 'primary' : 'muted'}>
+                        {story.isPublished ? 'Published' : 'Draft'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-muted">
+                      <span>{story.readTime} min read</span>
+                      <span>❤️ {story.likeCount}</span>
+                      <span>💬 {story.commentCount}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Link
+                      href={`/stories/${story.id}/edit`}
+                      className="p-2 rounded-md hover:bg-surface-light text-muted hover:text-foreground transition-colors"
+                      title="Edit"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </Link>
+                    {!story.isPublished && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            await api.post(`/stories/${story.id}/publish`);
+                            setMyStories((prev) =>
+                              prev.map((s) =>
+                                s.id === story.id ? { ...s, isPublished: true } : s,
+                              ),
+                            );
+                            toast('Published!', 'success');
+                          } catch {
+                            toast('Failed', 'error');
+                          }
+                        }}
+                        className="p-2 rounded-md hover:bg-emerald-500/10 text-muted hover:text-emerald-400 transition-colors"
+                        title="Publish"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button
+                      onClick={async () => {
+                        if (!confirm(`Delete "${story.title}"?`)) return;
+                        try {
+                          await api.delete(`/stories/${story.id}`);
+                          setMyStories((prev) => prev.filter((s) => s.id !== story.id));
+                          toast('Deleted', 'success');
+                        } catch {
+                          toast('Failed', 'error');
+                        }
+                      }}
+                      className="p-2 rounded-md hover:bg-red-500/10 text-muted hover:text-red-400 transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* GitHub Repos — lazy-loaded via IntersectionObserver (below the fold) */}

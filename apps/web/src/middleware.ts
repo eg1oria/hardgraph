@@ -8,6 +8,7 @@ const publicPaths = [
   '/verify-email',
   '/explore',
   '/templates',
+  '/stories',
   '/api',
   '/auth',
   '/embed',

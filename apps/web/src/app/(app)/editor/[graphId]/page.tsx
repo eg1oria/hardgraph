@@ -18,7 +18,7 @@ import {
   MoreHorizontal,
   X,
   Code2,
-  Download,
+  FileText,
 } from 'lucide-react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -373,10 +373,10 @@ export default function EditorPage() {
             <button
               onClick={() => setShowExportModal(true)}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 active:bg-amber-500/20 transition-colors shrink-0 min-h-[36px]"
-              title="Export & share"
+              title="Resume & share"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export</span>
+              <FileText className="w-3.5 h-3.5" />
+              <span>Resume</span>
             </button>
 
             <div className="mx-0.5 h-5 w-px bg-border shrink-0" />
@@ -484,8 +484,8 @@ export default function EditorPage() {
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-light active:bg-surface-light transition-colors"
               >
-                <Download className="w-4 h-4 text-amber-400" />
-                Export
+                <FileText className="w-4 h-4 text-amber-400" />
+                Resume
               </button>
               <div className="h-px bg-border my-1" />
               <button

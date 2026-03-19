@@ -22,7 +22,6 @@ import { OgImageModule } from './og-image/og-image.module';
 import { ResumeModule } from './resume/resume.module';
 import { ScanModule } from './scan/scan.module';
 import { StoriesModule } from './stories/stories.module';
-import { GapAnalysisModule } from './gap-analysis/gap-analysis.module';
 import { VacanciesModule } from './vacancies/vacancies.module';
 import { HealthController } from './health.controller';
 
@@ -68,7 +67,6 @@ import { join } from 'path';
     ResumeModule,
     ScanModule,
     StoriesModule,
-    GapAnalysisModule,
     VacanciesModule,
   ],
   controllers: [HealthController],

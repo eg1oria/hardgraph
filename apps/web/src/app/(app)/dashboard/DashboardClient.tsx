@@ -16,7 +16,6 @@ import {
   BookOpen,
   Edit3,
   Send,
-  Target,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -344,15 +343,6 @@ export default function DashboardClient() {
                             <FileText className="w-3.5 h-3.5" />
                           </a>
                         )}
-                        <Link
-                          href={`/gap-analysis?graphId=${graph.id}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="p-1.5 rounded-md hover:bg-purple-500/10 text-muted hover:text-purple-400 transition-colors"
-                          title="Analyze Gap"
-                          aria-label={`Analyze gaps for ${graph.title}`}
-                        >
-                          <Target className="w-3.5 h-3.5" />
-                        </Link>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

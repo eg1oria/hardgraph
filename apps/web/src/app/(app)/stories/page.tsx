@@ -1,92 +1,45 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Heart, MessageCircle, Clock, Search, Plus, ChevronRight } from 'lucide-react';
+import {
+  Search,
+  Plus,
+  LayoutGrid,
+  LayoutList,
+  SlidersHorizontal,
+  ChevronDown,
+  BookOpen,
+} from 'lucide-react';
 import { api } from '@/lib/api';
-import { Avatar } from '@/components/ui/Avatar';
-import { Spinner } from '@/components/ui/Spinner';
 import { useAuthStore } from '@/stores/useAuthStore';
-
-interface StoryCard {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  coverUrl: string | null;
-  category: string;
-  tags: string[];
-  field: string | null;
-  viewCount: number;
-  likeCount: number;
-  commentCount: number;
-  readTime: number;
-  publishedAt: string | null;
-  author: {
-    id: string;
-    username: string;
-    displayName: string | null;
-    avatarUrl: string | null;
-  };
-}
+import { EmptyState } from '@/components/ui/EmptyState';
+import { CATEGORIES, FIELDS, SORT_OPTIONS } from '@/lib/stories-constants';
+import { StoryCard } from '@/components/stories/StoryCard';
+import type { StoryCardData } from '@/components/stories/StoryCard';
+import { StoryCardSkeleton } from '@/components/stories/StoryCardSkeleton';
+import { FeaturedStories } from '@/components/stories/FeaturedStories';
 
 interface FeedResponse {
-  stories: StoryCard[];
+  stories: StoryCardData[];
   total: number;
   skip: number;
   limit: number;
 }
 
-const CATEGORIES = [
-  { value: '', label: 'All' },
-  { value: 'got_offer', label: 'Got an Offer' },
-  { value: 'career_growth', label: 'Career Growth' },
-  { value: 'switched_field', label: 'Switched Field' },
-  { value: 'side_project', label: 'Side Project' },
-  { value: 'mentorship', label: 'Mentorship' },
-  { value: 'learning', label: 'Learning Path' },
-  { value: 'other', label: 'Other' },
-];
-
-const FIELDS = [
-  { value: '', label: 'All Fields' },
-  { value: 'Technology', label: 'Technology' },
-  { value: 'Medicine', label: 'Medicine' },
-  { value: 'Design', label: 'Design' },
-  { value: 'Business', label: 'Business' },
-  { value: 'Creative', label: 'Creative' },
-  { value: 'Professional', label: 'Professional' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'recent', label: 'Recent' },
-  { value: 'popular', label: 'Popular' },
-  { value: 'most_liked', label: 'Most Liked' },
-];
-
-const CATEGORY_COLORS: Record<string, string> = {
-  got_offer: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  career_growth: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  switched_field: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  side_project: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  mentorship: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
-  learning: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-  other: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
-};
-
-const CATEGORY_LABELS: Record<string, string> = {
-  got_offer: 'Got an Offer',
-  career_growth: 'Career Growth',
-  switched_field: 'Switched Field',
-  side_project: 'Side Project',
-  mentorship: 'Mentorship',
-  learning: 'Learning Path',
-  other: 'Other',
-};
-
 export default function StoriesFeedPage() {
   const user = useAuthStore((s) => s.user);
-  const [stories, setStories] = useState<StoryCard[]>([]);
+
+  // UX: Grid/List view toggle with localStorage persistence
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('stories-view') as 'grid' | 'list') || 'grid';
+    }
+    return 'grid';
+  });
+
+  const [stories, setStories] = useState<StoryCardData[]>([]);
+  const [featured, setFeatured] = useState<StoryCardData[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -97,15 +50,62 @@ export default function StoriesFeedPage() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
+  // UX: Collapsible filters on mobile
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // UX: Bookmarks (UI only, client state)
+  const [bookmarks, setBookmarks] = useState<Set<string>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('story-bookmarks');
+        return saved ? new Set(JSON.parse(saved)) : new Set();
+      } catch {
+        return new Set();
+      }
+    }
+    return new Set();
+  });
+
+  // UX: Infinite scroll ref
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadingMoreRef = useRef(false);
+
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(timer);
   }, [search]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('stories-view', viewMode);
+    }
+  }, [viewMode]);
+
+  const toggleBookmark = useCallback((id: string) => {
+    setBookmarks((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      localStorage.setItem('story-bookmarks', JSON.stringify([...next]));
+      return next;
+    });
+  }, []);
+
+  // Load featured stories once
+  useEffect(() => {
+    api
+      .get<FeedResponse>('/stories/feed?sort=popular&limit=5')
+      .then((data) => setFeatured(data.stories))
+      .catch(() => {});
+  }, []);
+
   const loadFeed = useCallback(
     (skip = 0, append = false) => {
       if (!append) setLoading(true);
-      else setLoadingMore(true);
+      else {
+        setLoadingMore(true);
+        loadingMoreRef.current = true;
+      }
 
       const params = new URLSearchParams();
       if (category) params.set('category', category);
@@ -130,6 +130,7 @@ export default function StoriesFeedPage() {
         .finally(() => {
           setLoading(false);
           setLoadingMore(false);
+          loadingMoreRef.current = false;
         });
     },
     [category, field, sort, debouncedSearch],
@@ -139,206 +140,255 @@ export default function StoriesFeedPage() {
     loadFeed(0, false);
   }, [loadFeed]);
 
-  const handleLoadMore = () => {
-    loadFeed(stories.length, true);
-  };
+  // UX: IntersectionObserver for infinite scroll
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
-  };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !loadingMoreRef.current) {
+          setStories((prev) => {
+            if (prev.length > 0 && prev.length < total) {
+              loadFeed(prev.length, true);
+            }
+            return prev;
+          });
+        }
+      },
+      { rootMargin: '200px' },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [total, loadFeed]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Stories</h1>
           <p className="text-muted-foreground mt-2 text-sm">Real experiences from the community</p>
         </div>
-        {user && (
-          <Link href="/stories/new" className="btn-primary shrink-0 flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Write
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          {/* UX: Grid/List toggle */}
+          <div className="flex items-center gap-0.5 border border-border rounded-lg p-0.5">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-foreground/10 text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              aria-label="Grid view"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-foreground/10 text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              aria-label="List view"
+            >
+              <LayoutList className="w-4 h-4" />
+            </button>
+          </div>
+
+          {user && (
+            <Link href="/stories/new" className="btn-primary shrink-0 flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Write
+            </Link>
+          )}
+        </div>
       </div>
 
+      {/* UX: Featured/Trending section */}
+      {!loading && !debouncedSearch && !category && featured.length > 0 && (
+        <FeaturedStories stories={featured} />
+      )}
+
       {/* Filters */}
-      <div className="space-y-4 mb-10">
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search stories..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="input-field pl-10 w-full"
-          />
-        </div>
-
-        {/* Category chips */}
-        <div className="flex flex-wrap gap-1.5">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.value}
-              onClick={() => setCategory(cat.value)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                category === cat.value
-                  ? 'bg-foreground text-background border-foreground'
-                  : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Field + Sort */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <select
-            value={field}
-            onChange={(e) => setField(e.target.value)}
-            className="input-field text-sm"
+      <div className="space-y-4 mb-8">
+        {/* Search + mobile filter toggle */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search stories..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="input-field pl-10 w-full"
+              aria-label="Search stories"
+            />
+          </div>
+          {/* UX: Mobile collapsible filters toggle */}
+          <button
+            onClick={() => setFiltersOpen((o) => !o)}
+            className="sm:hidden flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground transition-colors"
+            aria-expanded={filtersOpen}
+            aria-label="Toggle filters"
           >
-            {FIELDS.map((f) => (
-              <option key={f.value} value={f.value}>
-                {f.label}
-              </option>
-            ))}
-          </select>
+            <SlidersHorizontal className="w-4 h-4" />
+            <ChevronDown
+              className={`w-3 h-3 transition-transform ${filtersOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+        </div>
 
-          <div className="flex items-center gap-0.5 border border-border rounded-lg p-0.5">
-            {SORT_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setSort(opt.value)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                  sort === opt.value
-                    ? 'bg-foreground/10 text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+        {/* Filter panel — always visible on sm+, collapsible on mobile */}
+        <div className={`space-y-3 ${filtersOpen ? 'block' : 'hidden'} sm:block`}>
+          {/* UX: Category chips with icons */}
+          <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Filter by category">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <button
+                  key={cat.value}
+                  onClick={() => setCategory(cat.value)}
+                  role="radio"
+                  aria-checked={category === cat.value}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all border focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none ${
+                    category === cat.value
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                  }`}
+                >
+                  {Icon && <Icon className="w-3 h-3" />}
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Field + Sort */}
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+            <select
+              value={field}
+              onChange={(e) => setField(e.target.value)}
+              className="input-field text-sm"
+              aria-label="Filter by field"
+            >
+              {FIELDS.map((f) => (
+                <option key={f.value} value={f.value}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+
+            <div
+              className="flex items-center gap-0.5 border border-border rounded-lg p-0.5"
+              role="radiogroup"
+              aria-label="Sort order"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setSort(opt.value)}
+                  role="radio"
+                  aria-checked={sort === opt.value}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none ${
+                    sort === opt.value
+                      ? 'bg-foreground/10 text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* UX: Active count indicator */}
+            {!loading && (
+              <span className="text-xs text-muted-foreground ml-auto">
+                {total} {total === 1 ? 'story' : 'stories'}
+              </span>
+            )}
           </div>
         </div>
       </div>
 
       {/* Content */}
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Spinner size="lg" className="text-primary" />
+        // UX: Skeleton loading — 6 skeleton cards
+        <div
+          className={
+            viewMode === 'grid'
+              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'
+              : 'divide-y divide-border'
+          }
+        >
+          {Array.from({ length: 6 }).map((_, i) => (
+            <StoryCardSkeleton key={i} variant={viewMode} />
+          ))}
         </div>
       ) : error ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <p className="mb-3">Failed to load stories</p>
-          <button onClick={() => loadFeed(0, false)} className="btn-secondary text-sm">
-            Try again
-          </button>
-        </div>
+        <EmptyState
+          title="Failed to load stories"
+          description="Something went wrong. Please try again."
+          action={
+            <button onClick={() => loadFeed(0, false)} className="btn-secondary text-sm">
+              Try again
+            </button>
+          }
+        />
       ) : stories.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <p className="mb-2">{debouncedSearch ? 'No matching stories found' : 'No stories yet'}</p>
-          <p className="text-sm mb-6">Be the first to share your experience.</p>
-          {user && (
-            <Link href="/stories/new" className="btn-primary text-sm">
-              Write your story
-            </Link>
-          )}
-        </div>
+        <EmptyState
+          icon={<BookOpen className="w-10 h-10" />}
+          title={debouncedSearch ? 'No matching stories found' : 'No stories yet'}
+          description="Be the first to share your experience with the community."
+          action={
+            user ? (
+              <Link href="/stories/new" className="btn-primary text-sm">
+                Write your story
+              </Link>
+            ) : undefined
+          }
+        />
       ) : (
         <>
-          <div className="divide-y divide-border">
-            {stories.map((story) => (
-              <Link
-                key={story.id}
-                href={`/stories/${story.id}`}
-                className="group flex gap-4 sm:gap-6 py-6 first:pt-0"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Avatar
-                      src={story.author.avatarUrl ?? undefined}
-                      fallback={story.author.displayName || story.author.username}
-                      size="sm"
-                    />
-                    <span className="text-xs text-muted-foreground truncate">
-                      {story.author.displayName || story.author.username}
-                    </span>
-                    {story.publishedAt && (
-                      <>
-                        <span className="text-xs text-muted">·</span>
-                        <span className="text-xs text-muted">{formatDate(story.publishedAt)}</span>
-                      </>
-                    )}
-                  </div>
+          {viewMode === 'grid' ? (
+            // UX: Card-based grid layout
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {stories.map((story) => (
+                <StoryCard
+                  key={story.id}
+                  story={story}
+                  variant="grid"
+                  bookmarked={bookmarks.has(story.id)}
+                  onToggleBookmark={toggleBookmark}
+                />
+              ))}
+            </div>
+          ) : (
+            // UX: List layout with hover effects
+            <div className="divide-y divide-border">
+              {stories.map((story) => (
+                <StoryCard
+                  key={story.id}
+                  story={story}
+                  variant="list"
+                  bookmarked={bookmarks.has(story.id)}
+                  onToggleBookmark={toggleBookmark}
+                />
+              ))}
+            </div>
+          )}
 
-                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">
-                    {story.title}
-                  </h3>
-
-                  {story.excerpt && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                      {story.excerpt}
-                    </p>
-                  )}
-
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${
-                        CATEGORY_COLORS[story.category] || CATEGORY_COLORS.other
-                      }`}
-                    >
-                      {CATEGORY_LABELS[story.category] || story.category}
-                    </span>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {story.readTime} min
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Heart className="w-3 h-3" />
-                        {story.likeCount}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MessageCircle className="w-3 h-3" />
-                        {story.commentCount}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {story.coverUrl && (
-                  <div className="shrink-0 w-24 h-24 sm:w-32 sm:h-24 rounded-lg overflow-hidden">
-                    <img
-                      src={story.coverUrl}
-                      alt=""
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                )}
-              </Link>
-            ))}
-          </div>
-
-          {/* Load more */}
+          {/* UX: Infinite scroll sentinel */}
           {stories.length < total && (
-            <div className="flex justify-center mt-10">
-              <button
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-full transition-colors"
-              >
-                {loadingMore ? 'Loading...' : 'Load more'}
-                {!loadingMore && <ChevronRight className="w-3.5 h-3.5" />}
-              </button>
+            <div ref={sentinelRef} className="flex justify-center py-10">
+              {loadingMore && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  Loading more...
+                </div>
+              )}
             </div>
           )}
         </>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -56,17 +56,176 @@ const CATEGORY_PRESETS = [
   { name: 'Soft Skills', color: '#EC4899' },
 ];
 
-const QUICK_ADD_SKILLS: { name: string; category: string; color: string }[] = [
-  { name: 'React', category: 'Frameworks', color: '#3B82F6' },
-  { name: 'TypeScript', category: 'Languages', color: '#8B5CF6' },
-  { name: 'Node.js', category: 'Frameworks', color: '#3B82F6' },
-  { name: 'Docker', category: 'DevOps', color: '#EF4444' },
-  { name: 'PostgreSQL', category: 'Databases', color: '#10B981' },
-  { name: 'Python', category: 'Languages', color: '#8B5CF6' },
-  { name: 'Go', category: 'Languages', color: '#8B5CF6' },
-  { name: 'AWS', category: 'DevOps', color: '#EF4444' },
-  { name: 'Git', category: 'Tools', color: '#F59E0B' },
-  { name: 'GraphQL', category: 'Frameworks', color: '#3B82F6' },
+interface QuickSkill {
+  name: string;
+  category: string;
+  color: string;
+  fields: string[]; // which fields this skill is primary for
+}
+
+const QUICK_ADD_SKILLS: QuickSkill[] = [
+  // Frontend (12)
+  { name: 'React', category: 'Frameworks', color: '#3B82F6', fields: ['frontend', 'fullstack'] },
+  { name: 'Vue.js', category: 'Frameworks', color: '#3B82F6', fields: ['frontend', 'fullstack'] },
+  { name: 'Angular', category: 'Frameworks', color: '#3B82F6', fields: ['frontend', 'fullstack'] },
+  { name: 'Next.js', category: 'Frameworks', color: '#3B82F6', fields: ['frontend', 'fullstack'] },
+  { name: 'Nuxt', category: 'Frameworks', color: '#3B82F6', fields: ['frontend'] },
+  { name: 'Svelte', category: 'Frameworks', color: '#3B82F6', fields: ['frontend'] },
+  { name: 'HTML', category: 'Languages', color: '#8B5CF6', fields: ['frontend'] },
+  { name: 'CSS/SCSS', category: 'Languages', color: '#8B5CF6', fields: ['frontend', 'design'] },
+  { name: 'Tailwind CSS', category: 'Frameworks', color: '#3B82F6', fields: ['frontend'] },
+  { name: 'Webpack', category: 'Tools', color: '#F59E0B', fields: ['frontend'] },
+  { name: 'Vite', category: 'Tools', color: '#F59E0B', fields: ['frontend'] },
+  { name: 'Storybook', category: 'Tools', color: '#F59E0B', fields: ['frontend', 'design'] },
+  // Backend (12)
+  { name: 'Node.js', category: 'Frameworks', color: '#3B82F6', fields: ['backend', 'fullstack'] },
+  { name: 'NestJS', category: 'Frameworks', color: '#3B82F6', fields: ['backend'] },
+  { name: 'Express', category: 'Frameworks', color: '#3B82F6', fields: ['backend'] },
+  { name: 'Fastify', category: 'Frameworks', color: '#3B82F6', fields: ['backend'] },
+  { name: 'Django', category: 'Frameworks', color: '#3B82F6', fields: ['backend', 'data'] },
+  { name: 'FastAPI', category: 'Frameworks', color: '#3B82F6', fields: ['backend', 'data'] },
+  { name: 'Spring Boot', category: 'Frameworks', color: '#3B82F6', fields: ['backend'] },
+  { name: 'Laravel', category: 'Frameworks', color: '#3B82F6', fields: ['backend'] },
+  { name: 'Ruby on Rails', category: 'Frameworks', color: '#3B82F6', fields: ['backend'] },
+  { name: 'ASP.NET', category: 'Frameworks', color: '#3B82F6', fields: ['backend'] },
+  { name: 'gRPC', category: 'Tools', color: '#F59E0B', fields: ['backend'] },
+  { name: 'RabbitMQ', category: 'Tools', color: '#F59E0B', fields: ['backend'] },
+  // Languages (cross-field)
+  {
+    name: 'TypeScript',
+    category: 'Languages',
+    color: '#8B5CF6',
+    fields: ['frontend', 'backend', 'fullstack'],
+  },
+  {
+    name: 'JavaScript',
+    category: 'Languages',
+    color: '#8B5CF6',
+    fields: ['frontend', 'fullstack'],
+  },
+  { name: 'Python', category: 'Languages', color: '#8B5CF6', fields: ['backend', 'data'] },
+  { name: 'Go', category: 'Languages', color: '#8B5CF6', fields: ['backend', 'devops'] },
+  { name: 'Java', category: 'Languages', color: '#8B5CF6', fields: ['backend', 'mobile'] },
+  { name: 'C#', category: 'Languages', color: '#8B5CF6', fields: ['backend'] },
+  { name: 'PHP', category: 'Languages', color: '#8B5CF6', fields: ['backend'] },
+  { name: 'Rust', category: 'Languages', color: '#8B5CF6', fields: ['backend'] },
+  { name: 'Swift', category: 'Languages', color: '#8B5CF6', fields: ['mobile'] },
+  { name: 'Kotlin', category: 'Languages', color: '#8B5CF6', fields: ['mobile'] },
+  { name: 'Dart', category: 'Languages', color: '#8B5CF6', fields: ['mobile'] },
+  { name: 'SQL', category: 'Languages', color: '#8B5CF6', fields: ['backend', 'data'] },
+  { name: 'R', category: 'Languages', color: '#8B5CF6', fields: ['data'] },
+  // Fullstack extras (added to existing cross-field items above)
+  { name: 'Prisma', category: 'Tools', color: '#F59E0B', fields: ['fullstack', 'backend'] },
+  { name: 'tRPC', category: 'Frameworks', color: '#3B82F6', fields: ['fullstack'] },
+  { name: 'Remix', category: 'Frameworks', color: '#3B82F6', fields: ['fullstack'] },
+  { name: 'Astro', category: 'Frameworks', color: '#3B82F6', fields: ['fullstack', 'frontend'] },
+  { name: 'Supabase', category: 'Tools', color: '#F59E0B', fields: ['fullstack'] },
+  { name: 'Firebase', category: 'Tools', color: '#F59E0B', fields: ['fullstack', 'mobile'] },
+  // Databases
+  {
+    name: 'PostgreSQL',
+    category: 'Databases',
+    color: '#10B981',
+    fields: ['backend', 'fullstack', 'data'],
+  },
+  { name: 'MongoDB', category: 'Databases', color: '#10B981', fields: ['backend', 'fullstack'] },
+  { name: 'Redis', category: 'Databases', color: '#10B981', fields: ['backend', 'devops'] },
+  { name: 'MySQL', category: 'Databases', color: '#10B981', fields: ['backend'] },
+  { name: 'Elasticsearch', category: 'Databases', color: '#10B981', fields: ['backend', 'data'] },
+  { name: 'ClickHouse', category: 'Databases', color: '#10B981', fields: ['data', 'backend'] },
+  { name: 'DynamoDB', category: 'Databases', color: '#10B981', fields: ['devops', 'backend'] },
+  // DevOps (12)
+  {
+    name: 'Docker',
+    category: 'DevOps',
+    color: '#EF4444',
+    fields: ['devops', 'backend', 'fullstack'],
+  },
+  { name: 'Kubernetes', category: 'DevOps', color: '#EF4444', fields: ['devops'] },
+  { name: 'AWS', category: 'DevOps', color: '#EF4444', fields: ['devops', 'backend'] },
+  { name: 'GCP', category: 'DevOps', color: '#EF4444', fields: ['devops'] },
+  { name: 'Azure', category: 'DevOps', color: '#EF4444', fields: ['devops'] },
+  { name: 'CI/CD', category: 'DevOps', color: '#EF4444', fields: ['devops'] },
+  { name: 'Terraform', category: 'DevOps', color: '#EF4444', fields: ['devops'] },
+  { name: 'Ansible', category: 'DevOps', color: '#EF4444', fields: ['devops'] },
+  { name: 'Linux', category: 'DevOps', color: '#EF4444', fields: ['devops', 'backend'] },
+  { name: 'Nginx', category: 'DevOps', color: '#EF4444', fields: ['devops'] },
+  { name: 'Prometheus', category: 'DevOps', color: '#EF4444', fields: ['devops'] },
+  { name: 'Grafana', category: 'DevOps', color: '#EF4444', fields: ['devops'] },
+  // Mobile (10)
+  { name: 'React Native', category: 'Frameworks', color: '#3B82F6', fields: ['mobile'] },
+  { name: 'Flutter', category: 'Frameworks', color: '#3B82F6', fields: ['mobile'] },
+  { name: 'SwiftUI', category: 'Frameworks', color: '#3B82F6', fields: ['mobile'] },
+  { name: 'Jetpack Compose', category: 'Frameworks', color: '#3B82F6', fields: ['mobile'] },
+  { name: 'Expo', category: 'Tools', color: '#F59E0B', fields: ['mobile'] },
+  { name: 'Xcode', category: 'Tools', color: '#F59E0B', fields: ['mobile'] },
+  { name: 'Android Studio', category: 'Tools', color: '#F59E0B', fields: ['mobile'] },
+  { name: 'App Store / Play Store', category: 'Tools', color: '#F59E0B', fields: ['mobile'] },
+  { name: 'Push Notifications', category: 'Tools', color: '#F59E0B', fields: ['mobile'] },
+  { name: 'Mobile CI/CD', category: 'DevOps', color: '#EF4444', fields: ['mobile'] },
+  // Data (12)
+  { name: 'Pandas', category: 'Frameworks', color: '#3B82F6', fields: ['data'] },
+  { name: 'NumPy', category: 'Frameworks', color: '#3B82F6', fields: ['data'] },
+  { name: 'TensorFlow', category: 'Frameworks', color: '#3B82F6', fields: ['data'] },
+  { name: 'PyTorch', category: 'Frameworks', color: '#3B82F6', fields: ['data'] },
+  { name: 'Scikit-learn', category: 'Frameworks', color: '#3B82F6', fields: ['data'] },
+  { name: 'Apache Spark', category: 'Tools', color: '#F59E0B', fields: ['data'] },
+  { name: 'Apache Kafka', category: 'Tools', color: '#F59E0B', fields: ['data', 'backend'] },
+  { name: 'Airflow', category: 'Tools', color: '#F59E0B', fields: ['data'] },
+  { name: 'dbt', category: 'Tools', color: '#F59E0B', fields: ['data'] },
+  { name: 'Jupyter', category: 'Tools', color: '#F59E0B', fields: ['data'] },
+  { name: 'Power BI', category: 'Tools', color: '#F59E0B', fields: ['data', 'product'] },
+  { name: 'Tableau', category: 'Tools', color: '#F59E0B', fields: ['data', 'product'] },
+  // Design (10)
+  { name: 'Figma', category: 'Tools', color: '#F59E0B', fields: ['design', 'frontend', 'product'] },
+  { name: 'Sketch', category: 'Tools', color: '#F59E0B', fields: ['design'] },
+  { name: 'Adobe XD', category: 'Tools', color: '#F59E0B', fields: ['design'] },
+  { name: 'Adobe Photoshop', category: 'Tools', color: '#F59E0B', fields: ['design'] },
+  { name: 'Adobe Illustrator', category: 'Tools', color: '#F59E0B', fields: ['design'] },
+  { name: 'Prototyping', category: 'Soft Skills', color: '#EC4899', fields: ['design'] },
+  { name: 'Design Systems', category: 'Tools', color: '#F59E0B', fields: ['design', 'frontend'] },
+  { name: 'UX Research', category: 'Soft Skills', color: '#EC4899', fields: ['design', 'product'] },
+  {
+    name: 'Responsive Design',
+    category: 'Soft Skills',
+    color: '#EC4899',
+    fields: ['design', 'frontend'],
+  },
+  {
+    name: 'Accessibility (a11y)',
+    category: 'Soft Skills',
+    color: '#EC4899',
+    fields: ['design', 'frontend'],
+  },
+  // Product (10)
+  { name: 'Jira', category: 'Tools', color: '#F59E0B', fields: ['product'] },
+  { name: 'Confluence', category: 'Tools', color: '#F59E0B', fields: ['product'] },
+  { name: 'Notion', category: 'Tools', color: '#F59E0B', fields: ['product'] },
+  { name: 'Google Analytics', category: 'Tools', color: '#F59E0B', fields: ['product', 'data'] },
+  { name: 'Amplitude', category: 'Tools', color: '#F59E0B', fields: ['product'] },
+  { name: 'A/B Testing', category: 'Tools', color: '#F59E0B', fields: ['product'] },
+  { name: 'Roadmapping', category: 'Soft Skills', color: '#EC4899', fields: ['product'] },
+  { name: 'User Story Mapping', category: 'Soft Skills', color: '#EC4899', fields: ['product'] },
+  {
+    name: 'Stakeholder Management',
+    category: 'Soft Skills',
+    color: '#EC4899',
+    fields: ['product'],
+  },
+  { name: 'Agile / Scrum', category: 'Soft Skills', color: '#EC4899', fields: ['product'] },
+  // General (always shown)
+  { name: 'Git', category: 'Tools', color: '#F59E0B', fields: [] },
+  {
+    name: 'GraphQL',
+    category: 'Frameworks',
+    color: '#3B82F6',
+    fields: ['frontend', 'backend', 'fullstack'],
+  },
+  { name: 'REST API', category: 'Tools', color: '#F59E0B', fields: ['backend', 'fullstack'] },
+  { name: 'Testing', category: 'Tools', color: '#F59E0B', fields: [] },
+  { name: 'Communication', category: 'Soft Skills', color: '#EC4899', fields: ['product'] },
+  { name: 'Teamwork', category: 'Soft Skills', color: '#EC4899', fields: [] },
+  { name: 'English', category: 'Soft Skills', color: '#EC4899', fields: [] },
 ];
 
 export default function NewVacancyPage() {
@@ -92,6 +251,22 @@ export default function NewVacancyPage() {
   const [newSkillLevel, setNewSkillLevel] = useState('intermediate');
   const [newSkillCategory, setNewSkillCategory] = useState('');
   const [newSkillColor, setNewSkillColor] = useState('#6B7280');
+
+  // Quick-add skills sorted by selected field
+  const sortedQuickSkills = useMemo(() => {
+    const available = QUICK_ADD_SKILLS.filter(
+      (qs) => !skills.some((s) => s.name.toLowerCase() === qs.name.toLowerCase()),
+    );
+    if (!field) return available;
+    const primary = available.filter((s) => s.fields.includes(field));
+    const rest = available.filter((s) => !s.fields.includes(field));
+    return [...primary, ...rest];
+  }, [field, skills]);
+
+  const primaryCount = useMemo(() => {
+    if (!field) return 0;
+    return sortedQuickSkills.filter((s) => s.fields.includes(field)).length;
+  }, [field, sortedQuickSkills]);
 
   // Load draft from localStorage on mount
   useEffect(() => {
@@ -445,19 +620,27 @@ export default function NewVacancyPage() {
 
             {/* Quick-add presets */}
             <div>
-              <p className="text-xs text-muted-foreground mb-2">Quick add:</p>
+              <p className="text-xs text-muted-foreground mb-2">
+                Quick add{field ? ` (${field} first)` : ''}:
+              </p>
               <div className="flex flex-wrap gap-1.5">
-                {QUICK_ADD_SKILLS.filter(
-                  (qs) => !skills.some((s) => s.name.toLowerCase() === qs.name.toLowerCase()),
-                ).map((qs) => (
-                  <button
-                    key={qs.name}
-                    type="button"
-                    onClick={() => addSkill(qs.name, qs.category, qs.color)}
-                    className="text-xs px-2.5 py-1 rounded-full border border-border hover:border-primary hover:text-primary transition-colors"
-                  >
-                    + {qs.name}
-                  </button>
+                {sortedQuickSkills.map((qs, i) => (
+                  <span key={qs.name} className="contents">
+                    {primaryCount > 0 && i === primaryCount && (
+                      <span className="w-px h-5 bg-border mx-1 self-center" />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => addSkill(qs.name, qs.category, qs.color)}
+                      className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                        field && qs.fields.includes(field)
+                          ? 'border-primary/40 text-primary hover:bg-primary/10'
+                          : 'border-border hover:border-primary hover:text-primary'
+                      }`}
+                    >
+                      + {qs.name}
+                    </button>
+                  </span>
                 ))}
               </div>
             </div>

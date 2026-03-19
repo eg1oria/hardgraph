@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Search,
   Network,
@@ -11,15 +11,16 @@ import {
   XCircle,
   Sparkles,
   ExternalLink,
+  LogIn,
 } from 'lucide-react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
-import type { PublicGraph, CompareResult } from './types';
-import { LEVELS, getScoreColor } from './types';
+import { useAuthStore } from '@/stores/useAuthStore';
+import type { CompareResult, RecentApplication, MyGraph } from './types';
+import { LEVELS, getScoreColor, getScoreBg } from './types';
 
 function LevelDots({
   candidateLevel,
@@ -49,40 +50,59 @@ function LevelDots({
 
 interface VacancyCompareTabProps {
   vacancyId: string;
+  isOwner: boolean;
 }
 
-export function VacancyCompareTab({ vacancyId }: VacancyCompareTabProps) {
+const statusColors: Record<string, string> = {
+  pending: 'bg-amber-500/15 text-amber-400',
+  reviewing: 'bg-blue-500/15 text-blue-400',
+  shortlisted: 'bg-purple-500/15 text-purple-400',
+  rejected: 'bg-red-500/15 text-red-400',
+  accepted: 'bg-emerald-500/15 text-emerald-400',
+};
+
+export function VacancyCompareTab({ vacancyId, isOwner }: VacancyCompareTabProps) {
   const { toast } = useToast();
-  const [graphSearch, setGraphSearch] = useState('');
-  const [publicGraphs, setPublicGraphs] = useState<PublicGraph[]>([]);
+  const user = useAuthStore((s) => s.user);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // HR mode: applicants
+  const [applications, setApplications] = useState<RecentApplication[]>([]);
+  const [loadingApps, setLoadingApps] = useState(false);
+
+  // Candidate mode: own graphs
+  const [myGraphs, setMyGraphs] = useState<MyGraph[]>([]);
   const [loadingGraphs, setLoadingGraphs] = useState(false);
+
+  // Compare result
   const [compareResult, setCompareResult] = useState<CompareResult | null>(null);
   const [comparing, setComparing] = useState(false);
 
-  const searchGraphs = useCallback(async () => {
-    setLoadingGraphs(true);
-    try {
-      const graphs = await api.get<PublicGraph[]>('/graphs/explore?limit=50');
-      setPublicGraphs(graphs);
-    } catch {
-      toast('Failed to load graphs', 'error');
-    } finally {
-      setLoadingGraphs(false);
-    }
-  }, [toast]);
-
   useEffect(() => {
-    if (publicGraphs.length === 0) searchGraphs();
-  }, []);
+    if (isOwner) {
+      setLoadingApps(true);
+      api
+        .get<RecentApplication[]>(`/vacancies/${vacancyId}/applications?sort=matchScore&order=desc`)
+        .then(setApplications)
+        .catch(() => toast('Failed to load applications', 'error'))
+        .finally(() => setLoadingApps(false));
+    } else if (user) {
+      setLoadingGraphs(true);
+      api
+        .get<MyGraph[]>('/graphs')
+        .then(setMyGraphs)
+        .catch(() => toast('Failed to load your graphs', 'error'))
+        .finally(() => setLoadingGraphs(false));
+    }
+  }, [vacancyId, isOwner, user, toast]);
 
-  const filteredGraphs = publicGraphs.filter((g) => {
-    if (!graphSearch) return true;
-    const q = graphSearch.toLowerCase();
+  const filteredApplications = applications.filter((app) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
     return (
-      g.title.toLowerCase().includes(q) ||
-      g.user.username.toLowerCase().includes(q) ||
-      g.user.displayName?.toLowerCase().includes(q) ||
-      g.field?.toLowerCase().includes(q)
+      app.applicant.username.toLowerCase().includes(q) ||
+      app.applicant.displayName?.toLowerCase().includes(q) ||
+      app.graph.title.toLowerCase().includes(q)
     );
   });
 
@@ -98,6 +118,7 @@ export function VacancyCompareTab({ vacancyId }: VacancyCompareTabProps) {
     }
   };
 
+  // ─── Compare Result View ───────────────────────────
   if (compareResult) {
     return (
       <div className="space-y-6">
@@ -277,39 +298,147 @@ export function VacancyCompareTab({ vacancyId }: VacancyCompareTabProps) {
     );
   }
 
+  // ─── Not logged in ─────────────────────────────────
+  if (!user) {
+    return (
+      <div className="card text-center py-10">
+        <LogIn className="w-10 h-10 mx-auto mb-3 text-muted opacity-40" />
+        <p className="text-sm text-muted-foreground mb-3">
+          Log in to compare your skills against this vacancy.
+        </p>
+        <Link href="/auth/login" className="btn-primary text-sm">
+          Log In
+        </Link>
+      </div>
+    );
+  }
+
+  const loading = isOwner ? loadingApps : loadingGraphs;
+
+  // ─── HR mode: show applicants ──────────────────────
+  if (isOwner) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Compare applicants&apos; skill graphs against your vacancy requirements.
+        </p>
+
+        {applications.length > 5 && (
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+            <input
+              type="text"
+              placeholder="Search by name or graph title..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-field pl-9"
+            />
+          </div>
+        )}
+
+        {loading && (
+          <div className="flex justify-center py-8">
+            <Spinner size="md" className="text-primary" />
+          </div>
+        )}
+
+        {!loading && filteredApplications.length === 0 && (
+          <div className="card text-center py-8">
+            <Network className="w-10 h-10 mx-auto mb-3 text-muted opacity-40" />
+            <p className="text-sm text-muted-foreground">
+              {applications.length === 0
+                ? 'No applications yet. Candidates who apply will appear here.'
+                : 'No applicants match your search.'}
+            </p>
+          </div>
+        )}
+
+        {!loading && filteredApplications.length > 0 && (
+          <div className="space-y-2">
+            {filteredApplications.map((app) => (
+              <button
+                key={app.id}
+                onClick={() => handleCompare(app.graph.id)}
+                disabled={comparing}
+                className="card w-full text-left flex items-center gap-3 py-3 hover:border-border-light transition-all cursor-pointer"
+              >
+                <Avatar
+                  src={app.applicant.avatarUrl ?? undefined}
+                  fallback={app.applicant.displayName || app.applicant.username}
+                  size="sm"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium truncate">
+                    {app.applicant.displayName || app.applicant.username}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    @{app.applicant.username} &middot; {app.graph.title}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="text-right">
+                    <p className={`text-sm font-bold ${getScoreColor(app.matchScore)}`}>
+                      {app.matchScore}%
+                    </p>
+                    <div className="w-16 h-1.5 rounded-full bg-surface-light overflow-hidden mt-0.5">
+                      <div
+                        className={`h-full rounded-full ${getScoreBg(app.matchScore)}`}
+                        style={{ width: `${app.matchScore}%` }}
+                      />
+                    </div>
+                  </div>
+                  <span
+                    className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${statusColors[app.status] ?? 'bg-surface-light text-muted-foreground'}`}
+                  >
+                    {app.status}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {comparing && (
+          <div className="fixed inset-0 bg-background/60 flex items-center justify-center z-50">
+            <div className="card flex items-center gap-3">
+              <Spinner size="md" className="text-primary" />
+              <span className="text-sm">Comparing skills...</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ─── Candidate mode: show own graphs ───────────────
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Select a candidate&apos;s skill graph to compare against this vacancy&apos;s requirements.
+        Select one of your graphs to see how your skills match this vacancy.
       </p>
 
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-        <input
-          type="text"
-          placeholder="Search graphs by title or username..."
-          value={graphSearch}
-          onChange={(e) => setGraphSearch(e.target.value)}
-          className="input-field pl-9"
-        />
-      </div>
-
-      {loadingGraphs && (
+      {loading && (
         <div className="flex justify-center py-8">
           <Spinner size="md" className="text-primary" />
         </div>
       )}
 
-      {!loadingGraphs && filteredGraphs.length === 0 && (
+      {!loading && myGraphs.length === 0 && (
         <div className="card text-center py-8">
           <Network className="w-10 h-10 mx-auto mb-3 text-muted opacity-40" />
-          <p className="text-sm text-muted-foreground">No public graphs found.</p>
+          <p className="text-sm text-muted-foreground mb-3">
+            You don&apos;t have any graphs yet. Create one to compare your skills.
+          </p>
+          <Link href="/dashboard" className="btn-primary text-sm">
+            Create Graph
+          </Link>
         </div>
       )}
 
-      {!loadingGraphs && filteredGraphs.length > 0 && (
+      {!loading && myGraphs.length > 0 && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filteredGraphs.map((graph) => (
+          {myGraphs.map((graph) => (
             <button
               key={graph.id}
               onClick={() => handleCompare(graph.id)}
@@ -317,25 +446,16 @@ export function VacancyCompareTab({ vacancyId }: VacancyCompareTabProps) {
               className="card text-left hover:border-border-light transition-all cursor-pointer"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Avatar
-                  src={graph.user.avatarUrl ?? undefined}
-                  fallback={graph.user.displayName || graph.user.username}
-                  size="sm"
-                />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {graph.user.displayName || graph.user.username}
-                  </p>
-                  <p className="text-xs text-muted">@{graph.user.username}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 mb-1">
-                <Network className="w-3.5 h-3.5 text-primary shrink-0" />
-                <p className="text-sm font-medium truncate">{graph.title}</p>
+                <Network className="w-4 h-4 text-primary shrink-0" />
+                <p className="text-sm font-semibold truncate">{graph.title}</p>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted">
                 <span>{graph._count.nodes} skills</span>
-                {graph.field && <Badge variant="muted">{graph.field}</Badge>}
+                {!graph.isPublic && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400">
+                    Private
+                  </span>
+                )}
               </div>
             </button>
           ))}

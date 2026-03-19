@@ -171,7 +171,7 @@ export class VacanciesService {
    * Returns gap analysis result from the HR perspective:
    * "How well does this candidate match our requirements?"
    */
-  async compareWithGraph(vacancyId: string, graphId: string) {
+  async compareWithGraph(vacancyId: string, graphId: string, userId: string) {
     const vacancy = await this.prisma.vacancy.findUnique({ where: { id: vacancyId } });
     if (!vacancy) throw new NotFoundException('Vacancy not found');
 
@@ -197,7 +197,10 @@ export class VacanciesService {
     });
 
     if (!graph) throw new NotFoundException('Graph not found');
-    if (!graph.isPublic) throw new ForbiddenException('This graph is private');
+    // Allow if graph is public, user owns the graph, or user owns the vacancy
+    if (!graph.isPublic && graph.userId !== userId && vacancy.authorId !== userId) {
+      throw new ForbiddenException('This graph is private');
+    }
 
     const vacancySkills = (vacancy.skills as unknown as VacancySkill[]) ?? [];
 

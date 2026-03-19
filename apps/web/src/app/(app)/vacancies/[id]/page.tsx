@@ -145,7 +145,7 @@ export default function VacancyDetailPage() {
         />
       )}
 
-      {tab === 'compare' && <VacancyCompareTab vacancyId={vacancyId} />}
+      {tab === 'compare' && <VacancyCompareTab vacancyId={vacancyId} isOwner={isOwner} />}
 
       {tab === 'applications' && isOwner && <VacancyApplicationsTab vacancyId={vacancyId} />}
 

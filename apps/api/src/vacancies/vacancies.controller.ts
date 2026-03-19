@@ -76,7 +76,8 @@ export class VacanciesController {
   compare(
     @Param('vacancyId', ParseUUIDPipe) vacancyId: string,
     @Param('graphId', ParseUUIDPipe) graphId: string,
+    @CurrentUser('id') userId: string,
   ) {
-    return this.vacanciesService.compareWithGraph(vacancyId, graphId);
+    return this.vacanciesService.compareWithGraph(vacancyId, graphId, userId);
   }
 }

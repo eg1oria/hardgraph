@@ -10,6 +10,13 @@ import { CreateGraphDto } from './dto/create-graph.dto';
 import { UpdateGraphDto } from './dto/update-graph.dto';
 import { ForkGraphDto } from './dto/fork-graph.dto';
 import { ScanService } from '../scan/scan.service';
+import {
+  computeMatchScore,
+  VacancySkill,
+  isValidLevel,
+  LEVEL_WEIGHT,
+  SkillLevel,
+} from '../common/utils/skill-matcher';
 import slugify from 'slugify';
 
 @Injectable()
@@ -447,5 +454,111 @@ export class GraphsService {
     });
 
     return { id: newGraph.id, slug: newGraph.slug };
+  }
+
+  async getPitchData(username: string, slug: string, vacancyId: string) {
+    const [graph, vacancy] = await Promise.all([
+      this.findPublic(username, slug),
+      this.prisma.vacancy.findUnique({ where: { id: vacancyId } }),
+    ]);
+
+    if (!vacancy) throw new NotFoundException('Vacancy not found');
+
+    const vacancySkills = (vacancy.skills as unknown as VacancySkill[]) ?? [];
+    const match = computeMatchScore(vacancySkills, graph.nodes);
+
+    // Build nodeMatchMap: nodeId → status
+    const requiredNamesLower = new Map<string, VacancySkill>();
+    for (const vs of vacancySkills) {
+      requiredNamesLower.set(vs.name.toLowerCase(), vs);
+    }
+
+    const nodeMatchMap: Record<string, 'matched' | 'upgrade' | 'bonus'> = {};
+    for (const node of graph.nodes) {
+      const nameLower = node.name.toLowerCase();
+      const req = requiredNamesLower.get(nameLower);
+      if (req) {
+        const reqLevel: SkillLevel = isValidLevel(req.level) ? req.level : 'beginner';
+        const candLevel = node.level;
+        if (isValidLevel(candLevel) && LEVEL_WEIGHT[candLevel] >= LEVEL_WEIGHT[reqLevel]) {
+          nodeMatchMap[node.id] = 'matched';
+        } else {
+          nodeMatchMap[node.id] = 'upgrade';
+        }
+      } else {
+        nodeMatchMap[node.id] = 'bonus';
+      }
+    }
+
+    // Missing skills
+    const candidateNamesLower = new Set(
+      graph.nodes.map((n: { name: string }) => n.name.toLowerCase()),
+    );
+    const missingSkills = vacancySkills
+      .filter((vs) => !candidateNamesLower.has(vs.name.toLowerCase()))
+      .map((vs) => ({
+        name: vs.name,
+        requiredLevel: vs.level,
+        category: vs.category,
+        categoryColor: vs.categoryColor,
+      }));
+
+    // Category breakdown
+    const categoryStats = new Map<
+      string,
+      { color: string; matched: number; total: number; score: number; maxScore: number }
+    >();
+    for (const reqSkill of vacancySkills) {
+      const reqLevel: SkillLevel = isValidLevel(reqSkill.level) ? reqSkill.level : 'beginner';
+      const weight = LEVEL_WEIGHT[reqLevel];
+      const catKey = reqSkill.category ?? 'General';
+      const catColor = reqSkill.categoryColor ?? '#6B7280';
+      if (!categoryStats.has(catKey)) {
+        categoryStats.set(catKey, { color: catColor, matched: 0, total: 0, score: 0, maxScore: 0 });
+      }
+      const catStat = categoryStats.get(catKey)!;
+      catStat.total++;
+      catStat.maxScore += weight;
+
+      const candNode = graph.nodes.find(
+        (n: { name: string }) => n.name.toLowerCase() === reqSkill.name.toLowerCase(),
+      );
+      if (candNode) {
+        const candLevel = candNode.level;
+        if (isValidLevel(candLevel)) {
+          if (LEVEL_WEIGHT[candLevel] >= LEVEL_WEIGHT[reqLevel]) {
+            catStat.score += weight;
+            catStat.matched++;
+          } else {
+            catStat.score += LEVEL_WEIGHT[candLevel] * 0.5;
+          }
+        }
+      }
+    }
+
+    const categoryBreakdown = Array.from(categoryStats.entries()).map(([name, stat]) => ({
+      name,
+      color: stat.color,
+      matchScore: stat.maxScore > 0 ? Math.round((stat.score / stat.maxScore) * 100) : 0,
+      matched: stat.matched,
+      total: stat.total,
+    }));
+
+    return {
+      ...graph,
+      pitchData: {
+        vacancyId: vacancy.id,
+        vacancyTitle: vacancy.title,
+        company: vacancy.company,
+        matchScore: match.matchScore,
+        matchedCount: match.matchedCount,
+        upgradeCount: match.upgradeCount,
+        missingCount: match.missingCount,
+        totalRequired: match.totalRequired,
+        nodeMatchMap,
+        missingSkills,
+        categoryBreakdown,
+      },
+    };
   }
 }

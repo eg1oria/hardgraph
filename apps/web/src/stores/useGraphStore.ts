@@ -60,6 +60,32 @@ export interface SkillNodeData extends Record<string, unknown> {
   isUnlocked: boolean;
   categoryColor?: string;
   endorsementCount?: number;
+  pitchStatus?: 'matched' | 'upgrade' | 'bonus' | 'missing' | null;
+}
+
+export interface PitchData {
+  vacancyId: string;
+  vacancyTitle: string;
+  company: string | null;
+  matchScore: number;
+  matchedCount: number;
+  upgradeCount: number;
+  missingCount: number;
+  totalRequired: number;
+  nodeMatchMap: Record<string, 'matched' | 'upgrade' | 'bonus' | null>;
+  missingSkills: Array<{
+    name: string;
+    requiredLevel: string;
+    category?: string;
+    categoryColor?: string;
+  }>;
+  categoryBreakdown: Array<{
+    name: string;
+    color: string;
+    matchScore: number;
+    matched: number;
+    total: number;
+  }>;
 }
 
 /* ── Converters: domain ↔ React Flow ─────── */
@@ -166,6 +192,11 @@ interface GraphState {
   pendingDeleteEdgeId: string | null;
   requestDeleteEdge: (id: string) => void;
 
+  // Pitch mode
+  pitchMode: boolean;
+  pitchData: PitchData | null;
+  setPitchMode: (enabled: boolean, data?: PitchData) => void;
+
   setIsPublic: (isPublic: boolean) => void;
   setDirty: (dirty: boolean) => void;
   touchUpdatedAt: () => void;
@@ -203,6 +234,8 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
   selectedEdgeId: null,
   pendingConnection: null,
   pendingDeleteEdgeId: null,
+  pitchMode: false,
+  pitchData: null,
 
   setGraph: (data) => {
     const nodes = data.nodes;
@@ -393,6 +426,93 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
 
   setPendingConnection: (c) => set({ pendingConnection: c }),
   requestDeleteEdge: (id) => set({ pendingDeleteEdgeId: id }),
+
+  setPitchMode: (enabled, data) =>
+    set((state) => {
+      if (!enabled) {
+        return {
+          pitchMode: false,
+          pitchData: null,
+          ...rebuildRFNodes(state.nodes, state.categories),
+        };
+      }
+      const pitchData = data ?? null;
+      const nodeMatchMap = pitchData?.nodeMatchMap ?? {};
+      const catMap = new Map(state.categories.map((c) => [c.id, c.color ?? '#6366F1']));
+
+      // Rebuild RF nodes with pitchStatus injected
+      const rfNodes: Node<SkillNodeData>[] = state.nodes.map((n) => {
+        const isRepo = n.nodeType === 'repository';
+        const cd = (n.customData ?? {}) as Record<string, unknown>;
+        return {
+          id: n.id,
+          type: isRepo ? 'repository' : 'skill',
+          position: { x: n.positionX, y: n.positionY },
+          data: {
+            name: n.name,
+            description: n.description,
+            level: n.level,
+            icon: n.icon,
+            categoryId: n.categoryId,
+            isUnlocked: n.isUnlocked,
+            categoryColor: n.categoryId ? catMap.get(n.categoryId) : undefined,
+            endorsementCount: n.endorsementCount ?? 0,
+            pitchStatus: nodeMatchMap[n.id] ?? null,
+            ...(isRepo
+              ? {
+                  nodeType: 'repository' as const,
+                  repoUrl: cd.repoUrl as string | undefined,
+                  language: cd.language as string | undefined,
+                  stars: cd.stars as number | undefined,
+                  forks: cd.forks as number | undefined,
+                }
+              : {}),
+          },
+        };
+      });
+
+      // Inject ghost nodes for missing skills
+      if (pitchData) {
+        const graphNodes = state.nodes;
+        // Calculate bottom boundary of existing nodes
+        const maxY = graphNodes.length > 0 ? Math.max(...graphNodes.map((n) => n.positionY)) : 0;
+        const ghostStartY = maxY + 200;
+        const ghostSpacing = 180;
+        const ghostsPerRow = 4;
+
+        pitchData.missingSkills.forEach((skill, i) => {
+          const col = i % ghostsPerRow;
+          const row = Math.floor(i / ghostsPerRow);
+          const centerX = ((ghostsPerRow - 1) * ghostSpacing) / 2;
+          rfNodes.push({
+            id: `ghost-${i}`,
+            type: 'skill',
+            position: {
+              x: col * ghostSpacing - centerX,
+              y: ghostStartY + row * 140,
+            },
+            data: {
+              name: skill.name,
+              description: `Required — not yet in graph`,
+              level: skill.requiredLevel,
+              icon: undefined,
+              categoryId: undefined,
+              isUnlocked: false,
+              categoryColor: skill.categoryColor,
+              endorsementCount: 0,
+              pitchStatus: 'missing',
+            },
+          });
+        });
+      }
+
+      return {
+        pitchMode: true,
+        pitchData,
+        rfNodes,
+      };
+    }),
+
   setIsPublic: (isPublic) => set({ isPublic }),
   setDirty: (dirty) => set({ isDirty: dirty }),
   touchUpdatedAt: () => set({ updatedAt: new Date().toISOString() }),
@@ -414,5 +534,7 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
       selectedEdgeId: null,
       pendingConnection: null,
       pendingDeleteEdgeId: null,
+      pitchMode: false,
+      pitchData: null,
     }),
 }));

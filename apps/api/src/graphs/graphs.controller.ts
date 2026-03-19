@@ -91,4 +91,13 @@ export class GraphsController {
   findPublic(@Param('username') username: string, @Param('slug') slug: string) {
     return this.graphsService.findPublic(username, slug);
   }
+
+  @Get('public/:username/:slug/pitch')
+  getPitch(
+    @Param('username') username: string,
+    @Param('slug') slug: string,
+    @Query('vacancyId', ParseUUIDPipe) vacancyId: string,
+  ) {
+    return this.graphsService.getPitchData(username, slug, vacancyId);
+  }
 }

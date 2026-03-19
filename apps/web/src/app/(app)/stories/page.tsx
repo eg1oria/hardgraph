@@ -18,7 +18,6 @@ import { CATEGORIES, FIELDS, SORT_OPTIONS } from '@/lib/stories-constants';
 import { StoryCard } from '@/components/stories/StoryCard';
 import type { StoryCardData } from '@/components/stories/StoryCard';
 import { StoryCardSkeleton } from '@/components/stories/StoryCardSkeleton';
-import { FeaturedStories } from '@/components/stories/FeaturedStories';
 
 interface FeedResponse {
   stories: StoryCardData[];
@@ -39,7 +38,6 @@ export default function StoriesFeedPage() {
   });
 
   const [stories, setStories] = useState<StoryCardData[]>([]);
-  const [featured, setFeatured] = useState<StoryCardData[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -89,14 +87,6 @@ export default function StoriesFeedPage() {
       localStorage.setItem('story-bookmarks', JSON.stringify([...next]));
       return next;
     });
-  }, []);
-
-  // Load featured stories once
-  useEffect(() => {
-    api
-      .get<FeedResponse>('/stories/feed?sort=popular&limit=5')
-      .then((data) => setFeatured(data.stories))
-      .catch(() => {});
   }, []);
 
   const loadFeed = useCallback(
@@ -206,11 +196,6 @@ export default function StoriesFeedPage() {
           )}
         </div>
       </div>
-
-      {/* UX: Featured/Trending section */}
-      {!loading && !debouncedSearch && !category && featured.length > 0 && (
-        <FeaturedStories stories={featured} />
-      )}
 
       {/* Filters */}
       <div className="space-y-4 mb-8">

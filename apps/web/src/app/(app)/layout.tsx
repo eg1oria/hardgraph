@@ -37,8 +37,8 @@ const navItems = [
   { href: '/explore', label: 'Explore', icon: Compass },
   { href: '/stories', label: 'Stories', icon: BookOpen },
   { href: '/templates', label: 'Templates', icon: BookTemplate },
-  { href: '/vacancies', label: 'Vacancies', icon: Briefcase },
   { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/vacancies', label: 'Vacancies', icon: Briefcase },
 ];
 
 const adminNavItem = { href: '/admin', label: 'Admin', icon: Shield };

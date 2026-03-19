@@ -9,6 +9,15 @@ import { NODE_COLORS } from '@/lib/constants';
 import type { SkillLevel } from '@/lib/constants';
 import { useGraphStore } from '@/stores/useGraphStore';
 
+/** Stable hash-based delay so animation doesn't retrigger on re-render */
+function stableDelay(nodeId: string): number {
+  let h = 0;
+  for (let i = 0; i < nodeId.length; i++) {
+    h = (h * 31 + nodeId.charCodeAt(i)) | 0;
+  }
+  return (Math.abs(h) % 300) / 1000; // 0–0.3s
+}
+
 function PitchSkillNodeComponent({ id, data, selected }: NodeProps) {
   const d = data as SkillNodeData;
   const setSelectedNode = useGraphStore((s) => s.setSelectedNode);
@@ -26,7 +35,7 @@ function PitchSkillNodeComponent({ id, data, selected }: NodeProps) {
         scale: statusStyles.scale,
         filter: statusStyles.filter,
       }}
-      transition={{ duration: 0.8, ease: 'easeOut', delay: Math.random() * 0.3 }}
+      transition={{ duration: 0.8, ease: 'easeOut', delay: stableDelay(id) }}
       onClick={() => setSelectedNode(id)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {

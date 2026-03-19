@@ -14,7 +14,7 @@ function MissingSkillGhostComponent({ id, data }: NodeProps) {
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 0.6, scale: 1 }}
-      transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 + Math.random() * 0.3 }}
+      transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
       onClick={() => setSelectedNode(id)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {

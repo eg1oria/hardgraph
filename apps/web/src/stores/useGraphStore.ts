@@ -253,6 +253,8 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
       isDirty: false,
       selectedNodeId: null,
       selectedEdgeId: null,
+      pitchMode: false,
+      pitchData: null,
       ...rebuildRF({ nodes, edges, categories }),
     });
   },

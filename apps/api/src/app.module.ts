@@ -23,6 +23,7 @@ import { ResumeModule } from './resume/resume.module';
 import { ScanModule } from './scan/scan.module';
 import { StoriesModule } from './stories/stories.module';
 import { VacanciesModule } from './vacancies/vacancies.module';
+import { VacancyApplicationsModule } from './vacancy-applications/vacancy-applications.module';
 import { HealthController } from './health.controller';
 
 import { join } from 'path';
@@ -68,6 +69,7 @@ import { join } from 'path';
     ScanModule,
     StoriesModule,
     VacanciesModule,
+    VacancyApplicationsModule,
   ],
   controllers: [HealthController],
   providers: [

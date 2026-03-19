@@ -35,6 +35,7 @@ model User {
   graphs                 Graph[]
   stories                Story[]
   vacancies              Vacancy[]
+  applications           VacancyApplication[] @relation("UserApplications")
   emailVerificationTokens EmailVerificationToken[]
 
   @@index([username])
@@ -69,6 +70,7 @@ model Graph {
   profileViews ProfileView[]
   endorsements Endorsement[]
   stories      Story[]
+  applications VacancyApplication[]
 
   @@unique([userId, slug])
   @@index([userId])
@@ -267,11 +269,38 @@ model Vacancy {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author       User                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  applications VacancyApplication[]
 
   @@index([authorId])
   @@index([isActive])
   @@map("vacancies")
+}
+
+model VacancyApplication {
+  id            String    @id @default(uuid()) @db.Uuid
+  vacancyId     String    @map("vacancy_id") @db.Uuid
+  applicantId   String    @map("applicant_id") @db.Uuid
+  graphId       String    @map("graph_id") @db.Uuid
+  coverLetter   String?   @db.VarChar(2000)
+  status        String    @default("pending") @db.VarChar(20)
+  matchScore    Int       @default(0) @map("match_score")
+  matchedSkills Int       @default(0) @map("matched_skills")
+  totalRequired Int       @default(0) @map("total_required")
+  hrNote        String?   @map("hr_note") @db.VarChar(1000)
+  reviewedAt    DateTime? @map("reviewed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  vacancy   Vacancy @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  applicant User    @relation("UserApplications", fields: [applicantId], references: [id], onDelete: Cascade)
+  graph     Graph   @relation(fields: [graphId], references: [id], onDelete: Cascade)
+
+  @@unique([vacancyId, applicantId])
+  @@index([vacancyId])
+  @@index([applicantId])
+  @@index([status])
+  @@map("vacancy_applications")
 }
 
 model StoryComment {

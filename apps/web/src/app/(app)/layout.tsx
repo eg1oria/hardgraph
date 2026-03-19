@@ -20,6 +20,8 @@ import {
   Lock,
   Globe,
   Briefcase,
+  FileText,
+  BarChart3,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -200,6 +202,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
+          {/* Vacancy sub-links */}
+          {(sidebarOpen || mobileMenuOpen) && pathname.startsWith('/vacancies') && (
+            <div className="ml-8 space-y-0.5">
+              <Link
+                href="/applications"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  pathname === '/applications'
+                    ? 'bg-primary/10 text-primary-400'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-surface-light'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" /> My Applications
+              </Link>
+              <Link
+                href="/vacancies/analytics"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  pathname === '/vacancies/analytics'
+                    ? 'bg-primary/10 text-primary-400'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-surface-light'
+                }`}
+              >
+                <BarChart3 className="w-3.5 h-3.5" /> HR Dashboard
+              </Link>
+            </div>
+          )}
           {user?.role === 'admin' &&
             (() => {
               const isActive = pathname.startsWith(adminNavItem.href);

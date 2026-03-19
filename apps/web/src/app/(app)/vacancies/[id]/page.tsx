@@ -17,6 +17,9 @@ import {
   AlertTriangle,
   XCircle,
   Sparkles,
+  Send,
+  Users,
+  X,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Avatar } from '@/components/ui/Avatar';
@@ -88,6 +91,18 @@ interface CompareResult {
 
 const LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'];
 
+interface MyGraph {
+  id: string;
+  title: string;
+  isPublic: boolean;
+  _count: { nodes: number };
+}
+
+interface ApplicationStatus {
+  id: string;
+  status: string;
+}
+
 function LevelDots({
   candidateLevel,
   requiredLevel,
@@ -130,12 +145,22 @@ export default function VacancyDetailPage() {
   const [loading, setLoading] = useState(true);
 
   // Comparison state
-  const [tab, setTab] = useState<'details' | 'compare'>('details');
+  const [tab, setTab] = useState<'details' | 'compare' | 'applications'>('details');
   const [graphSearch, setGraphSearch] = useState('');
   const [publicGraphs, setPublicGraphs] = useState<PublicGraph[]>([]);
   const [loadingGraphs, setLoadingGraphs] = useState(false);
   const [compareResult, setCompareResult] = useState<CompareResult | null>(null);
   const [comparing, setComparing] = useState(false);
+
+  // Application state
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [myGraphs, setMyGraphs] = useState<MyGraph[]>([]);
+  const [loadingMyGraphs, setLoadingMyGraphs] = useState(false);
+  const [selectedGraphId, setSelectedGraphId] = useState('');
+  const [coverLetter, setCoverLetter] = useState('');
+  const [applying, setApplying] = useState(false);
+  const [applicationStatus, setApplicationStatus] = useState<ApplicationStatus | null>(null);
+  const [checkingApplication, setCheckingApplication] = useState(false);
 
   const vacancyId = params.id;
   const isOwner = user?.id === vacancy?.authorId;
@@ -151,6 +176,17 @@ export default function VacancyDetailPage() {
   useEffect(() => {
     loadVacancy();
   }, [loadVacancy]);
+
+  // Check if user already applied (skip for owners)
+  useEffect(() => {
+    if (!user || !vacancyId || !vacancy || vacancy.authorId === user.id) return;
+    setCheckingApplication(true);
+    api
+      .get<ApplicationStatus | null>(`/vacancies/${vacancyId}/applications/check`)
+      .then((res) => setApplicationStatus(res))
+      .catch(() => {})
+      .finally(() => setCheckingApplication(false));
+  }, [user, vacancyId, vacancy]);
 
   const searchGraphs = useCallback(async () => {
     setLoadingGraphs(true);
@@ -201,6 +237,45 @@ export default function VacancyDetailPage() {
       router.push('/vacancies');
     } catch {
       toast('Failed to delete vacancy', 'error');
+    }
+  };
+
+  const openApplyModal = async () => {
+    setShowApplyModal(true);
+    if (myGraphs.length === 0) {
+      setLoadingMyGraphs(true);
+      try {
+        const graphs = await api.get<MyGraph[]>('/graphs');
+        setMyGraphs(graphs);
+        if (graphs.length > 0 && graphs[0]) setSelectedGraphId(graphs[0].id);
+      } catch {
+        toast('Failed to load your graphs', 'error');
+      } finally {
+        setLoadingMyGraphs(false);
+      }
+    }
+  };
+
+  const handleApply = async () => {
+    if (!selectedGraphId) {
+      toast('Please select a graph', 'error');
+      return;
+    }
+    setApplying(true);
+    try {
+      const result = await api.post<{ id: string; status: string }>(
+        `/vacancies/${vacancyId}/applications`,
+        { graphId: selectedGraphId, coverLetter: coverLetter || undefined },
+      );
+      setApplicationStatus({ id: result.id, status: result.status });
+      setShowApplyModal(false);
+      setCoverLetter('');
+      toast('Application submitted successfully!', 'success');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to apply';
+      toast(message, 'error');
+    } finally {
+      setApplying(false);
     }
   };
 
@@ -309,6 +384,18 @@ export default function VacancyDetailPage() {
         >
           Compare with Graphs
         </button>
+        {isOwner && (
+          <button
+            onClick={() => setTab('applications')}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-1.5 ${
+              tab === 'applications'
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" /> Applications
+          </button>
+        )}
       </div>
 
       {/* Details Tab */}
@@ -321,6 +408,44 @@ export default function VacancyDetailPage() {
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
                   {vacancy.description}
                 </p>
+              </div>
+            )}
+            {/* Apply Button */}
+            {user && !isOwner && !checkingApplication && (
+              <div className="card">
+                {applicationStatus ? (
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    <div>
+                      <p className="text-sm font-medium">Applied</p>
+                      <p className="text-xs text-muted-foreground">
+                        Status:{' '}
+                        <span
+                          className={`font-medium ${
+                            applicationStatus.status === 'accepted'
+                              ? 'text-emerald-500'
+                              : applicationStatus.status === 'rejected'
+                                ? 'text-red-500'
+                                : applicationStatus.status === 'shortlisted'
+                                  ? 'text-purple-500'
+                                  : applicationStatus.status === 'reviewing'
+                                    ? 'text-blue-500'
+                                    : 'text-amber-500'
+                          }`}
+                        >
+                          {applicationStatus.status}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={openApplyModal}
+                    className="btn-primary w-full flex items-center justify-center gap-2"
+                  >
+                    <Send className="w-4 h-4" /> Apply with my Graph
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -595,6 +720,123 @@ export default function VacancyDetailPage() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Applications Tab (Owner Only) */}
+      {tab === 'applications' && isOwner && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Manage applications for this vacancy</p>
+            <Link
+              href={`/vacancies/${vacancy.id}/applications`}
+              className="btn-primary text-sm flex items-center gap-1.5"
+            >
+              <Users className="w-3.5 h-3.5" /> View All Applications
+            </Link>
+          </div>
+          <div className="card text-center py-8">
+            <Users className="w-10 h-10 mx-auto mb-3 text-muted opacity-40" />
+            <p className="text-sm text-muted-foreground mb-3">
+              View and manage all applications from the dedicated page.
+            </p>
+            <div className="flex justify-center gap-3">
+              <Link href={`/vacancies/${vacancy.id}/applications`} className="btn-primary text-sm">
+                Applications Dashboard
+              </Link>
+              <Link
+                href="/vacancies/analytics"
+                className="text-sm text-primary hover:underline flex items-center gap-1"
+              >
+                HR Analytics
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Apply Modal */}
+      {showApplyModal && (
+        <div className="fixed inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="card w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Apply to {vacancy.title}</h3>
+              <button
+                onClick={() => setShowApplyModal(false)}
+                className="p-1.5 rounded-lg hover:bg-surface-light text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {loadingMyGraphs ? (
+              <div className="flex justify-center py-8">
+                <Spinner size="md" className="text-primary" />
+              </div>
+            ) : myGraphs.length === 0 ? (
+              <div className="text-center py-8">
+                <Network className="w-10 h-10 mx-auto mb-3 text-muted opacity-40" />
+                <p className="text-sm text-muted-foreground mb-3">
+                  You don&apos;t have any graphs yet. Create one first!
+                </p>
+                <Link href="/dashboard" className="btn-primary text-sm">
+                  Create Graph
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Select Your Graph</label>
+                  <select
+                    value={selectedGraphId}
+                    onChange={(e) => setSelectedGraphId(e.target.value)}
+                    className="input-field w-full"
+                  >
+                    {myGraphs.map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.title} ({g._count.nodes} skills)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Cover Letter <span className="text-muted-foreground">(optional)</span>
+                  </label>
+                  <textarea
+                    value={coverLetter}
+                    onChange={(e) => setCoverLetter(e.target.value)}
+                    maxLength={2000}
+                    rows={5}
+                    placeholder="Tell the employer why you're a great fit..."
+                    className="input-field w-full resize-none"
+                  />
+                  <p className="text-xs text-muted mt-1">{coverLetter.length}/2000</p>
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => setShowApplyModal(false)}
+                    className="flex-1 px-4 py-2.5 rounded-lg border border-border text-sm font-medium hover:bg-surface-light transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleApply}
+                    disabled={applying || !selectedGraphId}
+                    className="flex-1 btn-primary flex items-center justify-center gap-2"
+                  >
+                    {applying ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" /> Submit Application
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

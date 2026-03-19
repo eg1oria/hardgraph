@@ -44,12 +44,28 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
 
-    const user = await this.usersService.create({
-      email: dto.email,
-      username: dto.username,
-      passwordHash,
-      displayName: dto.displayName,
-    });
+    let user;
+    try {
+      user = await this.usersService.create({
+        email: dto.email,
+        username: dto.username,
+        passwordHash,
+        displayName: dto.displayName,
+      });
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code === 'P2002' &&
+        'meta' in error
+      ) {
+        const target = (error as { meta?: { target?: string[] } }).meta?.target;
+        if (target?.includes('email')) throw new ConflictException('Email already in use');
+        if (target?.includes('username')) throw new ConflictException('Username already taken');
+      }
+      throw error;
+    }
 
     // Send verification email — don't block registration if email fails
     try {
@@ -119,16 +135,29 @@ export class AuthService {
         username = `${username}-${profile.id.slice(-4)}`;
       }
 
-      user = await this.usersService.create({
-        email: email || `${profile.id}@github.oauth`,
-        username,
-        displayName: profile.displayName || profile.username,
-        githubId: profile.id,
-        githubUsername: profile.username,
-        githubAccessToken: profile.accessToken,
-        avatarUrl,
-        emailVerified: true,
-      });
+      try {
+        user = await this.usersService.create({
+          email: email || `${profile.id}@github.oauth`,
+          username,
+          displayName: profile.displayName || profile.username,
+          githubId: profile.id,
+          githubUsername: profile.username,
+          githubAccessToken: profile.accessToken,
+          avatarUrl,
+          emailVerified: true,
+        });
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+          // Race condition: another request created the user. Try to find them.
+          user = await this.usersService.findByGithubId(profile.id);
+          if (!user && email) {
+            user = await this.usersService.findByEmail(email);
+          }
+          if (!user) throw new ConflictException('Account creation conflict, please try again');
+        } else {
+          throw error;
+        }
+      }
     }
 
     const token = this.generateToken(user.id);

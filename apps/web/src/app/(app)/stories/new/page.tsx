@@ -8,12 +8,12 @@ import { api } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
 
 const CATEGORIES = [
-  { value: 'career_growth', label: 'Career Growth 📈' },
-  { value: 'got_offer', label: 'Got an Offer 🎯' },
-  { value: 'switched_field', label: 'Switched Field 🔄' },
-  { value: 'side_project', label: 'Side Project 🚀' },
-  { value: 'mentorship', label: 'Mentorship 🤝' },
-  { value: 'learning', label: 'Learning Path 📚' },
+  { value: 'career_growth', label: 'Career Growth' },
+  { value: 'got_offer', label: 'Got an Offer' },
+  { value: 'switched_field', label: 'Switched Field' },
+  { value: 'side_project', label: 'Side Project' },
+  { value: 'mentorship', label: 'Mentorship' },
+  { value: 'learning', label: 'Learning Path' },
   { value: 'other', label: 'Other' },
 ];
 

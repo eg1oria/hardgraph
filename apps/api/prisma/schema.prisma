@@ -34,6 +34,7 @@ model User {
 
   graphs                 Graph[]
   stories                Story[]
+  vacancies              Vacancy[]
   emailVerificationTokens EmailVerificationToken[]
 
   @@index([username])
@@ -250,6 +251,27 @@ model StoryLike {
   @@unique([storyId, ipHash])
   @@index([storyId])
   @@map("story_likes")
+}
+
+model Vacancy {
+  id          String   @id @default(uuid()) @db.Uuid
+  authorId    String   @map("author_id") @db.Uuid
+  title       String   @db.VarChar(200)
+  company     String?  @db.VarChar(200)
+  description String?
+  field       String?  @db.VarChar(100)
+  location    String?  @db.VarChar(200)
+  salaryRange String?  @map("salary_range") @db.VarChar(100)
+  skills      Json     @default("[]") // [{name, level, category?, categoryColor?}]
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([isActive])
+  @@map("vacancies")
 }
 
 model StoryComment {

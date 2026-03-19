@@ -13,10 +13,7 @@ interface Template {
   field: string | null;
   isFeatured: boolean;
   usageCount: number;
-  graphData: {
-    nodes?: Array<Record<string, unknown>>;
-    categories?: Array<Record<string, unknown>>;
-  };
+  skillCount: number;
 }
 
 interface TargetSelectorProps {
@@ -119,7 +116,6 @@ export function TargetSelector({ selectedId, onSelect }: TargetSelectorProps) {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((template) => {
             const isSelected = selectedId === template.id;
-            const nodeCount = template.graphData?.nodes?.length ?? 0;
             return (
               <button
                 key={template.id}
@@ -143,7 +139,7 @@ export function TargetSelector({ selectedId, onSelect }: TargetSelectorProps) {
                 )}
                 <div className="flex items-center gap-2 mt-auto">
                   {template.field && <Badge variant="muted">{template.field}</Badge>}
-                  <span className="text-[11px] text-muted">{nodeCount} skills</span>
+                  <span className="text-[11px] text-muted">{template.skillCount} skills</span>
                 </div>
               </button>
             );

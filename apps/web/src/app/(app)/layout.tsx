@@ -20,6 +20,7 @@ import {
   Lock,
   Globe,
   Target,
+  Briefcase,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -36,6 +37,7 @@ const navItems = [
   { href: '/stories', label: 'Stories', icon: BookOpen },
   { href: '/templates', label: 'Templates', icon: BookTemplate },
   { href: '/gap-analysis', label: 'Gap Analysis', icon: Target },
+  { href: '/vacancies', label: 'Vacancies', icon: Briefcase },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 

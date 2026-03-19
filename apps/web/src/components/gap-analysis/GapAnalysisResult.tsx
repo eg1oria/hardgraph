@@ -51,10 +51,34 @@ export interface GapAnalysisData {
 type StatusFilter = 'all' | 'matched' | 'upgrade' | 'missing';
 
 const SUMMARY_CARDS = [
-  { key: 'matched', label: 'Matched', icon: CheckCircle2, color: 'emerald' },
-  { key: 'upgrade', label: 'Upgrade', icon: AlertTriangle, color: 'amber' },
-  { key: 'missing', label: 'Missing', icon: XCircle, color: 'red' },
-  { key: 'bonus', label: 'Bonus', icon: Sparkles, color: 'cyan' },
+  {
+    key: 'matched',
+    label: 'Matched',
+    icon: CheckCircle2,
+    border: 'border-emerald-500/20',
+    text: 'text-emerald-500',
+  },
+  {
+    key: 'upgrade',
+    label: 'Upgrade',
+    icon: AlertTriangle,
+    border: 'border-amber-500/20',
+    text: 'text-amber-500',
+  },
+  {
+    key: 'missing',
+    label: 'Missing',
+    icon: XCircle,
+    border: 'border-red-500/20',
+    text: 'text-red-500',
+  },
+  {
+    key: 'bonus',
+    label: 'Bonus',
+    icon: Sparkles,
+    border: 'border-cyan-500/20',
+    text: 'text-cyan-500',
+  },
 ] as const;
 
 export function GapAnalysisResult({ data }: { data: GapAnalysisData }) {
@@ -98,13 +122,13 @@ export function GapAnalysisResult({ data }: { data: GapAnalysisData }) {
         {SUMMARY_CARDS.map((card, i) => (
           <motion.div
             key={card.key}
-            className={`card border-${card.color}-500/20 text-center`}
+            className={`card ${card.border} text-center`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 * i }}
           >
-            <card.icon className={`w-5 h-5 mx-auto mb-2 text-${card.color}-500`} />
-            <p className={`text-2xl font-bold text-${card.color}-500`}>{counts[card.key]}</p>
+            <card.icon className={`w-5 h-5 mx-auto mb-2 ${card.text}`} />
+            <p className={`text-2xl font-bold ${card.text}`}>{counts[card.key]}</p>
             <p className="text-xs text-muted-foreground mt-0.5">{card.label}</p>
           </motion.div>
         ))}

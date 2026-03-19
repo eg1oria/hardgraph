@@ -8,12 +8,12 @@ import { api } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
 
 const CATEGORIES = [
-  { value: 'career_growth', label: 'Career Growth 📈' },
-  { value: 'got_offer', label: 'Got an Offer 🎯' },
-  { value: 'switched_field', label: 'Switched Field 🔄' },
-  { value: 'side_project', label: 'Side Project 🚀' },
-  { value: 'mentorship', label: 'Mentorship 🤝' },
-  { value: 'learning', label: 'Learning Path 📚' },
+  { value: 'career_growth', label: 'Career Growth' },
+  { value: 'got_offer', label: 'Got an Offer' },
+  { value: 'switched_field', label: 'Switched Field' },
+  { value: 'side_project', label: 'Side Project' },
+  { value: 'mentorship', label: 'Mentorship' },
+  { value: 'learning', label: 'Learning Path' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -215,10 +215,8 @@ export default function EditStoryPage() {
 
   const loadStory = useCallback(() => {
     setLoading(true);
-    // We need to fetch story as author — use the feed endpoint with the story id
-    // Actually, let's just fetch and let the backend handle auth
     api
-      .get<StoryData>(`/stories/${storyId}`)
+      .get<StoryData>(`/stories/mine/${storyId}`)
       .then((data) => {
         setTitle(data.title);
         setContent(data.content);

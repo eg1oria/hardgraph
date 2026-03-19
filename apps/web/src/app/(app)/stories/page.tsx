@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { BookOpen, Eye, Heart, MessageCircle, Clock, Search, Plus } from 'lucide-react';
+import { Heart, MessageCircle, Clock, Search, Plus, ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Avatar } from '@/components/ui/Avatar';
 import { Spinner } from '@/components/ui/Spinner';
@@ -39,12 +39,12 @@ interface FeedResponse {
 
 const CATEGORIES = [
   { value: '', label: 'All' },
-  { value: 'got_offer', label: 'Got an Offer 🎯' },
-  { value: 'career_growth', label: 'Career Growth 📈' },
-  { value: 'switched_field', label: 'Switched Field 🔄' },
-  { value: 'side_project', label: 'Side Project 🚀' },
-  { value: 'mentorship', label: 'Mentorship 🤝' },
-  { value: 'learning', label: 'Learning Path 📚' },
+  { value: 'got_offer', label: 'Got an Offer' },
+  { value: 'career_growth', label: 'Career Growth' },
+  { value: 'switched_field', label: 'Switched Field' },
+  { value: 'side_project', label: 'Side Project' },
+  { value: 'mentorship', label: 'Mentorship' },
+  { value: 'learning', label: 'Learning Path' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -65,22 +65,22 @@ const SORT_OPTIONS = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  got_offer: 'bg-emerald-500/10 text-emerald-400',
-  career_growth: 'bg-blue-500/10 text-blue-400',
-  switched_field: 'bg-purple-500/10 text-purple-400',
-  side_project: 'bg-orange-500/10 text-orange-400',
-  mentorship: 'bg-pink-500/10 text-pink-400',
-  learning: 'bg-cyan-500/10 text-cyan-400',
-  other: 'bg-gray-500/10 text-gray-400',
+  got_offer: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  career_growth: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  switched_field: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+  side_project: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  mentorship: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+  learning: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+  other: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  got_offer: 'Got an Offer 🎯',
-  career_growth: 'Career Growth 📈',
-  switched_field: 'Switched Field 🔄',
-  side_project: 'Side Project 🚀',
-  mentorship: 'Mentorship 🤝',
-  learning: 'Learning Path 📚',
+  got_offer: 'Got an Offer',
+  career_growth: 'Career Growth',
+  switched_field: 'Switched Field',
+  side_project: 'Side Project',
+  mentorship: 'Mentorship',
+  learning: 'Learning Path',
   other: 'Other',
 };
 
@@ -143,39 +143,54 @@ export default function StoriesFeedPage() {
     loadFeed(stories.length, true);
   };
 
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   return (
-    <div className="p-4 sm:p-6 md:p-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-primary" />
-            Stories
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Career stories and experiences from the community
-          </p>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Stories</h1>
+          <p className="text-muted-foreground mt-2 text-sm">Real experiences from the community</p>
         </div>
         {user && (
-          <Link href="/stories/new" className="btn-primary shrink-0">
+          <Link href="/stories/new" className="btn-primary shrink-0 flex items-center gap-2">
             <Plus className="w-4 h-4" />
-            Write your story
+            Write
           </Link>
         )}
       </div>
 
       {/* Filters */}
-      <div className="space-y-3 mb-6 sm:mb-8">
+      <div className="space-y-4 mb-10">
+        {/* Search */}
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search stories..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input-field pl-10 w-full"
+          />
+        </div>
+
         {/* Category chips */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.value}
               onClick={() => setCategory(cat.value)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
                 category === cat.value
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
               }`}
             >
               {cat.label}
@@ -183,23 +198,12 @@ export default function StoriesFeedPage() {
           ))}
         </div>
 
-        {/* Search + Field + Sort */}
+        {/* Field + Sort */}
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative max-w-md flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search stories..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="input-field pl-10 w-full"
-            />
-          </div>
-
           <select
             value={field}
             onChange={(e) => setField(e.target.value)}
-            className="input-field min-w-[140px]"
+            className="input-field text-sm"
           >
             {FIELDS.map((f) => (
               <option key={f.value} value={f.value}>
@@ -208,15 +212,15 @@ export default function StoriesFeedPage() {
             ))}
           </select>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 border border-border rounded-lg p-0.5">
             {SORT_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setSort(opt.value)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                   sort === opt.value
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
+                    ? 'bg-foreground/10 text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {opt.label}
@@ -233,7 +237,6 @@ export default function StoriesFeedPage() {
         </div>
       ) : error ? (
         <div className="text-center py-20 text-muted-foreground">
-          <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="mb-3">Failed to load stories</p>
           <button onClick={() => loadFeed(0, false)} className="btn-secondary text-sm">
             Try again
@@ -241,110 +244,100 @@ export default function StoriesFeedPage() {
         </div>
       ) : stories.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">
-          <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="mb-2">{debouncedSearch ? 'No matching stories found' : 'No stories yet'}</p>
-          <p className="text-sm mb-4">Be the first to share your career experience!</p>
+          <p className="text-sm mb-6">Be the first to share your experience.</p>
           {user && (
             <Link href="/stories/new" className="btn-primary text-sm">
-              <Plus className="w-4 h-4" />
               Write your story
             </Link>
           )}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="divide-y divide-border">
             {stories.map((story) => (
               <Link
                 key={story.id}
                 href={`/stories/${story.id}`}
-                className="card card-hover group flex flex-col"
+                className="group flex gap-4 sm:gap-6 py-6 first:pt-0"
               >
-                {story.coverUrl && (
-                  <div className="relative -mx-5 -mt-5 mb-4 rounded-t-xl overflow-hidden">
-                    <img
-                      src={story.coverUrl}
-                      alt=""
-                      className="w-full h-40 object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 mb-2">
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                      CATEGORY_COLORS[story.category] || CATEGORY_COLORS.other
-                    }`}
-                  >
-                    {CATEGORY_LABELS[story.category] || story.category}
-                  </span>
-                  {story.field && (
-                    <span className="text-xs text-muted-foreground">{story.field}</span>
-                  )}
-                </div>
-
-                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
-                  {story.title}
-                </h3>
-
-                {story.excerpt && (
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{story.excerpt}</p>
-                )}
-
-                <div className="mt-auto">
-                  <div className="flex items-center gap-2 mb-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
                     <Avatar
                       src={story.author.avatarUrl ?? undefined}
                       fallback={story.author.displayName || story.author.username}
                       size="sm"
                     />
-                    <span className="text-sm text-muted-foreground truncate">
+                    <span className="text-xs text-muted-foreground truncate">
                       {story.author.displayName || story.author.username}
                     </span>
+                    {story.publishedAt && (
+                      <>
+                        <span className="text-xs text-muted">·</span>
+                        <span className="text-xs text-muted">{formatDate(story.publishedAt)}</span>
+                      </>
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {story.readTime} min
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      {story.viewCount}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Heart className="w-3 h-3" />
-                      {story.likeCount}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MessageCircle className="w-3 h-3" />
-                      {story.commentCount}
-                    </span>
-                  </div>
+                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">
+                    {story.title}
+                  </h3>
 
-                  {story.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {story.tags.slice(0, 4).map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-1.5 py-0.5 rounded text-[10px] bg-surface-light text-muted-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                  {story.excerpt && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                      {story.excerpt}
+                    </p>
                   )}
+
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                        CATEGORY_COLORS[story.category] || CATEGORY_COLORS.other
+                      }`}
+                    >
+                      {CATEGORY_LABELS[story.category] || story.category}
+                    </span>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {story.readTime} min
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Heart className="w-3 h-3" />
+                        {story.likeCount}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MessageCircle className="w-3 h-3" />
+                        {story.commentCount}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+
+                {story.coverUrl && (
+                  <div className="shrink-0 w-24 h-24 sm:w-32 sm:h-24 rounded-lg overflow-hidden">
+                    <img
+                      src={story.coverUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
               </Link>
             ))}
           </div>
 
           {/* Load more */}
           {stories.length < total && (
-            <div className="flex justify-center mt-8">
-              <button onClick={handleLoadMore} disabled={loadingMore} className="btn-secondary">
+            <div className="flex justify-center mt-10">
+              <button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-full transition-colors"
+              >
                 {loadingMore ? 'Loading...' : 'Load more'}
+                {!loadingMore && <ChevronRight className="w-3.5 h-3.5" />}
               </button>
             </div>
           )}

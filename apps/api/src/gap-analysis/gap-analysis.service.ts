@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   SkillLevel,
@@ -100,11 +100,12 @@ function isValidLevel(level: string): level is SkillLevel {
 
 @Injectable()
 export class GapAnalysisService {
+  private readonly logger = new Logger(GapAnalysisService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   async getAvailableTargets(field?: string) {
     const where = field ? { field: { equals: field, mode: 'insensitive' as const } } : {};
-    return this.prisma.template.findMany({
+    const templates = await this.prisma.template.findMany({
       where,
       orderBy: [{ isFeatured: 'desc' }, { usageCount: 'desc' }],
       select: {
@@ -116,6 +117,14 @@ export class GapAnalysisService {
         usageCount: true,
         graphData: true,
       },
+    });
+
+    return templates.map((t) => {
+      const gd = t.graphData as { nodes?: unknown[] } | null;
+      return {
+        ...t,
+        skillCount: gd?.nodes?.length ?? 0,
+      };
     });
   }
 
@@ -300,6 +309,15 @@ export class GapAnalysisService {
     }
 
     const matchScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+
+    // Increment usage count (fire-and-forget)
+    this.prisma.template
+      .update({ where: { id: templateId }, data: { usageCount: { increment: 1 } } })
+      .catch((err) =>
+        this.logger.warn(
+          `Failed to increment usageCount for template ${templateId}: ${err.message}`,
+        ),
+      );
 
     return {
       graphId,

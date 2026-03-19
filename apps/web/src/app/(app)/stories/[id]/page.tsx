@@ -3,17 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Heart,
-  MessageCircle,
-  Eye,
-  Clock,
-  ArrowLeft,
-  ExternalLink,
-  Trash2,
-  Reply,
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Heart, MessageCircle, Clock, ArrowLeft, ExternalLink, Trash2, Reply } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Avatar } from '@/components/ui/Avatar';
 import { Spinner } from '@/components/ui/Spinner';
@@ -72,39 +62,37 @@ interface SidebarStory {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  got_offer: 'bg-emerald-500/10 text-emerald-400',
-  career_growth: 'bg-blue-500/10 text-blue-400',
-  switched_field: 'bg-purple-500/10 text-purple-400',
-  side_project: 'bg-orange-500/10 text-orange-400',
-  mentorship: 'bg-pink-500/10 text-pink-400',
-  learning: 'bg-cyan-500/10 text-cyan-400',
-  other: 'bg-gray-500/10 text-gray-400',
+  got_offer: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  career_growth: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  switched_field: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+  side_project: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  mentorship: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+  learning: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+  other: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  got_offer: 'Got an Offer 🎯',
-  career_growth: 'Career Growth 📈',
-  switched_field: 'Switched Field 🔄',
-  side_project: 'Side Project 🚀',
-  mentorship: 'Mentorship 🤝',
-  learning: 'Learning Path 📚',
+  got_offer: 'Got an Offer',
+  career_growth: 'Career Growth',
+  switched_field: 'Switched Field',
+  side_project: 'Side Project',
+  mentorship: 'Mentorship',
+  learning: 'Learning Path',
   other: 'Other',
 };
 
-/** Simple markdown renderer — handles headings, bold, italic, code, links, lists */
+/** Markdown renderer */
 function renderMarkdown(md: string) {
   const lines = md.split('\n');
   const elements: React.ReactNode[] = [];
   let i = 0;
 
   function inlineFormat(text: string): React.ReactNode {
-    // Process inline formatting: **bold**, *italic*, `code`, [link](url)
     const parts: React.ReactNode[] = [];
     let remaining = text;
     let key = 0;
 
     while (remaining.length > 0) {
-      // Code inline
       const codeMatch = remaining.match(/^`([^`]+)`/);
       if (codeMatch) {
         parts.push(
@@ -119,7 +107,6 @@ function renderMarkdown(md: string) {
         continue;
       }
 
-      // Bold
       const boldMatch = remaining.match(/^\*\*(.+?)\*\*/);
       if (boldMatch) {
         parts.push(<strong key={key++}>{boldMatch[1]}</strong>);
@@ -127,7 +114,6 @@ function renderMarkdown(md: string) {
         continue;
       }
 
-      // Italic
       const italicMatch = remaining.match(/^\*(.+?)\*/);
       if (italicMatch) {
         parts.push(<em key={key++}>{italicMatch[1]}</em>);
@@ -135,7 +121,6 @@ function renderMarkdown(md: string) {
         continue;
       }
 
-      // Link
       const linkMatch = remaining.match(/^\[([^\]]+)\]\(([^)]+)\)/);
       if (linkMatch) {
         parts.push(
@@ -153,13 +138,11 @@ function renderMarkdown(md: string) {
         continue;
       }
 
-      // Find next special char
-      const nextSpecial = remaining.search(/[`*[]/); // eslint-disable-line no-useless-escape
+      const nextSpecial = remaining.search(/[`*[]/);
       if (nextSpecial === -1) {
         parts.push(remaining);
         break;
       } else if (nextSpecial === 0) {
-        // Special char but no pattern matched — treat as literal
         parts.push(remaining[0]);
         remaining = remaining.slice(1);
       } else {
@@ -174,7 +157,6 @@ function renderMarkdown(md: string) {
   while (i < lines.length) {
     const line = lines[i]!;
 
-    // Code block
     if (line.startsWith('```')) {
       const codeLines: string[] = [];
       i++;
@@ -182,11 +164,11 @@ function renderMarkdown(md: string) {
         codeLines.push(lines[i]!);
         i++;
       }
-      i++; // skip closing ```
+      i++;
       elements.push(
         <pre
           key={elements.length}
-          className="bg-surface-light rounded-lg p-4 overflow-x-auto my-4 text-sm font-mono"
+          className="bg-surface-light rounded-lg p-4 overflow-x-auto my-6 text-sm font-mono border border-border"
         >
           <code>{codeLines.join('\n')}</code>
         </pre>,
@@ -194,10 +176,9 @@ function renderMarkdown(md: string) {
       continue;
     }
 
-    // Headings
     if (line.startsWith('### ')) {
       elements.push(
-        <h3 key={elements.length} className="text-lg font-semibold mt-6 mb-2">
+        <h3 key={elements.length} className="text-lg font-semibold mt-8 mb-2 text-foreground">
           {inlineFormat(line.slice(4))}
         </h3>,
       );
@@ -206,7 +187,7 @@ function renderMarkdown(md: string) {
     }
     if (line.startsWith('## ')) {
       elements.push(
-        <h2 key={elements.length} className="text-xl font-bold mt-8 mb-3">
+        <h2 key={elements.length} className="text-xl font-bold mt-10 mb-3 text-foreground">
           {inlineFormat(line.slice(3))}
         </h2>,
       );
@@ -215,7 +196,7 @@ function renderMarkdown(md: string) {
     }
     if (line.startsWith('# ')) {
       elements.push(
-        <h1 key={elements.length} className="text-2xl font-bold mt-8 mb-4">
+        <h1 key={elements.length} className="text-2xl font-bold mt-10 mb-4 text-foreground">
           {inlineFormat(line.slice(2))}
         </h1>,
       );
@@ -223,7 +204,6 @@ function renderMarkdown(md: string) {
       continue;
     }
 
-    // Unordered list
     if (line.match(/^[-*] /)) {
       const items: React.ReactNode[] = [];
       while (i < lines.length && lines[i]!.match(/^[-*] /)) {
@@ -233,7 +213,7 @@ function renderMarkdown(md: string) {
       elements.push(
         <ul
           key={elements.length}
-          className="list-disc list-inside my-3 space-y-1 text-muted-foreground"
+          className="list-disc list-inside my-4 space-y-1.5 text-muted-foreground"
         >
           {items}
         </ul>,
@@ -241,7 +221,6 @@ function renderMarkdown(md: string) {
       continue;
     }
 
-    // Ordered list
     if (line.match(/^\d+\. /)) {
       const items: React.ReactNode[] = [];
       while (i < lines.length && lines[i]!.match(/^\d+\. /)) {
@@ -251,7 +230,7 @@ function renderMarkdown(md: string) {
       elements.push(
         <ol
           key={elements.length}
-          className="list-decimal list-inside my-3 space-y-1 text-muted-foreground"
+          className="list-decimal list-inside my-4 space-y-1.5 text-muted-foreground"
         >
           {items}
         </ol>,
@@ -259,7 +238,6 @@ function renderMarkdown(md: string) {
       continue;
     }
 
-    // Blockquote
     if (line.startsWith('> ')) {
       const quoteLines: string[] = [];
       while (i < lines.length && lines[i]!.startsWith('> ')) {
@@ -269,7 +247,7 @@ function renderMarkdown(md: string) {
       elements.push(
         <blockquote
           key={elements.length}
-          className="border-l-4 border-primary/30 pl-4 my-4 text-muted-foreground italic"
+          className="border-l-2 border-border pl-4 my-6 text-muted-foreground italic"
         >
           {quoteLines.map((ql, idx) => (
             <p key={idx}>{inlineFormat(ql)}</p>
@@ -279,15 +257,13 @@ function renderMarkdown(md: string) {
       continue;
     }
 
-    // Empty line
     if (line.trim() === '') {
       i++;
       continue;
     }
 
-    // Regular paragraph
     elements.push(
-      <p key={elements.length} className="my-3 text-muted-foreground leading-relaxed">
+      <p key={elements.length} className="my-4 text-muted-foreground leading-[1.8]">
         {inlineFormat(line)}
       </p>,
     );
@@ -297,7 +273,6 @@ function renderMarkdown(md: string) {
   return elements;
 }
 
-/** Build comment tree from flat list */
 function buildCommentTree(comments: Comment[]) {
   const map = new Map<string, Comment & { children: Comment[] }>();
   const roots: (Comment & { children: Comment[] })[] = [];
@@ -332,47 +307,45 @@ function CommentItem({
   const timeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 60) return `${mins}m`;
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return `${hours}h`;
     const days = Math.floor(hours / 24);
-    return `${days}d ago`;
+    return `${days}d`;
   };
 
   return (
-    <div className={depth > 0 ? 'ml-6 sm:ml-10 border-l border-border pl-4' : ''}>
-      <div className="flex items-start gap-3 py-3">
-        <Avatar
-          src={comment.author?.avatarUrl ?? undefined}
-          fallback={comment.author?.displayName || comment.author?.username || '?'}
-          size="sm"
-        />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium">
-              {comment.author?.displayName || comment.author?.username || 'User'}
-            </span>
-            <span className="text-xs text-muted">{timeAgo(comment.createdAt)}</span>
-          </div>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{comment.content}</p>
-          <div className="flex items-center gap-3 mt-1.5">
-            {userId && depth < 3 && (
-              <button
-                onClick={() => onReply(comment.id)}
-                className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
-              >
-                <Reply className="w-3 h-3" /> Reply
-              </button>
-            )}
-            {userId === comment.authorId && (
-              <button
-                onClick={() => onDelete(comment.id)}
-                className="text-xs text-muted-foreground hover:text-red-400 transition-colors flex items-center gap-1"
-              >
-                <Trash2 className="w-3 h-3" /> Delete
-              </button>
-            )}
-          </div>
+    <div className={depth > 0 ? 'ml-8 border-l border-border/50 pl-4' : ''}>
+      <div className="py-3">
+        <div className="flex items-center gap-2 mb-1.5">
+          <Avatar
+            src={comment.author?.avatarUrl ?? undefined}
+            fallback={comment.author?.displayName || comment.author?.username || '?'}
+            size="sm"
+          />
+          <span className="text-sm font-medium text-foreground">
+            {comment.author?.displayName || comment.author?.username || 'User'}
+          </span>
+          <span className="text-xs text-muted">{timeAgo(comment.createdAt)}</span>
+        </div>
+        <p className="text-sm text-muted-foreground whitespace-pre-wrap ml-7">{comment.content}</p>
+        <div className="flex items-center gap-3 mt-1.5 ml-7">
+          {userId && depth < 3 && (
+            <button
+              onClick={() => onReply(comment.id)}
+              className="text-xs text-muted hover:text-foreground transition-colors flex items-center gap-1"
+            >
+              <Reply className="w-3 h-3" /> Reply
+            </button>
+          )}
+          {userId === comment.authorId && (
+            <button
+              onClick={() => onDelete(comment.id)}
+              className="text-xs text-muted hover:text-red-400 transition-colors flex items-center gap-1"
+            >
+              <Trash2 className="w-3 h-3" /> Delete
+            </button>
+          )}
         </div>
       </div>
       {comment.children.map((child) => (
@@ -424,6 +397,13 @@ export default function StoryReadPage() {
       .finally(() => setLoading(false));
   }, [storyId]);
 
+  const loadLikeStatus = useCallback(() => {
+    api
+      .get<{ liked: boolean }>(`/stories/${storyId}/liked`)
+      .then((data) => setLiked(data.liked))
+      .catch(() => {});
+  }, [storyId]);
+
   const loadComments = useCallback(() => {
     api
       .get<Comment[]>(`/stories/${storyId}/comments`)
@@ -444,9 +424,10 @@ export default function StoryReadPage() {
 
   useEffect(() => {
     loadStory();
+    loadLikeStatus();
     loadComments();
     loadSidebar();
-  }, [loadStory, loadComments, loadSidebar]);
+  }, [loadStory, loadLikeStatus, loadComments, loadSidebar]);
 
   const handleLike = async () => {
     if (liking) return;
@@ -490,8 +471,20 @@ export default function StoryReadPage() {
   const handleDeleteComment = async (commentId: string) => {
     if (!confirm('Delete this comment?')) return;
     try {
-      await api.delete(`/stories/comments/${commentId}`);
-      setComments((prev) => prev.filter((c) => c.id !== commentId && c.parentId !== commentId));
+      await api.delete(`/stories/${storyId}/comments/${commentId}`);
+      const idsToRemove = new Set<string>();
+      idsToRemove.add(commentId);
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (const c of comments) {
+          if (c.parentId && idsToRemove.has(c.parentId) && !idsToRemove.has(c.id)) {
+            idsToRemove.add(c.id);
+            changed = true;
+          }
+        }
+      }
+      setComments((prev) => prev.filter((c) => !idsToRemove.has(c.id)));
     } catch {
       toast('Failed to delete comment', 'error');
     }
@@ -518,8 +511,8 @@ export default function StoryReadPage() {
     return (
       <div className="text-center py-20 text-muted-foreground">
         <p className="mb-3">Story not found</p>
-        <Link href="/stories" className="btn-secondary text-sm">
-          <ArrowLeft className="w-4 h-4" /> Back to stories
+        <Link href="/stories" className="text-sm text-primary hover:underline">
+          Back to stories
         </Link>
       </div>
     );
@@ -528,27 +521,20 @@ export default function StoryReadPage() {
   const commentTree = buildCommentTree(comments);
 
   return (
-    <div className="p-4 sm:p-6 md:p-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <Link
         href="/stories"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" /> Back to stories
+        <ArrowLeft className="w-3.5 h-3.5" /> Stories
       </Link>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-12">
         {/* Main content */}
-        <article className="flex-1 min-w-0 max-w-3xl">
-          {/* Cover */}
-          {story.coverUrl && (
-            <div className="rounded-xl overflow-hidden mb-6">
-              <img src={story.coverUrl} alt="" className="w-full max-h-80 object-cover" />
-            </div>
-          )}
-
-          {/* Category badge */}
+        <article className="flex-1 min-w-0 max-w-[680px]">
+          {/* Category */}
           <span
-            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mb-3 ${
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium border mb-4 ${
               CATEGORY_COLORS[story.category] || CATEGORY_COLORS.other
             }`}
           >
@@ -556,27 +542,27 @@ export default function StoryReadPage() {
           </span>
 
           {/* Title */}
-          <h1 className="text-2xl sm:text-3xl font-bold mb-4">{story.title}</h1>
+          <h1 className="text-2xl sm:text-[2rem] font-bold leading-tight tracking-tight mb-6">
+            {story.title}
+          </h1>
 
           {/* Author + meta */}
-          <div className="flex items-center gap-3 mb-6 pb-6 border-b border-border">
+          <div className="flex items-center gap-3 mb-8">
             <Link href={`/${story.author.username}`} className="flex items-center gap-3">
               <Avatar
                 src={story.author.avatarUrl ?? undefined}
                 fallback={story.author.displayName || story.author.username}
-                size="md"
+                size="sm"
               />
               <div>
                 <p className="text-sm font-medium hover:text-primary transition-colors">
                   {story.author.displayName || story.author.username}
                 </p>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 text-xs text-muted">
                   <span>{formatDate(story.publishedAt)}</span>
+                  <span>·</span>
                   <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> {story.readTime} min read
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" /> {story.viewCount}
+                    <Clock className="w-3 h-3" /> {story.readTime} min
                   </span>
                 </div>
               </div>
@@ -585,64 +571,64 @@ export default function StoryReadPage() {
             {story.graph && (
               <Link
                 href={`/${story.author.username}/${story.graph.slug}`}
-                className="ml-auto btn-secondary text-xs"
+                className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 border border-border rounded-full px-3 py-1.5"
               >
-                View Skill Tree <ExternalLink className="w-3 h-3" />
+                Skill Tree <ExternalLink className="w-3 h-3" />
               </Link>
             )}
           </div>
+
+          {/* Cover */}
+          {story.coverUrl && (
+            <div className="rounded-xl overflow-hidden mb-8">
+              <img src={story.coverUrl} alt="" className="w-full max-h-[400px] object-cover" />
+            </div>
+          )}
 
           {/* Content */}
           <div className="prose-custom">{renderMarkdown(story.content)}</div>
 
           {/* Tags */}
           {story.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-border">
+            <div className="flex flex-wrap gap-2 mt-10 pt-6 border-t border-border">
               {story.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-2.5 py-1 rounded-full text-xs bg-surface-light text-muted-foreground"
+                  className="px-2.5 py-1 rounded-full text-xs text-muted-foreground border border-border"
                 >
-                  #{tag}
+                  {tag}
                 </span>
               ))}
             </div>
           )}
 
-          {/* Like button */}
-          <div className="flex items-center gap-4 mt-6 pt-6 border-t border-border">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
+          {/* Like + comments count */}
+          <div className="flex items-center gap-4 mt-8 pt-6 border-t border-border">
+            <button
               onClick={handleLike}
               disabled={liking}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-colors min-h-[44px] ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all min-h-[40px] border ${
                 liked
-                  ? 'bg-red-500/10 text-red-400'
-                  : 'bg-surface-light text-muted-foreground hover:text-foreground'
+                  ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                  : 'text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
               }`}
             >
-              <motion.span
-                animate={liked ? { scale: [1, 1.3, 1] } : {}}
-                transition={{ duration: 0.3 }}
-              >
-                <Heart className={`w-5 h-5 ${liked ? 'fill-red-400' : ''}`} />
-              </motion.span>
+              <Heart className={`w-4 h-4 ${liked ? 'fill-red-400' : ''}`} />
               {likeCount}
-            </motion.button>
+            </button>
 
             <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <MessageCircle className="w-5 h-5" />
-              {story.commentCount} comments
+              <MessageCircle className="w-4 h-4" />
+              {story.commentCount}
             </span>
           </div>
 
-          {/* Comments section */}
-          <div className="mt-8 pt-6 border-t border-border">
-            <h2 className="text-lg font-semibold mb-4">Comments</h2>
+          {/* Comments */}
+          <div className="mt-10 pt-6 border-t border-border">
+            <h2 className="text-base font-semibold mb-6">Comments</h2>
 
-            {/* Comment form */}
             {user ? (
-              <form onSubmit={handleComment} className="mb-6">
+              <form onSubmit={handleComment} className="mb-8">
                 {replyTo && (
                   <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
                     <span>Replying to comment</span>
@@ -666,7 +652,7 @@ export default function StoryReadPage() {
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
                       placeholder="Write a comment..."
-                      className="input-field w-full resize-none"
+                      className="input-field w-full resize-none text-sm"
                       rows={3}
                       maxLength={2000}
                     />
@@ -674,7 +660,7 @@ export default function StoryReadPage() {
                       <button
                         type="submit"
                         disabled={!commentText.trim() || submittingComment}
-                        className="btn-primary text-sm"
+                        className="btn-primary text-sm px-4 py-1.5"
                       >
                         {submittingComment ? 'Posting...' : 'Comment'}
                       </button>
@@ -691,8 +677,7 @@ export default function StoryReadPage() {
               </p>
             )}
 
-            {/* Comment tree */}
-            <div className="space-y-1">
+            <div className="space-y-0">
               {commentTree.map((comment) => (
                 <CommentItem
                   key={comment.id}
@@ -703,32 +688,25 @@ export default function StoryReadPage() {
                   depth={0}
                 />
               ))}
-              {comments.length === 0 && (
-                <p className="text-sm text-muted-foreground py-4">No comments yet. Be the first!</p>
-              )}
+              {comments.length === 0 && <p className="text-sm text-muted py-4">No comments yet.</p>}
             </div>
           </div>
         </article>
 
         {/* Sidebar */}
-        <aside className="hidden lg:block w-72 shrink-0 space-y-6">
+        <aside className="hidden lg:block w-64 shrink-0 space-y-8">
           {moreFromAuthor.length > 0 && (
-            <div className="card">
-              <h3 className="text-sm font-semibold mb-3">
+            <div>
+              <h3 className="text-xs font-medium text-muted uppercase tracking-wider mb-3">
                 More from {story.author.displayName || story.author.username}
               </h3>
               <div className="space-y-3">
                 {moreFromAuthor.map((s) => (
-                  <Link
-                    key={s.id}
-                    href={`/stories/${s.id}`}
-                    className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <p className="font-medium line-clamp-2">{s.title}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted mt-1">
-                      <span>{CATEGORY_LABELS[s.category] || s.category}</span>
-                      <span>{s.readTime} min</span>
-                    </div>
+                  <Link key={s.id} href={`/stories/${s.id}`} className="block group">
+                    <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors line-clamp-2">
+                      {s.title}
+                    </p>
+                    <span className="text-xs text-muted">{s.readTime} min read</span>
                   </Link>
                 ))}
               </div>
@@ -736,20 +714,20 @@ export default function StoryReadPage() {
           )}
 
           {related.length > 0 && (
-            <div className="card">
-              <h3 className="text-sm font-semibold mb-3">Related stories</h3>
+            <div>
+              <h3 className="text-xs font-medium text-muted uppercase tracking-wider mb-3">
+                Related
+              </h3>
               <div className="space-y-3">
                 {related.map((s) => (
-                  <Link
-                    key={s.id}
-                    href={`/stories/${s.id}`}
-                    className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <p className="font-medium line-clamp-2">{s.title}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted mt-1">
-                      <span>{CATEGORY_LABELS[s.category] || s.category}</span>
-                      {s.author && <span>by {s.author.displayName || s.author.username}</span>}
-                    </div>
+                  <Link key={s.id} href={`/stories/${s.id}`} className="block group">
+                    <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors line-clamp-2">
+                      {s.title}
+                    </p>
+                    <span className="text-xs text-muted">
+                      {s.author && `${s.author.displayName || s.author.username} · `}
+                      {s.readTime} min
+                    </span>
                   </Link>
                 ))}
               </div>

@@ -183,6 +183,16 @@ export class StoriesService {
     return story;
   }
 
+  /** Lightweight published check for internal use (sidebar queries) */
+  async findPublished(id: string) {
+    const story = await this.prisma.story.findUnique({
+      where: { id },
+      select: { id: true, authorId: true, category: true, field: true, isPublished: true },
+    });
+    if (!story || !story.isPublished) throw new NotFoundException('Story not found');
+    return story;
+  }
+
   async incrementView(id: string, _ip: string) {
     await this.prisma.story.update({
       where: { id },

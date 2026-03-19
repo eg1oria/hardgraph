@@ -22,19 +22,16 @@ const STATUS_CONFIG = {
     border: 'border-emerald-500/30',
     badge: 'bg-emerald-500/15 text-emerald-400',
     label: 'Matched',
-    icon: '✅',
   },
   upgrade: {
     border: 'border-amber-500/30',
     badge: 'bg-amber-500/15 text-amber-400',
     label: 'Upgrade needed',
-    icon: '⚠️',
   },
   missing: {
     border: 'border-red-500/30',
     badge: 'bg-red-500/15 text-red-400',
     label: 'Missing',
-    icon: '❌',
   },
 } as const;
 
@@ -88,7 +85,7 @@ export function GapSkillCard({
           <div className="flex items-center gap-2 mb-1">
             <h4 className="text-sm font-medium truncate">{name}</h4>
             <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${config.badge}`}>
-              {config.icon} {config.label}
+              {config.label}
             </span>
           </div>
           {category && (
@@ -116,7 +113,7 @@ export function GapSkillCard({
 
       {recommendation && (
         <p className="mt-2 text-xs text-muted-foreground leading-relaxed border-t border-border pt-2">
-          💡 {recommendation}
+          {recommendation}
         </p>
       )}
     </div>

@@ -10,7 +10,9 @@ import {
   AlertTriangle,
   XCircle,
   Sparkles,
+  ExternalLink,
 } from 'lucide-react';
+import Link from 'next/link';
 import { api } from '@/lib/api';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -134,6 +136,13 @@ export function VacancyCompareTab({ vacancyId }: VacancyCompareTabProps) {
               matched &middot; {compareResult.upgradeCount} partial &middot;{' '}
               {compareResult.missingCount} missing
             </p>
+            <Link
+              href={`/${compareResult.candidateUsername}/${compareResult.graphSlug}/pitch?vacancy=${vacancyId}`}
+              className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              View Interactive Pitch
+            </Link>
           </div>
         </div>
 

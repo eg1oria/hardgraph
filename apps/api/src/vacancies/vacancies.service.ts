@@ -284,6 +284,7 @@ export class VacanciesService {
       vacancyId: vacancy.id,
       vacancyTitle: vacancy.title,
       graphId: graph.id,
+      graphSlug: graph.slug,
       graphTitle: graph.title,
       candidateUsername: graph.user.username,
       candidateDisplayName: graph.user.displayName,

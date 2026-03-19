@@ -32,6 +32,7 @@ export interface CompareResult {
   vacancyId: string;
   vacancyTitle: string;
   graphId: string;
+  graphSlug: string;
   graphTitle: string;
   candidateUsername: string;
   candidateDisplayName: string | null;
@@ -63,6 +64,7 @@ export interface CompareResult {
 export interface MyGraph {
   id: string;
   title: string;
+  slug: string;
   isPublic: boolean;
   _count: { nodes: number };
 }

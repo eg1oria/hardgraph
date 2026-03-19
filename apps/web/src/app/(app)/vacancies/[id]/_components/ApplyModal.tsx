@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { X, Network, Send, BarChart3 } from 'lucide-react';
+import { X, Network, Send, BarChart3, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
@@ -172,6 +172,14 @@ export function ApplyModal({ vacancy, onClose, onApplied }: ApplyModalProps) {
                       <span className="text-cyan-400">{previewResult.bonusCount} bonus</span>
                     )}
                   </div>
+                  <Link
+                    href={`/${previewResult.candidateUsername}/${previewResult.graphSlug}/pitch?vacancy=${vacancy.id}`}
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline mt-1"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    View Interactive Pitch
+                  </Link>
                 </div>
               )}
             </div>

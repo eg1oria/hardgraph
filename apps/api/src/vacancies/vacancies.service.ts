@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { AiService } from '../ai/ai.service';
 import { CreateVacancyDto } from './dto/create-vacancy.dto';
 import { UpdateVacancyDto } from './dto/update-vacancy.dto';
 import {
@@ -15,7 +16,10 @@ import {
 export class VacanciesService {
   private readonly logger = new Logger(VacanciesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly aiService: AiService,
+  ) {}
 
   async create(userId: string, dto: CreateVacancyDto) {
     return this.prisma.vacancy.create({
@@ -301,6 +305,69 @@ export class VacanciesService {
       skills,
       bonusSkills,
       categoryBreakdown,
+    };
+  }
+
+  async aiAnalyze(vacancyId: string, graphId: string, userId: string) {
+    const vacancy = await this.prisma.vacancy.findUnique({ where: { id: vacancyId } });
+    if (!vacancy) throw new NotFoundException('Vacancy not found');
+
+    const graph = await this.prisma.graph.findUnique({
+      where: { id: graphId },
+      select: {
+        id: true,
+        isPublic: true,
+        userId: true,
+        nodes: {
+          select: {
+            name: true,
+            level: true,
+            category: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (!graph) throw new NotFoundException('Graph not found');
+    if (!graph.isPublic && graph.userId !== userId && vacancy.authorId !== userId) {
+      throw new ForbiddenException('This graph is private');
+    }
+
+    const vacancySkills = (vacancy.skills as unknown as VacancySkill[]) ?? [];
+    const match = computeMatchScore(vacancySkills, graph.nodes);
+
+    const candidateSkills = graph.nodes.map((n) => ({
+      name: n.name,
+      level: n.level,
+      category: n.category?.name,
+    }));
+
+    const aiAnalysis = await this.aiService.analyzeVacancyMatch({
+      vacancy: {
+        title: vacancy.title,
+        company: vacancy.company ?? undefined,
+        description: vacancy.description ?? undefined,
+        field: vacancy.field ?? undefined,
+        location: vacancy.location ?? undefined,
+        skills: vacancySkills.map((s) => ({
+          name: s.name,
+          level: s.level,
+          category: s.category,
+        })),
+      },
+      candidateSkills,
+      algorithmicMatchScore: match.matchScore,
+      matchedCount: match.matchedCount,
+      totalRequired: match.totalRequired,
+    });
+
+    return {
+      algorithmicMatch: {
+        matchScore: match.matchScore,
+        matchedCount: match.matchedCount,
+        totalRequired: match.totalRequired,
+      },
+      aiAnalysis,
     };
   }
 }

@@ -25,6 +25,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { AiMatchCard } from './AiMatchCard';
 import type { CompareResult, ApplicationItem, MyGraph } from './types';
 import { LEVELS, getScoreColor, getScoreBg, timeAgo } from './types';
 
@@ -55,13 +56,7 @@ function LevelDots({
 }
 
 /* ─── Inline Compare Result block ──────────────────── */
-function CompareResultBlock({
-  result,
-  vacancyId,
-}: {
-  result: CompareResult;
-  vacancyId: string;
-}) {
+function CompareResultBlock({ result, vacancyId }: { result: CompareResult; vacancyId: string }) {
   return (
     <div className="space-y-4 mt-4">
       {/* Summary mini cards */}
@@ -161,7 +156,10 @@ function CompareResultBlock({
                   </span>
                   <ChevronRight className="w-3 h-3 text-muted" />
                   <span className="text-[10px] font-medium capitalize">{skill.requiredLevel}</span>
-                  <LevelDots candidateLevel={skill.candidateLevel} requiredLevel={skill.requiredLevel} />
+                  <LevelDots
+                    candidateLevel={skill.candidateLevel}
+                    requiredLevel={skill.requiredLevel}
+                  />
                 </div>
               </div>
             );
@@ -245,6 +243,21 @@ export function VacancyCompareTab({ vacancyId, isOwner }: VacancyCompareTabProps
   const [loadingGraphs, setLoadingGraphs] = useState(false);
   const [compareResult, setCompareResult] = useState<CompareResult | null>(null);
   const [comparing, setComparing] = useState(false);
+
+  /* ─── AI state (candidate) ─────────────────────────── */
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<{
+    algorithmicMatch: { matchScore: number; matchedCount: number; totalRequired: number };
+    aiAnalysis: {
+      aiMatchScore: number;
+      verdict: 'strong_match' | 'good_match' | 'partial_match' | 'weak_match';
+      summary: string;
+      strengths: string[];
+      improvements: { skill: string; tip: string }[];
+      hrRecommendation: string;
+      relatedSkills: string[];
+    } | null;
+  } | null>(null);
 
   /* ─── Fetch applications (owner) ──────────────────── */
   const fetchApplications = useCallback(
@@ -348,10 +361,34 @@ export function VacancyCompareTab({ vacancyId, isOwner }: VacancyCompareTabProps
     try {
       const result = await api.get<CompareResult>(`/vacancies/${vacancyId}/compare/${graphId}`);
       setCompareResult(result);
+      setAiResult(null);
     } catch {
       toast('Failed to compare', 'error');
     } finally {
       setComparing(false);
+    }
+  };
+
+  /* ─── AI Analysis handler (candidate) ──────────────── */
+  const handleAiAnalyze = async () => {
+    if (!compareResult) return;
+    setAiLoading(true);
+    try {
+      const result = await api.post<typeof aiResult>(
+        `/vacancies/${vacancyId}/ai-analyze/${compareResult.graphId}`,
+      );
+      setAiResult(result);
+    } catch (err: unknown) {
+      const status = (err as { statusCode?: number })?.statusCode;
+      if (status === 503) {
+        toast('AI analysis is not available. Contact the administrator.', 'error');
+      } else if (status === 429) {
+        toast('Too many AI requests. Please wait a minute.', 'error');
+      } else {
+        toast('AI analysis failed. Try again later.', 'error');
+      }
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -369,9 +406,7 @@ export function VacancyCompareTab({ vacancyId, isOwner }: VacancyCompareTabProps
   /* ─── Summary stats (owner) ────────────────────────── */
   const totalApps = applications.length;
   const avgScore =
-    totalApps > 0
-      ? Math.round(applications.reduce((s, a) => s + a.matchScore, 0) / totalApps)
-      : 0;
+    totalApps > 0 ? Math.round(applications.reduce((s, a) => s + a.matchScore, 0) / totalApps) : 0;
   const statusCounts = applications.reduce<Record<string, number>>((acc, a) => {
     acc[a.status] = (acc[a.status] || 0) + 1;
     return acc;
@@ -550,6 +585,34 @@ export function VacancyCompareTab({ vacancyId, isOwner }: VacancyCompareTabProps
                 </span>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* AI Analysis */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleAiAnalyze}
+            disabled={aiLoading}
+            className="btn-primary text-sm flex items-center gap-2"
+          >
+            <Sparkles className="w-4 h-4" />
+            {aiLoading ? 'AI Analyzing...' : 'AI Analysis'}
+          </button>
+          {aiLoading && <Spinner size="sm" className="text-primary" />}
+        </div>
+
+        {aiResult?.aiAnalysis && (
+          <AiMatchCard
+            aiAnalysis={aiResult.aiAnalysis}
+            algorithmicScore={aiResult.algorithmicMatch.matchScore}
+          />
+        )}
+
+        {aiResult && !aiResult.aiAnalysis && (
+          <div className="card text-center py-6">
+            <p className="text-sm text-muted-foreground">
+              AI analysis is not available. Contact the administrator.
+            </p>
           </div>
         )}
       </div>

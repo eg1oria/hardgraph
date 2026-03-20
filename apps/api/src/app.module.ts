@@ -24,6 +24,7 @@ import { ScanModule } from './scan/scan.module';
 import { StoriesModule } from './stories/stories.module';
 import { VacanciesModule } from './vacancies/vacancies.module';
 import { VacancyApplicationsModule } from './vacancy-applications/vacancy-applications.module';
+import { AiModule } from './ai/ai.module';
 import { HealthController } from './health.controller';
 
 import { join } from 'path';
@@ -70,6 +71,7 @@ import { join } from 'path';
     StoriesModule,
     VacanciesModule,
     VacancyApplicationsModule,
+    AiModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -80,4 +80,15 @@ export class VacanciesController {
   ) {
     return this.vacanciesService.compareWithGraph(vacancyId, graphId, userId);
   }
+
+  @Post(':vacancyId/ai-analyze/:graphId')
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ short: { ttl: 60_000, limit: 5 } })
+  aiAnalyze(
+    @Param('vacancyId', ParseUUIDPipe) vacancyId: string,
+    @Param('graphId', ParseUUIDPipe) graphId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.vacanciesService.aiAnalyze(vacancyId, graphId, userId);
+  }
 }

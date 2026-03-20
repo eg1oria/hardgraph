@@ -51,12 +51,30 @@ const features = [
   },
   {
     number: '04',
-    tag: 'Discovery',
-    title: 'Scan any GitHub profile',
+    tag: 'Hiring',
+    title: 'Post vacancies with skill requirements',
     description:
-      'Type any username and instantly see their skill tree — languages, frameworks, categories, all extracted from real repos. No signup needed.',
-    accent: '#fb923c',
-    accentRgb: '251,146,60',
+      'Define exact skills and levels your team needs. HardGraph matches candidates automatically — no guesswork, no keyword spam.',
+    accent: '#f43f5e',
+    accentRgb: '244,63,94',
+  },
+  {
+    number: '05',
+    tag: 'Matching',
+    title: 'Smart skill comparison',
+    description:
+      "Each candidate's graph is scored against your requirements. See skill-by-skill breakdowns, level gaps, and an overall match percentage — instantly.",
+    accent: '#10b981',
+    accentRgb: '16,185,129',
+  },
+  {
+    number: '06',
+    tag: 'Analytics',
+    title: 'HR analytics dashboard',
+    description:
+      'Track applications, review match distributions, spot skill gaps, and manage your hiring pipeline — all in one place.',
+    accent: '#f59e0b',
+    accentRgb: '245,158,11',
   },
 ];
 
@@ -345,118 +363,281 @@ function MockNodeGraph() {
   );
 }
 
-/** Mock 4 — GitHub Scan results panel */
-function MockGitHubScan() {
-  const categories = [
-    { name: 'Frontend', color: '#00d4ff', score: 82 },
-    { name: 'Backend', color: '#a855f7', score: 68 },
-    { name: 'DevOps', color: '#f97316', score: 45 },
+/** Mock 4 — Post Vacancy form */
+function MockPostVacancy() {
+  const skills = [
+    { name: 'React', level: 'advanced', color: '#a855f7' },
+    { name: 'TypeScript', level: 'expert', color: '#eab308' },
+    { name: 'Node.js', level: 'intermediate', color: '#3b82f6' },
+    { name: 'PostgreSQL', level: 'intermediate', color: '#3b82f6' },
   ];
-  const topSkills = [
-    { name: 'TypeScript', level: 'expert' },
-    { name: 'React', level: 'advanced' },
-    { name: 'Next.js', level: 'advanced' },
-    { name: 'Node.js', level: 'intermediate' },
-    { name: 'Docker', level: 'beginner' },
-  ];
-  const levelColors: Record<string, string> = {
-    expert: '#eab308',
-    advanced: '#a855f7',
-    intermediate: '#3b82f6',
-    beginner: '#71717a',
-  };
   return (
-    <div className="p-5 space-y-4 pointer-events-none select-none">
-      {/* Search bar */}
-      <div className="flex items-center gap-2">
-        <div className="flex-1 h-8 rounded-lg bg-secondary border border-border px-3 flex items-center text-[11px] text-foreground">
-          <svg
-            className="w-3 h-3 text-muted-foreground mr-2 shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="M21 21l-4.35-4.35" />
-          </svg>
-          torvalds
-        </div>
-        <div className="h-8 px-3 rounded-lg bg-orange-500 flex items-center text-[10px] font-medium text-white shrink-0">
-          Scan
+    <div className="p-5 space-y-3.5 pointer-events-none select-none">
+      <div className="flex items-center gap-2 mb-1">
+        <svg
+          className="w-4 h-4 text-rose-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        <span className="text-sm font-semibold text-foreground">New Vacancy</span>
+      </div>
+      <div>
+        <span className="block text-[10px] text-muted-foreground mb-1">Position</span>
+        <div className="h-8 rounded-lg bg-secondary border border-border px-3 flex items-center text-[11px] text-foreground">
+          Senior Frontend Developer
         </div>
       </div>
-      {/* Profile mini */}
-      <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center text-[10px] font-bold text-muted-foreground">
-          LT
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <span className="block text-[10px] text-muted-foreground mb-1">Company</span>
+          <div className="h-8 rounded-lg bg-secondary border border-border px-3 flex items-center text-[11px] text-foreground">
+            TechCorp
+          </div>
         </div>
         <div>
-          <p className="text-[11px] font-semibold text-foreground">torvalds</p>
-          <p className="text-[9px] text-muted-foreground">42 repos · 8 languages · 14 skills</p>
+          <span className="block text-[10px] text-muted-foreground mb-1">Salary</span>
+          <div className="h-8 rounded-lg bg-secondary border border-border px-3 flex items-center text-[11px] text-foreground">
+            $120k – $180k
+          </div>
         </div>
       </div>
-      {/* Top skills row */}
       <div>
-        <span className="block text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-          Top Skills
-        </span>
-        <div className="flex flex-wrap gap-1">
-          {topSkills.map((s) => (
+        <span className="block text-[10px] text-muted-foreground mb-1.5">Required Skills</span>
+        <div className="flex flex-wrap gap-1.5">
+          {skills.map((s) => (
             <span
               key={s.name}
-              className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-medium"
+              className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium"
               style={{
-                borderColor: `${levelColors[s.level]}66`,
-                color: levelColors[s.level],
-                background: `${levelColors[s.level]}15`,
+                borderColor: `${s.color}44`,
+                color: s.color,
+                background: `${s.color}12`,
               }}
             >
               {s.name}
+              <span className="text-[8px] opacity-70">{s.level}</span>
             </span>
           ))}
+          <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-[10px] text-muted-foreground">
+            + Add skill
+          </span>
         </div>
       </div>
-      {/* Category bars */}
+      <div>
+        <span className="block text-[10px] text-muted-foreground mb-1">Location</span>
+        <div className="h-8 rounded-lg bg-secondary border border-border px-3 flex items-center text-[11px] text-foreground">
+          Remote / San Francisco
+        </div>
+      </div>
+      <div className="flex gap-2 pt-1">
+        <span className="text-[10px] text-muted-foreground px-3 py-1.5 rounded-lg border border-border bg-secondary">
+          Cancel
+        </span>
+        <span className="text-[10px] text-white font-medium px-4 py-1.5 rounded-lg bg-rose-500">
+          Publish Vacancy
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** Mock 5 — Smart Skill Matching */
+function MockSkillMatching() {
+  const skills = [
+    { name: 'React', required: 'advanced', candidate: 'advanced', match: true },
+    { name: 'TypeScript', required: 'expert', candidate: 'advanced', match: false },
+    { name: 'Node.js', required: 'intermediate', candidate: 'intermediate', match: true },
+    { name: 'PostgreSQL', required: 'intermediate', candidate: 'beginner', match: false },
+    { name: 'Docker', required: 'beginner', candidate: 'intermediate', match: true },
+  ];
+  const levelIdx: Record<string, number> = { beginner: 1, intermediate: 2, advanced: 3, expert: 4 };
+  return (
+    <div className="p-5 space-y-4 pointer-events-none select-none">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[11px] font-semibold text-foreground">Senior Frontend Developer</p>
+          <p className="text-[9px] text-muted-foreground">TechCorp · Remote</p>
+        </div>
+        <div className="text-right">
+          <div className="text-xl font-bold text-emerald-400">78%</div>
+          <p className="text-[8px] text-muted-foreground">match score</p>
+        </div>
+      </div>
+      {/* Candidate */}
+      <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-secondary/60 border border-border">
+        <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-[9px] font-bold text-emerald-400">
+          AK
+        </div>
+        <div>
+          <p className="text-[10px] font-medium text-foreground">Alex Kim</p>
+          <p className="text-[9px] text-muted-foreground">12 skills · advanced level</p>
+        </div>
+      </div>
+      {/* Skill comparison */}
       <div className="space-y-2">
         <span className="block text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">
-          Categories
+          Skill-by-Skill Comparison
         </span>
-        {categories.map((c) => (
-          <div key={c.name} className="space-y-0.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full" style={{ background: c.color }} />
-                <span className="text-[10px] font-medium text-foreground">{c.name}</span>
-              </div>
-              <span className="text-[10px] font-bold" style={{ color: c.color }}>
-                {c.score}%
-              </span>
+        {skills.map((s) => (
+          <div key={s.name} className="flex items-center gap-2">
+            <span className="text-[10px] text-foreground w-20 truncate">{s.name}</span>
+            <div className="flex-1 flex items-center gap-1">
+              {[1, 2, 3, 4].map((lvl) => (
+                <div
+                  key={lvl}
+                  className="h-1.5 flex-1 rounded-full"
+                  style={{
+                    background:
+                      lvl <= (levelIdx[s.candidate] ?? 0)
+                        ? s.match
+                          ? '#10b981'
+                          : '#f59e0b'
+                        : 'hsl(var(--border))',
+                  }}
+                />
+              ))}
             </div>
-            <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${c.score}%`, background: c.color }}
-              />
+            <div className="flex items-center gap-1">
+              {s.match ? (
+                <svg
+                  className="w-3 h-3 text-emerald-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg
+                  className="w-3 h-3 text-amber-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
+                </svg>
+              )}
             </div>
           </div>
         ))}
       </div>
-      {/* CTA */}
-      <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-2.5 text-center">
-        <p className="text-[10px] text-foreground font-medium mb-1.5">Want the full picture?</p>
-        <div className="inline-flex items-center gap-1 text-[10px] font-medium text-white px-3 py-1 rounded-lg bg-orange-500">
-          Create free account
-          <svg
-            className="w-2.5 h-2.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
+      {/* Summary */}
+      <div className="flex gap-2">
+        <div className="flex-1 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2 text-center">
+          <p className="text-sm font-bold text-emerald-400">3</p>
+          <p className="text-[8px] text-muted-foreground">Full match</p>
         </div>
+        <div className="flex-1 rounded-lg border border-amber-500/20 bg-amber-500/5 p-2 text-center">
+          <p className="text-sm font-bold text-amber-400">2</p>
+          <p className="text-[8px] text-muted-foreground">Partial</p>
+        </div>
+        <div className="flex-1 rounded-lg border border-red-500/20 bg-red-500/5 p-2 text-center">
+          <p className="text-sm font-bold text-red-400">0</p>
+          <p className="text-[8px] text-muted-foreground">Missing</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Mock 6 — HR Analytics Dashboard */
+function MockHRAnalytics() {
+  const stats = [
+    { label: 'Applications', value: '47', color: '#6366f1' },
+    { label: 'Avg Match', value: '68%', color: '#10b981' },
+    { label: 'Shortlisted', value: '12', color: '#f59e0b' },
+  ];
+  const distribution = [
+    { range: '76–100%', count: 8, pct: 17, color: '#10b981' },
+    { range: '51–75%', count: 18, pct: 38, color: '#22d3ee' },
+    { range: '26–50%', count: 14, pct: 30, color: '#f59e0b' },
+    { range: '0–25%', count: 7, pct: 15, color: '#ef4444' },
+  ];
+  const topCandidates = [
+    { name: 'Alex Kim', score: 92, initials: 'AK', color: '#10b981' },
+    { name: 'Sarah Chen', score: 87, initials: 'SC', color: '#22d3ee' },
+    { name: 'Mike Ross', score: 81, initials: 'MR', color: '#a855f7' },
+  ];
+  return (
+    <div className="p-5 space-y-4 pointer-events-none select-none">
+      <div className="flex items-center gap-2 mb-1">
+        <svg
+          className="w-4 h-4 text-amber-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 13h4v8H3zM10 9h4v12h-4zM17 5h4v16h-4z"
+          />
+        </svg>
+        <span className="text-sm font-semibold text-foreground">Hiring Analytics</span>
+      </div>
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-2">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="rounded-lg border border-border bg-secondary/40 p-2 text-center"
+          >
+            <p className="text-base font-bold" style={{ color: s.color }}>
+              {s.value}
+            </p>
+            <p className="text-[8px] text-muted-foreground">{s.label}</p>
+          </div>
+        ))}
+      </div>
+      {/* Match distribution */}
+      <div className="space-y-2">
+        <span className="block text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">
+          Match Distribution
+        </span>
+        {distribution.map((d) => (
+          <div key={d.range} className="flex items-center gap-2">
+            <span className="text-[9px] text-muted-foreground w-14 shrink-0">{d.range}</span>
+            <div className="flex-1 h-2 rounded-full bg-secondary overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{ width: `${d.pct}%`, background: d.color }}
+              />
+            </div>
+            <span className="text-[9px] font-medium w-4 text-right" style={{ color: d.color }}>
+              {d.count}
+            </span>
+          </div>
+        ))}
+      </div>
+      {/* Top candidates */}
+      <div className="space-y-1.5">
+        <span className="block text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">
+          Top Candidates
+        </span>
+        {topCandidates.map((c) => (
+          <div
+            key={c.name}
+            className="flex items-center gap-2 p-2 rounded-lg bg-secondary/40 border border-border"
+          >
+            <div
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold text-white"
+              style={{ background: c.color }}
+            >
+              {c.initials}
+            </div>
+            <span className="text-[10px] font-medium text-foreground flex-1">{c.name}</span>
+            <span className="text-[10px] font-bold" style={{ color: c.color }}>
+              {c.score}%
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -467,7 +648,9 @@ const mockPanels: Record<number, React.FC> = {
   0: MockLogin,
   1: MockImportGithub,
   2: MockNodeGraph,
-  3: MockGitHubScan,
+  3: MockPostVacancy,
+  4: MockSkillMatching,
+  5: MockHRAnalytics,
 };
 
 /* ── Feature row (text + mock) ── */
@@ -640,20 +823,21 @@ export function SeeItYourself() {
             See it yourself
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-5 text-foreground">
-            Everything you need,{' '}
+            From skills to hiring,{' '}
             <span
               style={{
-                background: 'linear-gradient(120deg, #6366f1 0%, #22d3ee 100%)',
+                background: 'linear-gradient(120deg, #6366f1 0%, #f43f5e 50%, #f59e0b 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}
             >
-              nothing you don&apos;t
+              all in one place
             </span>
           </h2>
           <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
-            Four features, built to get out of your way and let your skills do the talking.
+            Map your skills, post vacancies with exact requirements, and let smart matching connect
+            the right candidates with the right roles.
           </p>
         </div>
 

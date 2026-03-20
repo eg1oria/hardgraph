@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { AiService } from '../ai/ai.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
 import { QueryApplicationsDto } from './dto/query-applications.dto';
@@ -14,7 +15,10 @@ import { computeMatchScore } from '../common/utils/skill-matcher';
 
 @Injectable()
 export class VacancyApplicationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly aiService: AiService,
+  ) {}
 
   async apply(vacancyId: string, applicantId: string, dto: CreateApplicationDto) {
     const vacancy = await this.prisma.vacancy.findUnique({ where: { id: vacancyId } });
@@ -420,5 +424,56 @@ export class VacancyApplicationsService {
       select: { id: true, status: true },
     });
     return app;
+  }
+
+  async aiHrAnalyze(vacancyId: string, userId: string) {
+    const vacancy = await this.prisma.vacancy.findUnique({ where: { id: vacancyId } });
+    if (!vacancy) throw new NotFoundException('Vacancy not found');
+    if (vacancy.authorId !== userId)
+      throw new ForbiddenException('Only the vacancy author can use AI HR analysis');
+
+    const applications = await this.prisma.vacancyApplication.findMany({
+      where: { vacancyId },
+      include: {
+        applicant: {
+          select: { id: true, username: true, displayName: true },
+        },
+        graph: {
+          select: {
+            id: true,
+            nodes: { select: { name: true, level: true } },
+          },
+        },
+      },
+    });
+
+    if (applications.length === 0) {
+      throw new BadRequestException('No applications to analyze');
+    }
+
+    const vacancySkills = (vacancy.skills as unknown as { name: string; level: string }[]) ?? [];
+
+    const aiResult = await this.aiService.analyzeApplicationsForHR({
+      vacancy: {
+        title: vacancy.title,
+        company: vacancy.company ?? undefined,
+        description: vacancy.description ?? undefined,
+        field: vacancy.field ?? undefined,
+        skills: vacancySkills,
+      },
+      applications: applications.map((app) => ({
+        applicantUsername: app.applicant.username,
+        applicantDisplayName: app.applicant.displayName ?? undefined,
+        matchScore: app.matchScore,
+        matchedSkills: app.matchedSkills,
+        totalRequired: app.totalRequired,
+        candidateSkills: app.graph.nodes.map((n) => ({
+          name: n.name,
+          level: n.level,
+        })),
+      })),
+    });
+
+    return aiResult;
   }
 }

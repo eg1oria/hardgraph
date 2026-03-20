@@ -3,11 +3,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ChevronDown, ChevronUp, Clock, Eye, FileText, BarChart3 } from 'lucide-react';
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Eye,
+  FileText,
+  BarChart3,
+  Brain,
+} from 'lucide-react';
 import { api } from '@/lib/api';
 import { Avatar } from '@/components/ui/Avatar';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
+import { AiHrAdvisorCard } from '../_components/AiHrAdvisorCard';
 
 interface ApplicationItem {
   id: string;
@@ -75,6 +85,16 @@ export default function VacancyApplicationsPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const initialLoadDone = useRef(false);
 
+  /* ─── AI HR state ──────────────────────────────────── */
+  const [hrAiLoading, setHrAiLoading] = useState(false);
+  const [hrAiResult, setHrAiResult] = useState<{
+    overallAssessment: string;
+    ranking: { username: string; aiScore: number; reason: string }[];
+    hiringAdvice: string;
+    skillGapInsight: string;
+    suggestedInterviewQuestions: string[];
+  } | null>(null);
+
   const fetchApplications = useCallback(
     (isInitial = false) => {
       const statusParam = statusFilter !== 'all' ? `&status=${statusFilter}` : '';
@@ -137,6 +157,27 @@ export default function VacancyApplicationsPage() {
     }
   };
 
+  const handleHrAiAnalyze = async () => {
+    setHrAiLoading(true);
+    try {
+      const result = await api.post<typeof hrAiResult>(
+        `/vacancies/${vacancyId}/applications/ai-hr-analyze`,
+      );
+      setHrAiResult(result);
+    } catch (err: unknown) {
+      const status = (err as { statusCode?: number })?.statusCode;
+      if (status === 503) {
+        toast('AI analysis is not available. Contact the administrator.', 'error');
+      } else if (status === 429) {
+        toast('Too many AI requests. Please wait a minute.', 'error');
+      } else {
+        toast('AI HR analysis failed. Try again later.', 'error');
+      }
+    } finally {
+      setHrAiLoading(false);
+    }
+  };
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <Link
@@ -149,6 +190,16 @@ export default function VacancyApplicationsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl sm:text-2xl font-bold">Applications</h1>
         <div className="flex items-center gap-3">
+          {!loading && applications.length > 0 && (
+            <button
+              onClick={handleHrAiAnalyze}
+              disabled={hrAiLoading}
+              className="btn-primary text-sm flex items-center gap-2"
+            >
+              <Brain className="w-4 h-4" />
+              {hrAiLoading ? 'Analyzing candidates...' : 'AI HR Advisor'}
+            </button>
+          )}
           {refreshing && <Spinner size="sm" className="text-primary" />}
           <Link
             href={`/vacancies/${vacancyId}/analytics`}
@@ -203,6 +254,13 @@ export default function VacancyApplicationsPage() {
             ))}
         </button>
       </div>
+
+      {/* AI HR Advisor Result */}
+      {hrAiResult && (
+        <div className="mb-6">
+          <AiHrAdvisorCard analysis={hrAiResult} />
+        </div>
+      )}
 
       {loading && (
         <div className="flex justify-center py-20">

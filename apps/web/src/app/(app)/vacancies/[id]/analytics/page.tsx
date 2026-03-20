@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Users, Target, Clock, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Users, Target, Clock, TrendingUp, Brain } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Avatar } from '@/components/ui/Avatar';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
+import { AiHrAdvisorCard } from '../_components/AiHrAdvisorCard';
 
 interface VacancyAnalytics {
   totalApplications: number;
@@ -158,6 +159,37 @@ export default function VacancyAnalyticsPage() {
 
   const [analytics, setAnalytics] = useState<VacancyAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+
+  /* ─── AI Insights state ────────────────────────────── */
+  const [aiInsightsLoading, setAiInsightsLoading] = useState(false);
+  const [aiInsights, setAiInsights] = useState<{
+    overallAssessment: string;
+    ranking: { username: string; aiScore: number; reason: string }[];
+    hiringAdvice: string;
+    skillGapInsight: string;
+    suggestedInterviewQuestions: string[];
+  } | null>(null);
+
+  const handleGetAiInsights = async () => {
+    setAiInsightsLoading(true);
+    try {
+      const result = await api.post<typeof aiInsights>(
+        `/vacancies/${vacancyId}/applications/ai-hr-analyze`,
+      );
+      setAiInsights(result);
+    } catch (err: unknown) {
+      const status = (err as { statusCode?: number })?.statusCode;
+      if (status === 503) {
+        toast('AI analysis is not available. Contact the administrator.', 'error');
+      } else if (status === 429) {
+        toast('Too many AI requests. Please wait a minute.', 'error');
+      } else {
+        toast('AI insights failed. Try again later.', 'error');
+      }
+    } finally {
+      setAiInsightsLoading(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -420,6 +452,31 @@ export default function VacancyAnalyticsPage() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* AI Insights Section */}
+      {analytics.totalApplications > 0 && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold">AI Insights</h3>
+            {!aiInsights && (
+              <button
+                onClick={handleGetAiInsights}
+                disabled={aiInsightsLoading}
+                className="btn-primary text-sm flex items-center gap-2"
+              >
+                <Brain className="w-4 h-4" />
+                {aiInsightsLoading ? 'Analyzing...' : 'Get AI Insights'}
+              </button>
+            )}
+          </div>
+          {aiInsightsLoading && (
+            <div className="flex justify-center py-8">
+              <Spinner size="lg" className="text-primary" />
+            </div>
+          )}
+          {aiInsights && <AiHrAdvisorCard analysis={aiInsights} />}
         </div>
       )}
     </div>

@@ -36,6 +36,17 @@ export class VacancyApplicationsController {
     return this.appService.apply(vacancyId, userId, dto);
   }
 
+  /** AI HR analysis of all applications for a vacancy */
+  @Post('vacancies/:vacancyId/applications/ai-hr-analyze')
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ short: { ttl: 60_000, limit: 3 } })
+  aiHrAnalyze(
+    @Param('vacancyId', ParseUUIDPipe) vacancyId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.appService.aiHrAnalyze(vacancyId, userId);
+  }
+
   /** HR views applications for their vacancy */
   @Get('vacancies/:vacancyId/applications')
   @UseGuards(JwtAuthGuard)

@@ -1,4 +1,5 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { AiAnalyzeInput, AiMatchAnalysis, AiHrAnalyzeInput, AiHrAnalysis } from './ai.types';
 
@@ -7,8 +8,8 @@ export class AiService {
   private readonly logger = new Logger(AiService.name);
   private readonly client: OpenAI | null;
 
-  constructor() {
-    const apiKey = process.env.OPENAI_API_KEY;
+  constructor(private readonly configService: ConfigService) {
+    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
     if (apiKey) {
       this.client = new OpenAI({ apiKey, timeout: 30_000 });
       this.logger.log('OpenAI client initialized');

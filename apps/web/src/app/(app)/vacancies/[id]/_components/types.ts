@@ -88,6 +88,28 @@ export interface RecentApplication {
   graph: { id: string; title: string; slug: string };
 }
 
+export interface ApplicationItem {
+  id: string;
+  vacancyId: string;
+  applicantId: string;
+  graphId: string;
+  coverLetter: string | null;
+  status: string;
+  matchScore: number;
+  matchedSkills: number;
+  totalRequired: number;
+  hrNote: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+  applicant: {
+    id: string;
+    username: string;
+    displayName: string | null;
+    avatarUrl: string | null;
+  };
+  graph: { id: string; title: string; slug: string };
+}
+
 export const LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'];
 
 export function timeAgo(dateStr: string) {

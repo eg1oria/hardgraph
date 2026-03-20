@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Users } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Spinner } from '@/components/ui/Spinner';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -12,7 +12,6 @@ import type { VacancyDetail, ApplicationStatus } from './_components/types';
 import { VacancyHeader } from './_components/VacancyHeader';
 import { VacancyDetailsTab } from './_components/VacancyDetailsTab';
 import { VacancyCompareTab } from './_components/VacancyCompareTab';
-import { VacancyApplicationsTab } from './_components/VacancyApplicationsTab';
 import { ApplyModal } from './_components/ApplyModal';
 
 export default function VacancyDetailPage() {
@@ -23,7 +22,7 @@ export default function VacancyDetailPage() {
 
   const [vacancy, setVacancy] = useState<VacancyDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'details' | 'compare' | 'applications'>('details');
+  const [tab, setTab] = useState<'details' | 'compare'>('details');
 
   // Application state
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -117,20 +116,8 @@ export default function VacancyDetailPage() {
               : 'border-transparent text-muted-foreground hover:text-foreground'
           }`}
         >
-          Compare with Graphs
+          {isOwner ? 'Compare & Applications' : 'Compare'}
         </button>
-        {isOwner && (
-          <button
-            onClick={() => setTab('applications')}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px flex items-center gap-1.5 ${
-              tab === 'applications'
-                ? 'border-primary text-foreground'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" /> Applications
-          </button>
-        )}
       </div>
 
       {/* Tab Content */}
@@ -146,8 +133,6 @@ export default function VacancyDetailPage() {
       )}
 
       {tab === 'compare' && <VacancyCompareTab vacancyId={vacancyId} isOwner={isOwner} />}
-
-      {tab === 'applications' && isOwner && <VacancyApplicationsTab vacancyId={vacancyId} />}
 
       {/* Apply Modal */}
       {showApplyModal && (

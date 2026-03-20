@@ -33,6 +33,7 @@ export class AiService {
     this.ensureAvailable();
 
     const prompt = `You are an expert HR technology analyst specializing in developer skill assessment.
+Write in a concise, professional tone. No emoji. No exclamation marks. Keep sentences short and direct.
 
 Analyze how well a candidate's skill profile matches a job vacancy. Go beyond exact name matching — consider related technologies, transferable skills, and industry context.
 
@@ -97,6 +98,7 @@ Respond ONLY with valid JSON (no markdown, no code fences):
       .join('\n');
 
     const prompt = `You are a senior HR advisor helping a hiring manager evaluate candidates for a tech position.
+Write in a concise, professional tone. No emoji. No exclamation marks. Keep sentences short and direct.
 
 VACANCY:
 - Title: ${input.vacancy.title}

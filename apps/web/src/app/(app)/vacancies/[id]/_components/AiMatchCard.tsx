@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, ArrowUpRight } from 'lucide-react';
 
 interface AiMatchAnalysis {
   aiMatchScore: number;
@@ -19,86 +19,70 @@ interface AiMatchCardProps {
 }
 
 const VERDICT_CONFIG = {
-  strong_match: {
-    label: 'Strong Match',
-    emoji: '✨',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/15 border-emerald-500/30',
-  },
-  good_match: {
-    label: 'Good Match',
-    emoji: '👍',
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/15 border-blue-500/30',
-  },
-  partial_match: {
-    label: 'Partial Match',
-    emoji: '🤔',
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/15 border-amber-500/30',
-  },
-  weak_match: {
-    label: 'Weak Match',
-    emoji: '⚠️',
-    color: 'text-red-400',
-    bg: 'bg-red-500/15 border-red-500/30',
-  },
+  strong_match: { label: 'Strong Match', dot: 'bg-emerald-500', bar: 'bg-emerald-500' },
+  good_match: { label: 'Good Match', dot: 'bg-blue-500', bar: 'bg-blue-500' },
+  partial_match: { label: 'Partial Match', dot: 'bg-amber-500', bar: 'bg-amber-500' },
+  weak_match: { label: 'Weak Match', dot: 'bg-red-500', bar: 'bg-red-500' },
 };
 
-function getAiScoreColor(score: number) {
-  if (score >= 80) return 'text-emerald-400';
-  if (score >= 60) return 'text-blue-400';
-  if (score >= 35) return 'text-amber-400';
-  return 'text-red-400';
+function getScoreColor(score: number) {
+  if (score >= 80) return 'text-emerald-500';
+  if (score >= 60) return 'text-amber-500';
+  return 'text-red-500';
 }
 
-function getAiScoreStroke(score: number) {
-  if (score >= 80) return '#34d399';
-  if (score >= 60) return '#60a5fa';
-  if (score >= 35) return '#fbbf24';
-  return '#f87171';
+function getScoreStroke(score: number) {
+  if (score >= 80) return '#10b981';
+  if (score >= 60) return '#f59e0b';
+  return '#ef4444';
+}
+
+function getScoreBg(score: number) {
+  if (score >= 80) return 'bg-emerald-500';
+  if (score >= 60) return 'bg-amber-500';
+  return 'bg-red-500';
 }
 
 export function AiMatchCard({ aiAnalysis, algorithmicScore }: AiMatchCardProps) {
-  const [expandedTip, setExpandedTip] = useState<number | null>(null);
+  const [expandedTip, setExpandedTip] = useState<number | null>(0);
   const verdict = VERDICT_CONFIG[aiAnalysis.verdict];
+  const delta = aiAnalysis.aiMatchScore - algorithmicScore;
 
   const circumference = 2 * Math.PI * 54;
   const strokeDashoffset = circumference - (aiAnalysis.aiMatchScore / 100) * circumference;
 
   return (
-    <div className="rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 overflow-hidden">
+    <div className="rounded-xl border border-border bg-surface overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-3 border-b border-purple-500/20 flex items-center gap-2">
-        <span className="text-sm font-semibold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-          AI Analysis
-        </span>
-        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${verdict.bg}`}>
-          {verdict.emoji} {verdict.label}
+      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+        <span className="text-sm font-semibold text-foreground">AI Analysis</span>
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span className={`w-1.5 h-1.5 rounded-full ${verdict.dot}`} />
+          {verdict.label}
         </span>
       </div>
 
-      <div className="p-5 space-y-5">
+      <div className="p-4 space-y-0">
         {/* Score + Summary */}
-        <div className="flex flex-col sm:flex-row items-center gap-5">
-          {/* Circular score */}
-          <div className="relative w-32 h-32 shrink-0">
+        <div className="flex flex-col sm:flex-row items-center gap-4 pb-4">
+          <div className="relative w-28 h-28 shrink-0">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
               <circle
                 cx="60"
                 cy="60"
                 r="54"
                 fill="none"
-                stroke="rgba(255,255,255,0.06)"
-                strokeWidth="8"
+                stroke="currentColor"
+                className="text-border"
+                strokeWidth="5"
               />
               <circle
                 cx="60"
                 cy="60"
                 r="54"
                 fill="none"
-                stroke={getAiScoreStroke(aiAnalysis.aiMatchScore)}
-                strokeWidth="8"
+                stroke={getScoreStroke(aiAnalysis.aiMatchScore)}
+                strokeWidth="5"
                 strokeLinecap="round"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
@@ -106,7 +90,7 @@ export function AiMatchCard({ aiAnalysis, algorithmicScore }: AiMatchCardProps) 
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className={`text-3xl font-bold ${getAiScoreColor(aiAnalysis.aiMatchScore)}`}>
+              <span className={`text-2xl font-bold ${getScoreColor(aiAnalysis.aiMatchScore)}`}>
                 {aiAnalysis.aiMatchScore}%
               </span>
               <span className="text-[10px] text-muted-foreground">AI Score</span>
@@ -114,74 +98,104 @@ export function AiMatchCard({ aiAnalysis, algorithmicScore }: AiMatchCardProps) 
           </div>
 
           <div className="flex-1 space-y-3">
-            {/* Score comparison */}
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">
-                Algorithm: <span className="font-medium text-foreground">{algorithmicScore}%</span>
-              </span>
-              <span className="text-muted">→</span>
-              <span className="text-muted-foreground">
-                AI:{' '}
-                <span className={`font-medium ${getAiScoreColor(aiAnalysis.aiMatchScore)}`}>
+            {/* Score comparison bars */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground w-16 shrink-0">Algorithm</span>
+                <div className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${getScoreBg(algorithmicScore)} transition-all duration-700`}
+                    style={{ width: `${algorithmicScore}%` }}
+                  />
+                </div>
+                <span className="text-xs font-medium text-foreground w-9 text-right">
+                  {algorithmicScore}%
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground w-16 shrink-0">AI</span>
+                <div className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${getScoreBg(aiAnalysis.aiMatchScore)} transition-all duration-700`}
+                    style={{ width: `${aiAnalysis.aiMatchScore}%` }}
+                  />
+                </div>
+                <span
+                  className={`text-xs font-medium w-9 text-right ${getScoreColor(aiAnalysis.aiMatchScore)}`}
+                >
                   {aiAnalysis.aiMatchScore}%
                 </span>
-              </span>
-              {aiAnalysis.aiMatchScore > algorithmicScore && (
-                <span className="text-[10px] text-emerald-400">
-                  +{aiAnalysis.aiMatchScore - algorithmicScore}%
-                </span>
+              </div>
+              {delta !== 0 && (
+                <p className="text-[10px] text-muted-foreground">
+                  AI adjusted the score by{' '}
+                  <span className={delta > 0 ? 'text-emerald-500' : 'text-red-500'}>
+                    {delta > 0 ? '+' : ''}
+                    {delta}
+                  </span>{' '}
+                  based on related skills and context
+                </p>
               )}
             </div>
-            {/* Summary */}
             <p className="text-sm text-muted-foreground leading-relaxed">{aiAnalysis.summary}</p>
+          </div>
+        </div>
+
+        {/* HR Recommendation — key actionable insight, placed first */}
+        <div className="border-t border-border pt-4 pb-4">
+          <div className="flex items-start gap-2">
+            <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs font-medium text-foreground mb-1">Recommendation</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {aiAnalysis.hrRecommendation}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Strengths */}
         {aiAnalysis.strengths.length > 0 && (
-          <div>
-            <p className="text-xs font-medium text-muted uppercase tracking-wider mb-2">
+          <div className="border-t border-border pt-4 pb-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
               Strengths
             </p>
-            <div className="flex flex-wrap gap-1.5">
+            <ul className="space-y-1.5">
               {aiAnalysis.strengths.map((s, i) => (
-                <span
-                  key={i}
-                  className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
-                >
-                  ✓ {s}
-                </span>
+                <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                  <Check className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" />
+                  {s}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 
         {/* Improvements */}
         {aiAnalysis.improvements.length > 0 && (
-          <div>
-            <p className="text-xs font-medium text-muted uppercase tracking-wider mb-2">
-              Suggested Improvements
+          <div className="border-t border-border pt-4 pb-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+              Areas to Improve
             </p>
             <div className="space-y-1.5">
               {aiAnalysis.improvements.map((imp, i) => (
-                <div
-                  key={i}
-                  className="rounded-lg bg-surface-light border border-border overflow-hidden"
-                >
+                <div key={i} className="rounded-lg border border-border overflow-hidden">
                   <button
                     onClick={() => setExpandedTip(expandedTip === i ? null : i)}
-                    className="w-full flex items-center justify-between px-3 py-2 text-left"
+                    className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-surface-light transition-colors"
                   >
-                    <span className="text-xs font-medium">{imp.skill}</span>
+                    <span className="text-sm text-foreground">{imp.skill}</span>
                     {expandedTip === i ? (
-                      <ChevronUp className="w-3 h-3 text-muted shrink-0" />
+                      <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                     ) : (
-                      <ChevronDown className="w-3 h-3 text-muted shrink-0" />
+                      <ChevronRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                     )}
                   </button>
                   {expandedTip === i && (
-                    <div className="px-3 pb-2 border-t border-border/50">
-                      <p className="text-xs text-muted-foreground pt-2">{imp.tip}</p>
+                    <div className="px-3 pb-2.5 border-t border-border">
+                      <p className="text-sm text-muted-foreground pt-2 leading-relaxed">
+                        {imp.tip}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -192,38 +206,25 @@ export function AiMatchCard({ aiAnalysis, algorithmicScore }: AiMatchCardProps) 
 
         {/* Related Skills */}
         {aiAnalysis.relatedSkills.length > 0 && (
-          <div>
-            <p className="text-xs font-medium text-muted uppercase tracking-wider mb-2">
-              Related Skills Detected
+          <div className="border-t border-border pt-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+              Related Skills
             </p>
-            <p className="text-[10px] text-muted-foreground mb-2">
-              Skills the algorithm missed but AI considers relevant
+            <p className="text-[10px] text-muted-foreground/70 mb-2">
+              Candidate skills that relate to requirements but were not matched directly
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {aiAnalysis.relatedSkills.map((s, i) => (
+              {aiAnalysis.relatedSkills.map((skill) => (
                 <span
-                  key={i}
-                  className="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/20"
+                  key={skill}
+                  className="px-2 py-0.5 rounded-md text-xs text-muted-foreground bg-surface-light border border-border"
                 >
-                  {s}
+                  {skill}
                 </span>
               ))}
             </div>
           </div>
         )}
-
-        {/* HR Recommendation */}
-        <div className="rounded-lg bg-cyan-500/5 border border-cyan-500/20 p-3">
-          <div className="flex items-start gap-2">
-            <span className="text-sm shrink-0">💡</span>
-            <div>
-              <p className="text-xs font-medium text-cyan-400 mb-1">HR Recommendation</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {aiAnalysis.hrRecommendation}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

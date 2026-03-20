@@ -275,11 +275,12 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
       );
       let nodes = state.nodes;
       if (posChanges.length > 0) {
+        const posMap = new Map(
+          posChanges.filter((c) => c.position != null).map((c) => [c.id, c.position!]),
+        );
         nodes = nodes.map((n) => {
-          const pc = posChanges.find((c) => c.id === n.id);
-          return pc && pc.position
-            ? { ...n, positionX: pc.position.x, positionY: pc.position.y }
-            : n;
+          const pos = posMap.get(n.id);
+          return pos ? { ...n, positionX: pos.x, positionY: pos.y } : n;
         });
       }
       const hasDrag = posChanges.length > 0;
@@ -352,11 +353,8 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
       const nodes = state.nodes.map((n) =>
         n.id === id ? { ...n, positionX: x, positionY: y } : n,
       );
-      return {
-        nodes,
-        isDirty: true,
-        ...rebuildRFNodes(nodes, state.categories),
-      };
+      const rfNodes = state.rfNodes.map((n) => (n.id === id ? { ...n, position: { x, y } } : n));
+      return { nodes, rfNodes, isDirty: true };
     }),
 
   batchUpdatePositions: (updates) =>
@@ -366,11 +364,11 @@ export const useGraphStore = create<GraphState>((set, _get) => ({
         const u = posMap.get(n.id);
         return u ? { ...n, positionX: u.x, positionY: u.y } : n;
       });
-      return {
-        nodes,
-        isDirty: true,
-        ...rebuildRFNodes(nodes, state.categories),
-      };
+      const rfNodes = state.rfNodes.map((n) => {
+        const u = posMap.get(n.id);
+        return u ? { ...n, position: { x: u.x, y: u.y } } : n;
+      });
+      return { nodes, rfNodes, isDirty: true };
     }),
 
   addEdge: (edge) =>

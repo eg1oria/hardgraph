@@ -274,6 +274,3 @@ All services include Docker healthchecks in `docker-compose.prod.yml`.
 ## License
 
 Private — All rights reserved.
-#   h a r d g r a p h 
- 
- 

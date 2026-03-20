@@ -8,6 +8,9 @@ import {
   type NodeTypes,
   type EdgeTypes,
   type NodeChange,
+  type Node,
+  type Edge,
+  type EdgeChange,
   applyNodeChanges,
   applyEdgeChanges,
 } from '@xyflow/react';
@@ -20,7 +23,10 @@ import { RepoNode } from './RepoNode';
 import { SkillEdge } from './SkillEdge';
 import { EvolutionEdge } from './EvolutionEdge';
 
-injectXyflowHelpers(applyNodeChanges as never, applyEdgeChanges as never);
+injectXyflowHelpers(
+  applyNodeChanges as (changes: NodeChange[], nodes: Node[]) => Node[],
+  applyEdgeChanges as (changes: EdgeChange[], edges: Edge[]) => Edge[],
+);
 
 const nodeTypes: NodeTypes = {
   skill: PitchSkillNode,

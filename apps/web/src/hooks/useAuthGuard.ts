@@ -53,8 +53,9 @@ export function useAuthGuard() {
       })
       .catch((err) => {
         if (!controller.signal.aborted) {
-          // Only logout on auth errors, not on network failures
-          if (err?.name !== 'AbortError') {
+          // Only logout on auth errors (401/403), not on network failures
+          // Note: 401 is already handled globally in api.ts, but we cover 403 here too
+          if (err?.statusCode === 401 || err?.statusCode === 403) {
             logout();
           }
         }

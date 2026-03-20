@@ -28,20 +28,23 @@ export function EvolutionTimeline({ nodeId }: { nodeId: string }) {
   const setSelectedNode = useGraphStore((s) => s.setSelectedNode);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
     setLoading(true);
     (async () => {
       try {
-        const res = await api.get<EvolutionChainResult>(`/nodes/${nodeId}/evolution-chain`);
-        if (!cancelled) setChain(res);
+        const res = await api.get<EvolutionChainResult>(
+          `/nodes/${nodeId}/evolution-chain`,
+          controller.signal,
+        );
+        if (!controller.signal.aborted) setChain(res);
       } catch {
-        if (!cancelled) setChain(null);
+        if (!controller.signal.aborted) setChain(null);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     })();
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [nodeId]);
 
@@ -75,8 +78,9 @@ export function EvolutionTimeline({ nodeId }: { nodeId: string }) {
       visited.add(node.id);
       ordered.push(node);
       const children: EvolutionChainNode[] = cMap.get(cur) ?? [];
-      const nextChild = children.find((c) => c.id === nodeId)
-        ?? children.find((c) => {
+      const nextChild =
+        children.find((c) => c.id === nodeId) ??
+        children.find((c) => {
           const desc = new Set<string>();
           const q = [c.id];
           while (q.length) {
@@ -86,8 +90,8 @@ export function EvolutionTimeline({ nodeId }: { nodeId: string }) {
             for (const ch of cMap.get(id) ?? []) q.push(ch.id);
           }
           return desc.has(nodeId);
-        })
-        ?? children[0];
+        }) ??
+        children[0];
       cur = nextChild?.id ?? null;
     }
 
@@ -109,7 +113,9 @@ export function EvolutionTimeline({ nodeId }: { nodeId: string }) {
       <div className="space-y-0">
         {orderedChain.map((n, i) => {
           const isCurrent = n.id === nodeId;
-          const siblings: EvolutionChainNode[] = n.parentIdeaId ? (childrenMap.get(n.parentIdeaId) ?? []) : [];
+          const siblings: EvolutionChainNode[] = n.parentIdeaId
+            ? (childrenMap.get(n.parentIdeaId) ?? [])
+            : [];
           const hasSiblings = siblings.length > 1;
           return (
             <div key={n.id}>
@@ -123,9 +129,7 @@ export function EvolutionTimeline({ nodeId }: { nodeId: string }) {
               >
                 <div className="flex items-center gap-1.5 shrink-0">
                   <div
-                    className={`w-2 h-2 rounded-full ${
-                      isCurrent ? 'bg-purple-400' : 'bg-border'
-                    }`}
+                    className={`w-2 h-2 rounded-full ${isCurrent ? 'bg-purple-400' : 'bg-border'}`}
                   />
                   <span className="text-[10px] text-muted">v{i + 1}</span>
                 </div>

@@ -38,16 +38,25 @@ function inlineFormat(text: string): React.ReactNode {
 
     const linkMatch = remaining.match(/^\[([^\]]+)\]\(([^)]+)\)/);
     if (linkMatch) {
+      const href = linkMatch[2] ?? '';
+      // Sanitize: only allow http(s) and relative URLs — block javascript: and data: schemes
+      const isSafeUrl = /^(https?:\/\/|\/|#|\.)/.test(href.trim());
       parts.push(
-        <a
-          key={key++}
-          href={linkMatch[2]}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary hover:underline"
-        >
-          {linkMatch[1]}
-        </a>,
+        isSafeUrl ? (
+          <a
+            key={key++}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            {linkMatch[1]}
+          </a>
+        ) : (
+          <span key={key++} className="text-primary">
+            {linkMatch[1]}
+          </span>
+        ),
       );
       remaining = remaining.slice(linkMatch[0].length);
       continue;

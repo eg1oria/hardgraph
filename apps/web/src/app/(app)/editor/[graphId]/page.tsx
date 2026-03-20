@@ -29,6 +29,7 @@ import { useNodes } from '@/hooks/useNodes';
 import { useEdges } from '@/hooks/useEdges';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { api } from '@/lib/api';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
@@ -121,6 +122,19 @@ export default function EditorPage() {
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, []);
+
+  // Debounced auto-save: save 2 seconds after last change
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!isDirty) return;
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      saveGraph();
+    }, 2000);
+    return () => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    };
+  }, [isDirty, saveGraph]);
 
   const handleSave = useCallback(async () => {
     setSaving(true);
@@ -535,7 +549,9 @@ export default function EditorPage() {
                 </div>
               </div>
             ) : (
-              <HardGraph />
+              <ErrorBoundary>
+                <HardGraph />
+              </ErrorBoundary>
             )}
 
             {/* Mobile FAB — Add Node (visible only when there are existing nodes) */}

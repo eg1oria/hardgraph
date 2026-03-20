@@ -8,6 +8,9 @@ import {
   type NodeTypes,
   type EdgeTypes,
   type NodeChange,
+  type Node,
+  type Edge,
+  type EdgeChange,
   applyNodeChanges,
   applyEdgeChanges,
 } from '@xyflow/react';
@@ -25,7 +28,10 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 // Inject xyflow helpers once this module loads so the Zustand store
 // can apply node/edge changes without bundling xyflow itself.
-injectXyflowHelpers(applyNodeChanges as any, applyEdgeChanges as any);
+injectXyflowHelpers(
+  applyNodeChanges as (changes: NodeChange[], nodes: Node[]) => Node[],
+  applyEdgeChanges as (changes: EdgeChange[], edges: Edge[]) => Edge[],
+);
 
 const nodeTypes: NodeTypes = {
   skill: SkillNode,
